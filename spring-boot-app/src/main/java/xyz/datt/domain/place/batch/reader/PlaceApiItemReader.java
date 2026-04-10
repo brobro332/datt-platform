@@ -4,14 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.infrastructure.item.ItemReader;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.reactive.function.client.WebClient;
+import xyz.datt.domain.place.dto.PlaceAdminResponseDto;
 import xyz.datt.domain.place.dto.PlaceApiResponse;
-import xyz.datt.domain.place.dto.PlaceResponseDto;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-public class PlaceApiItemReader implements ItemReader<PlaceResponseDto> {
+public class PlaceApiItemReader implements ItemReader<PlaceAdminResponseDto> {
     private final WebClient webClient;
 
     @Value("${data.path}")
@@ -28,7 +28,7 @@ public class PlaceApiItemReader implements ItemReader<PlaceResponseDto> {
 
     private int pageNo = 1;
     private final int numOfRows = 1000;
-    private List<PlaceResponseDto> results = new ArrayList<>();
+    private List<PlaceAdminResponseDto> results = new ArrayList<>();
     private int nextIndex = 0;
     private boolean isExhausted = false;
 
@@ -37,7 +37,7 @@ public class PlaceApiItemReader implements ItemReader<PlaceResponseDto> {
     }
 
     @Override
-    public PlaceResponseDto read() {
+    public PlaceAdminResponseDto read() {
         if (nextIndex >= results.size()) {
             if (isExhausted) return null;
 

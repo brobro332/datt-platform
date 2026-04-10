@@ -19,7 +19,7 @@ public class PlaceApiResponse {
 
     @Getter @Setter
     public static class Body {
-        private List<PlaceResponseDto> items;
+        private List<PlaceAdminResponseDto> items;
         private int numOfRows;
         private int pageNo;
         private int totalCount;

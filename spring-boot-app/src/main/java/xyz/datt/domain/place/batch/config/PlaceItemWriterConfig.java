@@ -5,7 +5,7 @@ import org.springframework.batch.infrastructure.item.database.JdbcBatchItemWrite
 import org.springframework.batch.infrastructure.item.database.builder.JdbcBatchItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import xyz.datt.domain.place.entity.Place;
+import xyz.datt.domain.place.entity.PlaceMaster;
 
 import javax.sql.DataSource;
 
@@ -15,11 +15,11 @@ public class PlaceItemWriterConfig {
     private final DataSource dataSource;
 
     @Bean
-    public JdbcBatchItemWriter<Place> placeItemWriter() {
-        return new JdbcBatchItemWriterBuilder<Place>()
+    public JdbcBatchItemWriter<PlaceMaster> placeItemWriter() {
+        return new JdbcBatchItemWriterBuilder<PlaceMaster>()
             .dataSource(dataSource)
             .sql("""
-                INSERT INTO place (
+                INSERT INTO placeMaster (
                     bizes_id, bizes_nm, brch_nm,
                     inds_lcls_cd, inds_lcls_nm, inds_mcls_cd, inds_mcls_nm, inds_scls_cd, inds_scls_nm,
                     ctprvn_nm, signgu_nm, adong_nm, ldong_nm,

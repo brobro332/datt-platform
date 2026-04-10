@@ -17,8 +17,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.reactive.function.client.WebClient;
 import xyz.datt.domain.place.batch.processor.PlaceItemProcessor;
 import xyz.datt.domain.place.batch.reader.PlaceApiItemReader;
-import xyz.datt.domain.place.dto.PlaceResponseDto;
-import xyz.datt.domain.place.entity.Place;
+import xyz.datt.domain.place.dto.PlaceAdminResponseDto;
+import xyz.datt.domain.place.entity.PlaceMaster;
 
 @Slf4j
 @Configuration
@@ -27,8 +27,8 @@ public class PlaceImportConfig {
     private final JobRepository jobRepository;
     private final PlatformTransactionManager platformTransactionManager;
     private final PlaceItemProcessor placeItemProcessor;
-    private final ItemWriter<Place> placeItemWriter;
-    private final WebClient webClient;
+    private final ItemWriter<PlaceMaster> placeItemWriter;
+    private final WebClient dataGoWebClient;
 
     @Bean
     public Job placeImportJob() {
@@ -41,7 +41,7 @@ public class PlaceImportConfig {
     @Bean
     public Step placeImportStep() {
         return new StepBuilder("placeImportStep", jobRepository)
-            .<PlaceResponseDto, Place>chunk(1000)
+            .<PlaceAdminResponseDto, PlaceMaster>chunk(1000)
             .transactionManager(platformTransactionManager)
             .reader(storeApiReader())
             .processor(placeItemProcessor)
@@ -51,7 +51,7 @@ public class PlaceImportConfig {
 
     @Bean
     @StepScope
-    public ItemReader<PlaceResponseDto> storeApiReader() {
-        return new PlaceApiItemReader(webClient);
+    public ItemReader<PlaceAdminResponseDto> storeApiReader() {
+        return new PlaceApiItemReader(dataGoWebClient);
     }
 }

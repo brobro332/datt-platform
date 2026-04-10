@@ -20,9 +20,9 @@ import xyz.datt.global.common.ApiResponse;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/place/admin")
+@RequestMapping("/api/v1/places/master")
 @RequiredArgsConstructor
-public class PlaceAdminController {
+public class PlaceMasterController {
     private final JobRepository jobRepository;
     private final Job storeImportJob;
     private final TaskExecutor taskExecutor;

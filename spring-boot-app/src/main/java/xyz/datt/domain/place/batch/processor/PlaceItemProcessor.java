@@ -6,22 +6,22 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.stereotype.Component;
-import xyz.datt.domain.place.dto.PlaceResponseDto;
-import xyz.datt.domain.place.entity.Place;
+import xyz.datt.domain.place.dto.PlaceAdminResponseDto;
+import xyz.datt.domain.place.entity.PlaceMaster;
 
 import java.math.BigDecimal;
 
 @Component
-public class PlaceItemProcessor implements ItemProcessor<PlaceResponseDto, Place> {
+public class PlaceItemProcessor implements ItemProcessor<PlaceAdminResponseDto, PlaceMaster> {
     private final GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
 
     @Override
-    public Place process(PlaceResponseDto dto) {
+    public PlaceMaster process(PlaceAdminResponseDto dto) {
         BigDecimal lon = new BigDecimal(dto.getLon());
         BigDecimal lat = new BigDecimal(dto.getLat());
         Point location = geometryFactory.createPoint(new Coordinate(lon.doubleValue(), lat.doubleValue()));
 
-        return Place.builder()
+        return PlaceMaster.builder()
             .bizesId(dto.getBizesId())
             .bizesNm(dto.getBizesNm())
             .brchNm(dto.getBrchNm())

@@ -7,13 +7,20 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
     @Bean
-    public WebClient webClient() {
+    public WebClient dataGoWebClient() {
         return WebClient.builder()
             .baseUrl("https://apis.data.go.kr")
             .codecs(configurer -> configurer
                 .defaultCodecs()
                 .maxInMemorySize(10 * 1024 * 1024)
             )
+            .build();
+    }
+
+    @Bean
+    public WebClient agentWebClient() {
+        return WebClient.builder()
+            .baseUrl("http://localhost:8000")
             .build();
     }
 }
