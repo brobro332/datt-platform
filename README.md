@@ -1,7 +1,6 @@
 # ⚓ DATT. (Datt: Record Your Anchor)
 
 <img width="1408" height="768" alt="Image" src="https://github.com/user-attachments/assets/d3327e5e-3586-401b-8e42-b6291cc7268d" />
-> 
 
 **"당신이 머문 공간을 닻(Anchor)으로 기록하세요."**
 > DATT는 사용자가 방문한 장소에 대한 기억을 기록하고 공유하는 위치 기반 기록 서비스입니다.
