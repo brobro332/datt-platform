@@ -1,6 +1,7 @@
 package xyz.datt.global.error;
 
 import org.slf4j.MDC;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import xyz.datt.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -97,6 +98,23 @@ public class GlobalExceptionHandler {
             .body(ApiResponse.fail(
                 ErrorResponse.from(errorCode)
             ));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHttpMessageNotReadableException(
+        HttpMessageNotReadableException exception,
+        HttpServletRequest request
+    ) {
+        ErrorCode errorCode = ErrorCode.INVALID_INPUT_VALUE;
+
+        log.warn(
+            "event=malformed_json path={} message={}",
+            request.getRequestURI(),
+            exception.getMessage()
+        );
+
+        return ResponseEntity.status(errorCode.getStatus())
+            .body(ApiResponse.fail(ErrorResponse.from(errorCode)));
     }
 
     @ExceptionHandler(Exception.class)

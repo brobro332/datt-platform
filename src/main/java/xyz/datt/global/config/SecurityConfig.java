@@ -23,7 +23,9 @@ public class SecurityConfig {
             .formLogin(AbstractHttpConfigurer::disable)
             .httpBasic(Customizer.withDefaults())
             .authorizeHttpRequests(auth ->
-                auth.requestMatchers("/api/health").permitAll()
+                auth.requestMatchers(
+                        "/api/health",
+                        "/api/auth/signup", "/api/auth/login").permitAll()
                     .anyRequest().authenticated()
             )
             .addFilterBefore(
