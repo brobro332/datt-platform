@@ -22,6 +22,7 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "auth.invalid_token", "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "auth.expired_token", "만료된 토큰입니다."),
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.NOT_FOUND, "auth.refresh_token_not_found", "Refresh Token을 찾을 수 없습니다."),
+    INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "auth.invalid_credentials", "이메일 또는 비밀번호가 올바르지 않습니다."),
 
     PLACE_NOT_FOUND(HttpStatus.NOT_FOUND, "place.not_found", "장소를 찾을 수 없습니다."),
     INVALID_CATEGORY(HttpStatus.BAD_REQUEST, "place.invalid_category", "유효하지 않은 카테고리입니다.");
