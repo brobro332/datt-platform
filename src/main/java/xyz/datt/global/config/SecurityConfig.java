@@ -26,7 +26,7 @@ public class SecurityConfig {
                 auth.requestMatchers(
                         "/api/health",
                         "/api/auth/signup", "/api/auth/login", "/api/auth/reissue", "/api/auth/logout",
-                        "/api/place-masters").permitAll()
+                        "/api/place-masters", "/api/batch/place-sync").permitAll()
                     .anyRequest().authenticated()
             )
             .addFilterBefore(

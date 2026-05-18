@@ -129,4 +129,25 @@ public class PlaceMaster extends BaseEntity {
         this.lat = lat;
         this.location = location;
     }
+
+    public void updateFrom(PlaceMaster placeMaster) {
+        this.bizesNm = placeMaster.getBizesNm();
+        this.brchNm = placeMaster.getBrchNm();
+        this.indsLclsCd = placeMaster.getIndsLclsCd();
+        this.indsLclsNm = placeMaster.getIndsLclsNm();
+        this.indsMclsCd = placeMaster.getIndsMclsCd();
+        this.indsMclsNm = placeMaster.getIndsMclsNm();
+        this.indsSclsCd = placeMaster.getIndsSclsCd();
+        this.indsSclsNm = placeMaster.getIndsSclsNm();
+        this.ctprvnNm = placeMaster.getCtprvnNm();
+        this.signguNm = placeMaster.getSignguNm();
+        this.adongNm = placeMaster.getAdongNm();
+        this.ldongNm = placeMaster.getLdongNm();
+        this.lnoAdr = placeMaster.getLnoAdr();
+        this.rdnmAdr = placeMaster.getRdnmAdr();
+        this.newZipcd = placeMaster.getNewZipcd();
+        this.lon = placeMaster.getLon();
+        this.lat = placeMaster.getLat();
+        this.location = placeMaster.getLocation();
+    }
 }
