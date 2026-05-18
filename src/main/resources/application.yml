@@ -22,5 +22,17 @@ spring:
         show_sql: true
         format_sql: true
 
+  batch:
+    job:
+      enabled: false
+
+public-data:
+  place:
+    base-url: https://apis.data.go.kr
+    endpoint: /B553077/api/open/sdsc2/storeListInUpjong
+    service-key: ${PUBLIC_DATA_SERVICE_KEY}
+    num-of-rows: 1000
+    type: json
+
 jwt:
   secret: ${JWT_SECRET}
