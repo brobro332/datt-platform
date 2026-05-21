@@ -6,6 +6,7 @@ import xyz.datt.domain.bookmark.service.PlaceBookmarkService;
 import xyz.datt.domain.place.dto.PlaceDetailResponse;
 import xyz.datt.domain.place.entity.PlaceMaster;
 import xyz.datt.domain.place.repository.PlaceMasterRepository;
+import xyz.datt.domain.review.service.PlaceReviewService;
 import xyz.datt.global.error.BusinessException;
 import xyz.datt.global.error.ErrorCode;
 
@@ -23,8 +24,11 @@ class PlaceDetailServiceTest {
     private final PlaceBookmarkService placeBookmarkService =
         mock(PlaceBookmarkService.class);
 
+    private final PlaceReviewService placeReviewService =
+        mock(PlaceReviewService.class);
+
     private final PlaceDetailService placeDetailService =
-        new PlaceDetailService(placeMasterRepository, placeBookmarkService);
+        new PlaceDetailService(placeMasterRepository, placeBookmarkService, placeReviewService);
 
     @Test
     @DisplayName("장소 ID로 장소 상세 정보를 조회한다.")

@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class AnchorDetailService {
     private final AnchorRepository anchorRepository;
     private final AnchorPlaceRepository anchorPlaceRepository;
+    private final AnchorLikeService anchorLikeService;
 
     @Transactional
     public AnchorDetailResponse getAnchorDetail(
@@ -42,7 +43,17 @@ public class AnchorDetailService {
 
         List<AnchorPlaceGroupResponse> placeGroups = groupByCategory(anchorPlaces);
 
-        return AnchorDetailResponse.of(anchor, placeGroups);
+        int likeCount = anchorLikeService.countLikes(anchorId);
+
+        boolean isLiked = memberId != null
+            && anchorLikeService.isLiked(memberId, anchorId);
+
+        return AnchorDetailResponse.of(
+            anchor,
+            likeCount,
+            isLiked,
+            placeGroups
+        );
     }
 
     private void validateReadable(

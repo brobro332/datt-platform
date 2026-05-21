@@ -14,12 +14,14 @@ public record AnchorDetailResponse(
 
     Double baseLon,
     Double baseLat,
-
     Double radiusKm,
 
     boolean isPublic,
 
     long viewCount,
+
+    int likeCount,
+    boolean isLiked,
 
     List<AnchorPlaceGroupResponse> placeGroups,
 
@@ -28,6 +30,8 @@ public record AnchorDetailResponse(
 
     public static AnchorDetailResponse of(
         Anchor anchor,
+        int likeCount,
+        boolean isLiked,
         List<AnchorPlaceGroupResponse> placeGroups
     ) {
         return new AnchorDetailResponse(
@@ -39,12 +43,14 @@ public record AnchorDetailResponse(
 
             anchor.getBaseLon(),
             anchor.getBaseLat(),
-
             anchor.getRadiusKm(),
 
             anchor.isPublic(),
 
             anchor.getViewCount(),
+
+            likeCount,
+            isLiked,
 
             placeGroups,
 

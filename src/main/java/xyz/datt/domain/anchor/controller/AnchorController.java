@@ -56,10 +56,16 @@ public class AnchorController {
 
     @GetMapping("/api/anchors")
     public ApiResponse<Page<AnchorSummaryResponse>> getPublicAnchors(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
         @RequestParam(defaultValue = "LATEST") AnchorSortType sortType,
         Pageable pageable
     ) {
+        Long memberId = userDetails == null
+            ? null
+            : userDetails.getMemberId();
+
         Page<AnchorSummaryResponse> response = anchorListService.getPublicAnchors(
+            memberId,
             sortType,
             pageable
         );
@@ -76,6 +82,23 @@ public class AnchorController {
         Page<AnchorSummaryResponse> response = anchorListService.getMyAnchors(
             userDetails.getMemberId(),
             sortType,
+            pageable
+        );
+
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/api/anchors/popular")
+    public ApiResponse<Page<AnchorSummaryResponse>> getPopularAnchors(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        Pageable pageable
+    ) {
+        Long memberId = userDetails == null
+            ? null
+            : userDetails.getMemberId();
+
+        Page<AnchorSummaryResponse> response = anchorListService.getPopularAnchors(
+            memberId,
             pageable
         );
 

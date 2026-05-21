@@ -7,6 +7,8 @@ import xyz.datt.domain.bookmark.service.PlaceBookmarkService;
 import xyz.datt.domain.place.dto.PlaceDetailResponse;
 import xyz.datt.domain.place.entity.PlaceMaster;
 import xyz.datt.domain.place.repository.PlaceMasterRepository;
+import xyz.datt.domain.review.dto.PlaceRatingSummary;
+import xyz.datt.domain.review.service.PlaceReviewService;
 import xyz.datt.global.error.BusinessException;
 import xyz.datt.global.error.ErrorCode;
 
@@ -16,11 +18,19 @@ import xyz.datt.global.error.ErrorCode;
 public class PlaceDetailService {
     private final PlaceMasterRepository placeMasterRepository;
     private final PlaceBookmarkService placeBookmarkService;
+    private final PlaceReviewService placeReviewService;
 
     public PlaceDetailResponse getPlaceDetail(Long placeId) {
         PlaceMaster placeMaster = findPlace(placeId);
 
-        return PlaceDetailResponse.from(placeMaster, false);
+        PlaceRatingSummary ratingSummary = placeReviewService.getRatingSummary(placeId);
+
+        return PlaceDetailResponse.from(
+            placeMaster,
+            false,
+            ratingSummary.averageRating(),
+            ratingSummary.reviewCount()
+        );
     }
 
     public PlaceDetailResponse getPlaceDetail(Long memberId, Long placeId) {
@@ -28,7 +38,14 @@ public class PlaceDetailService {
 
         boolean isBookmarked = placeBookmarkService.isBookmarked(memberId, placeId);
 
-        return PlaceDetailResponse.from(placeMaster, isBookmarked);
+        PlaceRatingSummary ratingSummary = placeReviewService.getRatingSummary(placeId);
+
+        return PlaceDetailResponse.from(
+            placeMaster,
+            isBookmarked,
+            ratingSummary.averageRating(),
+            ratingSummary.reviewCount()
+        );
     }
 
     private PlaceMaster findPlace(Long placeId) {

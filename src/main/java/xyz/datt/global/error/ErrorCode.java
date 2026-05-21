@@ -33,6 +33,13 @@ public enum ErrorCode {
     PLACE_BOOKMARK_ALREADY_EXISTS(HttpStatus.CONFLICT, "place_bookmark.already_exists", "이미 저장한 장소입니다."),
     PLACE_BOOKMARK_NOT_FOUND(HttpStatus.NOT_FOUND, "place_bookmark.not_found", "저장한 장소를 찾을 수 없습니다."),
 
+    PLACE_REVIEW_NOT_FOUND(HttpStatus.NOT_FOUND, "place_review.not_found", "리뷰를 찾을 수 없습니다."),
+    PLACE_REVIEW_ACCESS_DENIED(HttpStatus.FORBIDDEN, "place_review.access_denied", "리뷰에 접근할 수 없습니다."),
+    PLACE_REVIEW_ALREADY_EXISTS(HttpStatus.CONFLICT, "place_review.already_exists", "이미 리뷰를 작성한 장소입니다."),
+    INVALID_REVIEW_RATING(HttpStatus.BAD_REQUEST, "review.invalid_rating", "평점은 1점 이상 5점 이하만 가능합니다."),
+
+    ANCHOR_LIKE_ALREADY_EXISTS(HttpStatus.CONFLICT, "anchor_like.already_exists", "이미 좋아요를 누른 Anchor입니다."),
+    ANCHOR_LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "anchor_like.not_found", "Anchor 좋아요를 찾을 수 없습니다."),
     ANCHOR_NOT_FOUND(HttpStatus.NOT_FOUND, "anchor.not_found", "Anchor를 찾을 수 없습니다."),
     ANCHOR_ACCESS_DENIED(HttpStatus.FORBIDDEN, "anchor.access_denied", "Anchor에 접근할 수 없습니다.");
 
