@@ -127,6 +127,47 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
         );
     }
 
+    @Override
+    public List<PlaceNearbyResponse> findNearbyPlacesForAnchor(
+        Double baseLat,
+        Double baseLon,
+        Double radiusKm,
+        List<String> indsMclsCodes,
+        int limit
+    ) {
+        NumberExpression<Double> distanceExpression = distanceExpression(
+            baseLat,
+            baseLon
+        );
+
+        return queryFactory
+            .select(Projections.constructor(
+                PlaceNearbyResponse.class,
+                placeMaster.id,
+                placeMaster.bizesNm,
+                placeMaster.brchNm,
+                placeMaster.indsMclsCd,
+                placeMaster.indsMclsNm,
+                placeMaster.ctprvnNm,
+                placeMaster.signguNm,
+                placeMaster.adongNm,
+                placeMaster.rdnmAdr,
+                placeMaster.lon,
+                placeMaster.lat,
+                distanceExpression
+            ))
+            .from(placeMaster)
+            .where(
+                placeMaster.lon.isNotNull(),
+                placeMaster.lat.isNotNull(),
+                withinRadius(distanceExpression, radiusKm),
+                placeMaster.indsMclsCd.in(indsMclsCodes)
+            )
+            .orderBy(distanceExpression.asc())
+            .limit(limit)
+            .fetch();
+    }
+
     private BooleanExpression keywordContains(String keyword) {
         if (keyword == null || keyword.isBlank()) {
             return null;
