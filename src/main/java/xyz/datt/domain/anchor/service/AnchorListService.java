@@ -17,13 +17,18 @@ import xyz.datt.domain.anchor.repository.AnchorRepository;
 public class AnchorListService {
     private final AnchorRepository anchorRepository;
     private final AnchorPlaceRepository anchorPlaceRepository;
+    private final AnchorLikeService anchorLikeService;
 
-    public Page<AnchorSummaryResponse> getPublicAnchors(AnchorSortType sortType, Pageable pageable) {
+    public Page<AnchorSummaryResponse> getPublicAnchors(
+        Long memberId,
+        AnchorSortType sortType,
+        Pageable pageable
+    ) {
         Page<Anchor> anchors = sortType == AnchorSortType.POPULAR
             ? anchorRepository.findByIsPublicTrueOrderByViewCountDesc(pageable)
             : anchorRepository.findByIsPublicTrueOrderByCreatedAtDesc(pageable);
 
-        return anchors.map(this::toSummaryResponse);
+        return anchors.map(anchor -> toSummaryResponse(anchor, memberId));
     }
 
     public Page<AnchorSummaryResponse> getMyAnchors(
@@ -35,12 +40,32 @@ public class AnchorListService {
             ? anchorRepository.findByMemberIdOrderByViewCountDesc(memberId, pageable)
             : anchorRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable);
 
-        return anchors.map(this::toSummaryResponse);
+        return anchors.map(anchor -> toSummaryResponse(anchor, memberId));
     }
 
-    private AnchorSummaryResponse toSummaryResponse(Anchor anchor) {
-        int placeCount = anchorPlaceRepository.countByAnchorId(anchor.getId());
+    public Page<AnchorSummaryResponse> getPopularAnchors(
+        Long memberId,
+        Pageable pageable
+    ) {
+        return anchorRepository.findPopularAnchors(pageable)
+            .map(anchor -> toSummaryResponse(anchor, memberId));
+    }
 
-        return AnchorSummaryResponse.from(anchor, placeCount);
+    private AnchorSummaryResponse toSummaryResponse(
+        Anchor anchor,
+        Long memberId
+    ) {
+        int placeCount = anchorPlaceRepository.countByAnchorId(anchor.getId());
+        int likeCount = anchorLikeService.countLikes(anchor.getId());
+
+        boolean isLiked = memberId != null
+            && anchorLikeService.isLiked(memberId, anchor.getId());
+
+        return AnchorSummaryResponse.from(
+            anchor,
+            placeCount,
+            likeCount,
+            isLiked
+        );
     }
 }

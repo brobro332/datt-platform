@@ -27,10 +27,14 @@ class AnchorDetailServiceTest {
     private final AnchorPlaceRepository anchorPlaceRepository =
         mock(AnchorPlaceRepository.class);
 
+    private final AnchorLikeService anchorLikeService =
+        mock(AnchorLikeService.class);
+
     private final AnchorDetailService anchorDetailService =
         new AnchorDetailService(
             anchorRepository,
-            anchorPlaceRepository
+            anchorPlaceRepository,
+            anchorLikeService
         );
 
     @Test

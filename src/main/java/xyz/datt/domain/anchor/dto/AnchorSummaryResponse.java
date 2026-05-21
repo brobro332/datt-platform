@@ -18,11 +18,16 @@ public record AnchorSummaryResponse(
     long viewCount,
     int placeCount,
 
+    int likeCount,
+    boolean isLike,
+
     LocalDateTime createdAt
 ) {
     public static AnchorSummaryResponse from(
         Anchor anchor,
-        int placeCount
+        int placeCount,
+        int likeCount,
+        boolean isLike
     ) {
         return new AnchorSummaryResponse(
             anchor.getId(),
@@ -37,6 +42,9 @@ public record AnchorSummaryResponse(
 
             anchor.getViewCount(),
             placeCount,
+
+            likeCount,
+            isLike,
 
             anchor.getCreatedAt()
         );

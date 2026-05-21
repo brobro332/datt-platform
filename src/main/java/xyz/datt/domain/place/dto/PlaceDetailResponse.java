@@ -32,12 +32,17 @@ public record PlaceDetailResponse(
 
     Boolean isBookmarked,
 
+    Double averageRating,
+    Long reviewCount,
+
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {
     public static PlaceDetailResponse from(
         PlaceMaster placeMaster,
-        boolean isBookmarked
+        boolean isBookmarked,
+        Double averageRating,
+        Long reviewCount
     ) {
         return new PlaceDetailResponse(
             placeMaster.getId(),
@@ -66,6 +71,9 @@ public record PlaceDetailResponse(
             placeMaster.getLat(),
 
             isBookmarked,
+
+            averageRating,
+            reviewCount,
 
             placeMaster.getCreatedAt(),
             placeMaster.getUpdatedAt()
