@@ -1,6 +1,7 @@
 package xyz.datt.domain.place.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import xyz.datt.domain.place.dto.PlaceNearbyResponse;
 import xyz.datt.domain.place.entity.PlaceMaster;
 
 import java.util.List;
