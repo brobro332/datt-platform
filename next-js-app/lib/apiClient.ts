@@ -29,3 +29,17 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   },
 );
+
+apiClient.interceptors.request.use((config) => {
+  if (typeof window === "undefined") {
+    return config;
+  }
+
+  const accessToken = localStorage.getItem("accessToken");
+
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  return config;
+});
