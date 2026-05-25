@@ -3,23 +3,35 @@
 import { useParams } from "next/navigation";
 
 import { MainLayout } from "@/layouts/MainLayout";
-import { Card } from "@/components/common/Card";
+
 import { Button } from "@/components/common/Button";
+import { Card } from "@/components/common/Card";
+import { LoadingState } from "@/components/common/LoadingState";
+import { ErrorState } from "@/components/common/ErrorState";
+import { ReviewListSection } from "@/components/review/ReviewListSection";
+
 import { usePlaceDetail } from "@/hooks/usePlaceDetail";
 import {
   useAddPlaceBookmark,
   useRemovePlaceBookmark,
 } from "@/hooks/usePlaceBookmark";
+import { ReviewCreateForm } from "@/components/review/ReviewCreateForm";
 
 export default function PlaceDetailPage() {
   const params = useParams();
   const placeId = Number(params.placeId);
 
-const addBookmarkMutation = useAddPlaceBookmark(placeId);
-const removeBookmarkMutation = useRemovePlaceBookmark(placeId);
+  const {
+    data: place,
+    isLoading,
+    isError,
+  } = usePlaceDetail(placeId);
 
-const isBookmarkLoading =
-  addBookmarkMutation.isPending || removeBookmarkMutation.isPending;
+  const addBookmarkMutation = useAddPlaceBookmark(placeId);
+  const removeBookmarkMutation = useRemovePlaceBookmark(placeId);
+
+  const isBookmarkLoading =
+    addBookmarkMutation.isPending || removeBookmarkMutation.isPending;
 
   function handleToggleBookmark() {
     if (!place) {
@@ -34,22 +46,17 @@ const isBookmarkLoading =
     addBookmarkMutation.mutate();
   }
 
-  const { data: place, isLoading, isError } = usePlaceDetail(placeId);
-
   return (
     <MainLayout>
       {isLoading && (
-        <Card>
-          <p className="text-sm text-gray-500">장소 정보를 불러오는 중...</p>
-        </Card>
+        <LoadingState message="장소 정보를 불러오는 중입니다..." />
       )}
 
       {isError && (
-        <Card>
-          <p className="text-sm text-red-500">
-            장소 정보를 불러오지 못했습니다.
-          </p>
-        </Card>
+        <ErrorState
+          title="장소 상세 조회 실패"
+          message="장소 정보를 불러오지 못했습니다."
+        />
       )}
 
       {place && (
@@ -96,21 +103,27 @@ const isBookmarkLoading =
 
           <div className="grid gap-4 md:grid-cols-3">
             <Card>
-              <p className="text-sm font-semibold text-gray-500">평균 평점</p>
+              <p className="text-sm font-semibold text-gray-500">
+                평균 평점
+              </p>
               <p className="mt-2 text-2xl font-bold text-gray-950">
                 {place.averageRating.toFixed(1)}
               </p>
             </Card>
 
             <Card>
-              <p className="text-sm font-semibold text-gray-500">리뷰 수</p>
+              <p className="text-sm font-semibold text-gray-500">
+                리뷰 수
+              </p>
               <p className="mt-2 text-2xl font-bold text-gray-950">
                 {place.reviewCount.toLocaleString()}
               </p>
             </Card>
 
             <Card>
-              <p className="text-sm font-semibold text-gray-500">위치</p>
+              <p className="text-sm font-semibold text-gray-500">
+                위치
+              </p>
               <p className="mt-2 text-sm text-gray-700">
                 {place.lat}, {place.lon}
               </p>
@@ -118,30 +131,83 @@ const isBookmarkLoading =
           </div>
 
           <Card>
-            <h2 className="text-xl font-bold text-gray-950">상세 정보</h2>
+            <h2 className="text-xl font-bold text-gray-950">
+              상세 정보
+            </h2>
 
             <dl className="mt-4 grid gap-4 text-sm md:grid-cols-2">
               <div>
-                <dt className="font-semibold text-gray-500">상권업종 대분류</dt>
-                <dd className="mt-1 text-gray-900">{place.indsLclsNm}</dd>
+                <dt className="font-semibold text-gray-500">
+                  상권업종 대분류
+                </dt>
+                <dd className="mt-1 text-gray-900">
+                  {place.indsLclsNm}
+                </dd>
               </div>
 
               <div>
-                <dt className="font-semibold text-gray-500">상권업종 중분류</dt>
-                <dd className="mt-1 text-gray-900">{place.indsMclsNm}</dd>
+                <dt className="font-semibold text-gray-500">
+                  상권업종 중분류
+                </dt>
+                <dd className="mt-1 text-gray-900">
+                  {place.indsMclsNm}
+                </dd>
               </div>
 
               <div>
-                <dt className="font-semibold text-gray-500">상권업종 소분류</dt>
-                <dd className="mt-1 text-gray-900">{place.indsSclsNm}</dd>
+                <dt className="font-semibold text-gray-500">
+                  상권업종 소분류
+                </dt>
+                <dd className="mt-1 text-gray-900">
+                  {place.indsSclsNm}
+                </dd>
               </div>
 
               <div>
-                <dt className="font-semibold text-gray-500">우편번호</dt>
-                <dd className="mt-1 text-gray-900">{place.newZipcd || "-"}</dd>
+                <dt className="font-semibold text-gray-500">
+                  우편번호
+                </dt>
+                <dd className="mt-1 text-gray-900">
+                  {place.newZipcd || "-"}
+                </dd>
               </div>
             </dl>
           </Card>
+
+          <Card>
+            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+              <div>
+                <h2 className="text-xl font-bold text-gray-950">
+                  이 장소를 기준으로 Anchor 만들기
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-gray-600">
+                  이 장소를 기준점으로 주변 장소를 묶어 나만의 경험 코스를 만들 수 있습니다.
+                </p>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() => {
+                  const query = new URLSearchParams({
+                    basePlaceId: String(place.id),
+                    basePlaceName: place.bizesNm,
+                    baseAddress: place.rdnmAdr || place.lnoAdr || "",
+                    baseLon: String(place.lon),
+                    baseLat: String(place.lat),
+                  });
+
+                  window.location.href = `/anchors/create?${query.toString()}`;
+                }}
+              >
+                Anchor 만들기
+              </Button>
+            </div>
+          </Card>
+
+          <ReviewCreateForm placeId={placeId} />
+
+          <ReviewListSection placeId={placeId} />
         </section>
       )}
     </MainLayout>

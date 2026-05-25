@@ -16,6 +16,10 @@ const navigationItems = [
     label: "Anchor",
   },
   {
+    href: "/anchors/create",
+    label: "Anchor 만들기",
+  },
+  {
     href: "/map",
     label: "지도",
   },
