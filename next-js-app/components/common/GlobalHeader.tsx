@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { logout as logoutRequest } from "@/services/authService";
 import { useAuthStore } from "@/stores/authStore";
-import { logout } from "@/utils/auth";
 
 const navigationItems = [
   {
@@ -32,12 +32,20 @@ const navigationItems = [
 export function GlobalHeader() {
   const router = useRouter();
 
+  const logout = useAuthStore(
+    (state) => state.logout,
+  );
+
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const member = useAuthStore((state) => state.member);
 
-  function handleLogout() {
-    logout();
-    router.push("/login");
+  async function handleLogout() {
+    try {
+      await logoutRequest();
+    } finally {
+      logout();
+      router.push("/login");
+    }
   }
 
   return (

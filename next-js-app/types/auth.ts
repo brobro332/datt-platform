@@ -22,6 +22,7 @@ export type SignupResponse = {
   nickname: string;
 };
 
-export type TokenReissueResponse = {
-  accessToken: string;
+export type ReissueTokenResponse = {
+    accessToken: string;
+    refreshToken: string;
 };

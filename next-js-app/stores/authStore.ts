@@ -6,19 +6,27 @@ type AuthMember = {
 };
 
 type AuthState = {
-  accessToken: string | null;
-  refreshToken: string | null;
-  member: AuthMember | null;
-  isLoggedIn: boolean;
+    isLoggedIn: boolean;
 
-  setAuth: (
-    accessToken: string,
-    refreshToken: string,
-    member: AuthMember,
-  ) => void;
+    accessToken: string | null;
 
-  restoreAuth: () => void;
-  clearAuth: () => void;
+    refreshToken: string | null;
+
+    member: {
+        memberId: number;
+        nickname: string;
+    } | null;
+
+    setAuth: (
+        accessToken: string,
+        refreshToken: string,
+        member: {
+            memberId: number;
+            nickname: string;
+        },
+    ) => void;
+
+    logout: () => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -58,5 +66,13 @@ export const useAuthStore = create<AuthState>((set) => ({
       refreshToken: null,
       member: null,
       isLoggedIn: false,
+    }),
+
+  logout: () =>
+    set({
+        isLoggedIn: false,
+        accessToken: null,
+        refreshToken: null,
+        member: null,
     }),
 }));
