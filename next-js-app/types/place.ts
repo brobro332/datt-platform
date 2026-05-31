@@ -18,6 +18,14 @@ export type PlaceSearchParams = {
   size?: number;
 };
 
+export type NearbyPlaceSearchParams = {
+  lat: number;
+  lon: number;
+  radiusKm?: number;
+  page?: number;
+  size?: number;
+};
+
 export type PlaceDetailResponse = {
   id: number;
   bizesId: string;

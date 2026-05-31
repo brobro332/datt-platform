@@ -1,75 +1,116 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { env } from "@/lib/env";
+import type { PlaceSearchResponse } from "@/types/place";
 
 type MapContainerProps = {
-    lat?: number;
-    lon?: number;
-    level?: number;
-    className?: string;
-    onMapLoad?: (map: kakao.maps.Map) => void;
+  places: PlaceSearchResponse[];
+  selectedPlace: PlaceSearchResponse | null;
+  currentLat: number;
+  currentLon: number;
+  onSelectPlace?: (place: PlaceSearchResponse) => void;
 };
 
-const DEFAULT_LAT = 37.5665;
-const DEFAULT_LON = 126.978;
-const DEFAULT_LEVEL = 5;
-
 export function MapContainer({
-    lat = DEFAULT_LAT,
-    lon = DEFAULT_LON,
-    level = DEFAULT_LEVEL,
-    className = "",
-    onMapLoad,
+  places,
+  selectedPlace,
+  currentLat,
+  currentLon,
+  onSelectPlace,
 }: MapContainerProps) {
-    const mapRef = useRef<HTMLDivElement | null>(null);
-    const mapInstanceRef = useRef<kakao.maps.Map | null>(null);
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const mapInstanceRef = useRef<kakao.maps.Map | null>(null);
+  const markersRef = useRef<kakao.maps.Marker[]>([]);
+  const [isMapReady, setIsMapReady] = useState(false);
 
-    useEffect(() => {
-        if (!mapRef.current) {
-            return;
-        }
+  useEffect(() => {
+    if (!mapRef.current || mapInstanceRef.current) {
+      return;
+    }
 
-        function createMap() {
-            if (!mapRef.current) {
-                return;
-            }
+    function createMap() {
+      if (!mapRef.current || mapInstanceRef.current) {
+        return;
+      }
 
-            const center = new window.kakao.maps.LatLng(lat, lon);
+      const center = new window.kakao.maps.LatLng(currentLat, currentLon);
+      const map = new window.kakao.maps.Map(mapRef.current, {
+        center,
+        level: 4,
+      });
 
-            const map = new window.kakao.maps.Map(mapRef.current, {
-                center,
-                level,
-            });
+      mapInstanceRef.current = map;
+      setIsMapReady(true);
+    }
 
-            mapInstanceRef.current = map;
-            onMapLoad?.(map);
-        }
+    if (window.kakao?.maps) {
+      window.kakao.maps.load(createMap);
+      return;
+    }
 
-        if (window.kakao?.maps) {
-            window.kakao.maps.load(createMap);
-            return;
-        }
+    const script = document.createElement("script");
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${env.kakaoMapAppKey}&autoload=false`;
+    script.async = true;
+    script.onload = () => {
+      window.kakao.maps.load(createMap);
+    };
 
-        const script = document.createElement("script");
+    document.head.appendChild(script);
+  }, [currentLat, currentLon]);
 
-        script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${env.kakaoMapAppKey}&autoload=false`;
-        script.async = true;
+  useEffect(() => {
+    const map = mapInstanceRef.current;
 
-        script.onload = () => {
-            window.kakao.maps.load(createMap);
-        };
+    if (!isMapReady || !map) {
+      return;
+    }
 
-        document.head.appendChild(script);
-    }, [lat, lon, level, onMapLoad]);
+    markersRef.current.forEach((marker) => marker.setMap(null));
+    markersRef.current = [];
 
-    return (
-        <div
-            ref={mapRef}
-            className={[
-                "h-[520px] w-full overflow-hidden rounded-3xl border border-gray-200 bg-gray-100",
-                className,
-            ].join(" ")}
-        />
-    );
+    const currentPosition = new window.kakao.maps.LatLng(currentLat, currentLon);
+    const currentMarker = new window.kakao.maps.Marker({
+      map,
+      position: currentPosition,
+      title: "현재 위치",
+    });
+
+    markersRef.current.push(currentMarker);
+
+    places.forEach((place) => {
+      if (!Number.isFinite(place.lat) || !Number.isFinite(place.lon)) {
+        return;
+      }
+
+      const position = new window.kakao.maps.LatLng(place.lat, place.lon);
+      const marker = new window.kakao.maps.Marker({
+        map,
+        position,
+        title: place.bizesNm,
+      });
+
+      window.kakao.maps.event.addListener(marker, "click", () => {
+        onSelectPlace?.(place);
+      });
+
+      markersRef.current.push(marker);
+    });
+
+    return () => {
+      markersRef.current.forEach((marker) => marker.setMap(null));
+      markersRef.current = [];
+    };
+  }, [isMapReady, places, currentLat, currentLon, onSelectPlace]);
+
+  useEffect(() => {
+    if (!isMapReady || !selectedPlace || !mapInstanceRef.current) {
+      return;
+    }
+
+    const position = new window.kakao.maps.LatLng(selectedPlace.lat, selectedPlace.lon);
+    mapInstanceRef.current.setCenter(position);
+  }, [isMapReady, selectedPlace]);
+
+  return <div ref={mapRef} className="h-full w-full" />;
 }
