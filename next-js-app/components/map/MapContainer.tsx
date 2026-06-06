@@ -9,6 +9,7 @@ type MapContainerProps = {
   selectedPlace: PlaceSearchResponse | null;
   currentLat: number;
   currentLon: number;
+  centerTrigger: number;
   onSelectPlace?: (place: PlaceSearchResponse) => void;
 };
 
@@ -17,11 +18,13 @@ export function MapContainer({
   selectedPlace,
   currentLat,
   currentLon,
+  centerTrigger,
   onSelectPlace,
 }: MapContainerProps) {
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstanceRef = useRef<kakao.maps.Map | null>(null);
-  const markersRef = useRef<kakao.maps.Marker[]>([]);
+  const placeMarkersRef = useRef<kakao.maps.Marker[]>([]);
+  const currentOverlayRef = useRef<kakao.maps.CustomOverlay | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
 
   useEffect(() => {
@@ -66,17 +69,36 @@ export function MapContainer({
       return;
     }
 
-    markersRef.current.forEach((marker) => marker.setMap(null));
-    markersRef.current = [];
-
     const currentPosition = new window.kakao.maps.LatLng(currentLat, currentLon);
-    const currentMarker = new window.kakao.maps.Marker({
+
+    currentOverlayRef.current?.setMap(null);
+
+    currentOverlayRef.current = new window.kakao.maps.CustomOverlay({
       map,
       position: currentPosition,
-      title: "현재 위치",
+      yAnchor: 0.5,
+      content: `
+        <div style="
+          width:18px;
+          height:18px;
+          border-radius:50%;
+          background:#ef4444;
+          border:3px solid white;
+          box-shadow:0 0 0 6px rgba(239,68,68,0.25);
+        "></div>
+      `,
     });
+  }, [isMapReady, currentLat, currentLon]);
 
-    markersRef.current.push(currentMarker);
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+
+    if (!isMapReady || !map) {
+      return;
+    }
+
+    placeMarkersRef.current.forEach((marker) => marker.setMap(null));
+    placeMarkersRef.current = [];
 
     places.forEach((place) => {
       if (!Number.isFinite(place.lat) || !Number.isFinite(place.lon)) {
@@ -84,6 +106,7 @@ export function MapContainer({
       }
 
       const position = new window.kakao.maps.LatLng(place.lat, place.lon);
+
       const marker = new window.kakao.maps.Marker({
         map,
         position,
@@ -94,14 +117,23 @@ export function MapContainer({
         onSelectPlace?.(place);
       });
 
-      markersRef.current.push(marker);
+      placeMarkersRef.current.push(marker);
     });
 
     return () => {
-      markersRef.current.forEach((marker) => marker.setMap(null));
-      markersRef.current = [];
+      placeMarkersRef.current.forEach((marker) => marker.setMap(null));
+      placeMarkersRef.current = [];
     };
-  }, [isMapReady, places, currentLat, currentLon, onSelectPlace]);
+  }, [isMapReady, places, onSelectPlace]);
+
+  useEffect(() => {
+    if (!isMapReady || !mapInstanceRef.current) {
+      return;
+    }
+
+    const currentPosition = new window.kakao.maps.LatLng(currentLat, currentLon);
+    mapInstanceRef.current.setCenter(currentPosition);
+  }, [isMapReady, centerTrigger, currentLat, currentLon]);
 
   useEffect(() => {
     if (!isMapReady || !selectedPlace || !mapInstanceRef.current) {

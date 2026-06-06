@@ -35,6 +35,9 @@ export default function MapPage() {
       null,
     );
 
+  const [mapCenterTrigger, setMapCenterTrigger] =
+    useState(0);
+
   const [sortBy, setSortBy] = useState<
     "distance" | "name"
   >("distance");
@@ -159,6 +162,24 @@ export default function MapPage() {
     );
   }
 
+  function refreshCurrentLocation() {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setCurrentLat(
+          position.coords.latitude,
+        );
+
+        setCurrentLon(
+          position.coords.longitude,
+        );
+
+        setMapCenterTrigger(
+          (prev) => prev + 1,
+        );
+      },
+    );
+  }
+
   return (
     <MainLayout>
       <section className="grid gap-6 lg:grid-cols-[420px_1fr]">
@@ -174,30 +195,42 @@ export default function MapPage() {
               </h1>
             </div>
 
-            <div className="flex rounded-2xl bg-gray-100 p-1">
+            <div className="flex gap-2">
               <button
                 type="button"
-                onClick={() => setSortBy("distance")}
-                className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                  sortBy === "distance"
-                    ? "bg-white text-gray-950 shadow-sm"
-                    : "text-gray-500 hover:text-gray-800"
-                }`}
+                onClick={() =>
+                  setMapCenterTrigger((prev) => prev + 1)
+                }
+                className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
               >
-                거리순
+                내 위치
               </button>
 
-              <button
-                type="button"
-                onClick={() => setSortBy("name")}
-                className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${
-                  sortBy === "name"
-                    ? "bg-white text-gray-950 shadow-sm"
-                    : "text-gray-500 hover:text-gray-800"
-                }`}
-              >
-                이름순
-              </button>
+              <div className="flex rounded-2xl bg-gray-100 p-1">
+                <button
+                  type="button"
+                  onClick={() => setSortBy("distance")}
+                  className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                    sortBy === "distance"
+                      ? "bg-white text-gray-950 shadow-sm"
+                      : "text-gray-500 hover:text-gray-800"
+                  }`}
+                >
+                  거리순
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setSortBy("name")}
+                  className={`rounded-xl px-3 py-2 text-sm font-semibold transition ${
+                    sortBy === "name"
+                      ? "bg-white text-gray-950 shadow-sm"
+                      : "text-gray-500 hover:text-gray-800"
+                  }`}
+                >
+                  이름순
+                </button>
+              </div>
             </div>
           </div>
 
@@ -242,14 +275,11 @@ export default function MapPage() {
         <section className="sticky top-24 h-[800px] overflow-hidden rounded-3xl border border-gray-200">
           <MapContainer
             places={places}
-            selectedPlace={
-              selectedPlace
-            }
+            selectedPlace={selectedPlace}
             currentLat={currentLat}
             currentLon={currentLon}
-            onSelectPlace={
-              setSelectedPlace
-            }
+            centerTrigger={mapCenterTrigger}
+            onSelectPlace={setSelectedPlace}
           />
 
           {selectedPlace && (
