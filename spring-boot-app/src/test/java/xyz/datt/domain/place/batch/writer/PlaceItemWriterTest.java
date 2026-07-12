@@ -41,8 +41,8 @@ class PlaceItemWriterTest {
     }
 
     @Test
-    @DisplayName("이미 존재하는 PlaceMaster는 수정한다.")
-    void givenExistingPlaceMaster_whenWrite_thenUpdatePlaceMaster() throws Exception {
+    @DisplayName("이미 존재하는 PlaceMaster는 저장하지 않고 건너뛴다.")
+    void givenExistingPlaceMaster_whenWrite_thenSkipPlaceMaster() throws Exception {
         PlaceMaster existingPlaceMaster = createPlaceMaster(
             "TEST-001",
             "스타벅스 강남점",
@@ -53,19 +53,19 @@ class PlaceItemWriterTest {
 
         PlaceItemWriter writer = new PlaceItemWriter(placeMasterRepository);
 
-        PlaceMaster updatedPlaceMaster = createPlaceMaster(
+        PlaceMaster newPlaceMaster = createPlaceMaster(
             "TEST-001",
             "스타벅스 강남역점",
             "서울특별시 강남구 강남대로 456"
         );
 
-        writer.write(Chunk.of(updatedPlaceMaster));
+        writer.write(Chunk.of(newPlaceMaster));
 
         PlaceMaster result = placeMasterRepository.findByBizesId("TEST-001")
                 .orElseThrow();
 
-        assertThat(result.getBizesNm()).isEqualTo("스타벅스 강남역점");
-        assertThat(result.getRdnmAdr()).isEqualTo("서울특별시 강남구 강남대로 456");
+        assertThat(result.getBizesNm()).isEqualTo("스타벅스 강남점");
+        assertThat(result.getRdnmAdr()).isEqualTo("서울특별시 강남구 테헤란로 123");
     }
 
     private PlaceMaster createPlaceMaster(

@@ -10,6 +10,7 @@ public record ProfileReviewResponse(
     String placeName,
     int rating,
     String content,
+    String imageUrl,
     LocalDateTime createdAt
 ) {
     public static ProfileReviewResponse from(PlaceReview review) {
@@ -19,6 +20,7 @@ public record ProfileReviewResponse(
             review.getPlaceMaster().getBizesNm(),
             review.getRating(),
             review.getContent(),
+            review.getImageUrl(),
             review.getCreatedAt()
         );
     }

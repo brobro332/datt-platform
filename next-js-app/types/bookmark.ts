@@ -18,4 +18,14 @@ export type PlaceBookmarkResponse = {
   lat: number;
 
   bookmarkedAt: string;
+  folders?: BookmarkFolder[];
+};
+
+export type BookmarkFolder = {
+  id: number;
+  name: string;
+};
+
+export type BookmarkFolderRequest = {
+  name: string;
 };

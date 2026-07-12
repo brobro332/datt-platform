@@ -1,18 +1,43 @@
 "use client";
 
-import { ReactNode, useEffect } from "react";
+import { useEffect } from "react";
+
 import { useAuthStore } from "@/stores/authStore";
 
-type AuthProviderProps = {
-  children: ReactNode;
-};
+export function AuthProvider({
+    children,
+}: {
+    children: React.ReactNode;
+}) {
+    const setAuth =
+        useAuthStore((state) => state.setAuth);
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const restoreAuth = useAuthStore((state) => state.restoreAuth);
+    useEffect(() => {
+        const accessToken =
+            localStorage.getItem("accessToken");
 
-  useEffect(() => {
-    restoreAuth();
-  }, [restoreAuth]);
+        const refreshToken =
+            localStorage.getItem("refreshToken");
 
-  return <>{children}</>;
+        const memberString =
+            localStorage.getItem("member");
+
+        if (
+            !accessToken ||
+            !refreshToken ||
+            !memberString
+        ) {
+            return;
+        }
+
+        const member = JSON.parse(memberString);
+
+        setAuth(
+            accessToken,
+            refreshToken,
+            member,
+        );
+    }, [setAuth]);
+
+    return children;
 }

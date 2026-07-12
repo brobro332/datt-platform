@@ -14,6 +14,9 @@ public record PlaceReviewCreateRequest(
 
     @NotBlank
     @Size(max = 1000)
-    String content
+    String content,
+
+    @Size(max = 512)
+    String imageUrl
 ) {
 }

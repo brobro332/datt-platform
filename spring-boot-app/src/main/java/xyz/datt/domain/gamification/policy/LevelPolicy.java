@@ -1,7 +1,7 @@
 package xyz.datt.domain.gamification.policy;
 
 public final class LevelPolicy {
-    private static final int EXP_PER_LEVEL = 100;
+    private static final int EXP_PER_LEVEL = 500;
 
     private LevelPolicy() {
     }

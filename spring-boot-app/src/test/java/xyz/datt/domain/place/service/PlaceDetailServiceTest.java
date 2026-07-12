@@ -37,6 +37,8 @@ class PlaceDetailServiceTest {
 
         when(placeMasterRepository.findById(1L))
             .thenReturn(Optional.of(placeMaster));
+        when(placeReviewService.getRatingSummary(1L))
+            .thenReturn(new xyz.datt.domain.review.dto.PlaceRatingSummary(4.5, 10L));
 
         PlaceDetailResponse response = placeDetailService.getPlaceDetail(1L);
 

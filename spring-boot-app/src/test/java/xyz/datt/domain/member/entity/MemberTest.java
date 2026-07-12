@@ -22,7 +22,7 @@ class MemberTest {
     }
 
     @Test
-    @DisplayName("경험치가 100 이상이면 레벨업한다.")
+    @DisplayName("경험치가 500 이상이면 레벨업한다.")
     void givenEnoughExp_whenAddExp_thenLevelUp() {
         Member member = Member.createUser(
             "test@test.com",
@@ -30,9 +30,9 @@ class MemberTest {
             "bro"
         );
 
-        member.addExp(100);
+        member.addExp(500);
 
-        assertThat(member.getExp()).isEqualTo(100);
+        assertThat(member.getExp()).isEqualTo(500);
         assertThat(member.getLevel()).isEqualTo(2);
     }
 

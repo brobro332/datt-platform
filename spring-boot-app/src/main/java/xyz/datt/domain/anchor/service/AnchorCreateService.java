@@ -19,6 +19,9 @@ import xyz.datt.global.error.ErrorCode;
 import java.util.List;
 import java.util.Map;
 
+import xyz.datt.domain.gamification.entity.ActivityType;
+import xyz.datt.domain.gamification.service.GamificationService;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -31,6 +34,7 @@ public class AnchorCreateService {
     private final AnchorRecommendationService anchorRecommendationService;
     private final AnchorPlaceCreateService anchorPlaceCreateService;
     private final AnchorDetailService anchorDetailService;
+    private final GamificationService gamificationService;
 
     public AnchorDetailResponse createAnchor(
         Long memberId,
@@ -51,7 +55,6 @@ public class AnchorCreateService {
         Anchor anchor = Anchor.builder()
             .member(member)
             .title(request.title())
-            .basePlace(baseInfo.basePlace())
             .basePlaceName(baseInfo.basePlaceName())
             .baseAddress(baseInfo.baseAddress())
             .baseLon(baseInfo.baseLon())
@@ -71,25 +74,13 @@ public class AnchorCreateService {
 
         anchorPlaceCreateService.createAnchorPlaces(savedAnchor, recommendations);
 
+        gamificationService.logActivity(memberId, ActivityType.ANCHOR_CREATE, "정박지 '" + savedAnchor.getTitle() + "' 생성");
+
         return anchorDetailService.getAnchorDetail(memberId, savedAnchor.getId());
     }
 
     private AnchorBaseInfo resolveBaseInfo(AnchorCreateRequest request) {
-        if (request.basePlaceId() != null) {
-            PlaceMaster basePlace = placeMasterRepository.findById(request.basePlaceId())
-                .orElseThrow(() -> new BusinessException(ErrorCode.PLACE_NOT_FOUND));
-
-            return new AnchorBaseInfo(
-                basePlace,
-                basePlace.getBizesNm(),
-                basePlace.getRdnmAdr(),
-                basePlace.getLon(),
-                basePlace.getLat()
-            );
-        }
-
         return new AnchorBaseInfo(
-            null,
             request.basePlaceName(),
             request.baseAddress(),
             request.baseLon(),
@@ -114,7 +105,6 @@ public class AnchorCreateService {
     }
 
     private record AnchorBaseInfo(
-        PlaceMaster basePlace,
         String basePlaceName,
         String baseAddress,
         Double baseLon,

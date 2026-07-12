@@ -41,7 +41,14 @@ public enum ErrorCode {
     ANCHOR_LIKE_ALREADY_EXISTS(HttpStatus.CONFLICT, "anchor_like.already_exists", "이미 좋아요를 누른 Anchor입니다."),
     ANCHOR_LIKE_NOT_FOUND(HttpStatus.NOT_FOUND, "anchor_like.not_found", "Anchor 좋아요를 찾을 수 없습니다."),
     ANCHOR_NOT_FOUND(HttpStatus.NOT_FOUND, "anchor.not_found", "Anchor를 찾을 수 없습니다."),
-    ANCHOR_ACCESS_DENIED(HttpStatus.FORBIDDEN, "anchor.access_denied", "Anchor에 접근할 수 없습니다.");
+    ANCHOR_ACCESS_DENIED(HttpStatus.FORBIDDEN, "anchor.access_denied", "Anchor에 접근할 수 없습니다."),
+
+    BOOKMARK_FOLDER_NOT_FOUND(HttpStatus.NOT_FOUND, "bookmark_folder.not_found", "북마크 폴더를 찾을 수 없습니다."),
+    BOOKMARK_FOLDER_ALREADY_EXISTS(HttpStatus.CONFLICT, "bookmark_folder.already_exists", "이미 존재하는 폴더 이름입니다."),
+
+    EMAIL_VERIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "auth.email_verification_not_found", "이메일 인증 요청 내역을 찾을 수 없습니다."),
+    INVALID_EMAIL_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "auth.invalid_email_verification_code", "이메일 인증 코드가 일치하지 않습니다."),
+    EMAIL_VERIFICATION_EXPIRED(HttpStatus.BAD_REQUEST, "auth.email_verification_expired", "이메일 인증 코드가 만료되었습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

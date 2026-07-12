@@ -20,11 +20,11 @@ export function Input({
       <input
         id={id}
         className={[
-          "h-11 w-full rounded-2xl border border-gray-300 bg-white px-4 text-sm outline-none transition",
-          "placeholder:text-gray-400",
-          "focus:border-gray-900 focus:ring-2 focus:ring-gray-900/10",
+          "h-12 w-full rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm px-4 text-sm outline-none transition-all duration-200",
+          "placeholder:text-slate-400 text-slate-800",
+          "focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:bg-white",
           errorMessage
-            ? "border-red-400 focus:border-red-500 focus:ring-red-500/10"
+            ? "border-rose-300 focus:border-rose-500 focus:ring-rose-500/10"
             : "",
           className,
         ].join(" ")}

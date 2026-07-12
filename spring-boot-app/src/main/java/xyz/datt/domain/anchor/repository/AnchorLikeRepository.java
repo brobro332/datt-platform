@@ -11,6 +11,7 @@ public interface AnchorLikeRepository extends JpaRepository<AnchorLike, Long> {
     boolean existsByMemberIdAndAnchorId(Long memberId, Long anchorId);
     Optional<AnchorLike> findByMemberIdAndAnchorId(Long memberId, Long anchorId);
     int countByAnchorId(Long anchorId);
+    void deleteByAnchorId(Long anchorId);
 
     @Query("""
         select count(al)

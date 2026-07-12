@@ -9,6 +9,7 @@ import xyz.datt.domain.review.dto.PlaceRatingSummary;
 import xyz.datt.domain.review.entity.PlaceReview;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PlaceReviewRepository extends JpaRepository<PlaceReview, Long> {
     boolean existsByMemberIdAndPlaceMasterId(Long memberId, Long placeId);
@@ -25,4 +26,9 @@ public interface PlaceReviewRepository extends JpaRepository<PlaceReview, Long> 
 
     long countByMemberId(Long memberId);
     List<PlaceReview> findTop3ByMemberIdOrderByCreatedAtDesc(Long memberId);
+
+    @Query("select coalesce(avg(r.rating), 0.0) from PlaceReview r")
+    double getAverageRatingOfAllReviews();
+
+    Optional<PlaceReview> findByImageUrl(String imageUrl);
 }

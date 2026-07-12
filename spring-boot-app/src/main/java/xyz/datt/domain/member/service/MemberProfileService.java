@@ -80,4 +80,29 @@ public class MemberProfileService {
             recentReviews
         );
     }
+
+    @Transactional
+    public MemberProfileResponse updateNickname(Long memberId, String nickname) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+        if (nickname == null || nickname.trim().isEmpty()) {
+            throw new BusinessException(ErrorCode.INVALID_INPUT_VALUE, "닉네임은 공백일 수 없습니다.");
+        }
+
+        String trimmedNickname = nickname.trim();
+
+        if (trimmedNickname.equals(member.getNickname())) {
+            return getMyProfile(memberId);
+        }
+
+        if (memberRepository.existsByNickname(trimmedNickname)) {
+            throw new BusinessException(ErrorCode.DUPLICATED_NICKNAME);
+        }
+
+        member.updateNickname(trimmedNickname);
+        memberRepository.save(member);
+
+        return getMyProfile(memberId);
+    }
 }

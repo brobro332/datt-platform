@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import xyz.datt.domain.bookmark.dto.BookmarkPlaceRequest;
 import xyz.datt.domain.bookmark.dto.PlaceBookmarkResponse;
 import xyz.datt.domain.bookmark.service.PlaceBookmarkService;
 import xyz.datt.global.response.ApiResponse;
@@ -18,9 +19,14 @@ public class PlaceBookmarkController {
     @PostMapping("/api/bookmarks/places/{placeId}")
     public ApiResponse<PlaceBookmarkResponse> addPlaceBookmark(
         @AuthenticationPrincipal CustomUserDetails userDetails,
-        @PathVariable Long placeId
+        @PathVariable Long placeId,
+        @RequestBody BookmarkPlaceRequest request
     ) {
-        PlaceBookmarkResponse response = placeBookmarkService.addBookmark(userDetails.getMemberId(), placeId);
+        PlaceBookmarkResponse response = placeBookmarkService.addBookmark(
+            userDetails.getMemberId(),
+            placeId,
+            request.folderIds()
+        );
 
         return ApiResponse.success(response);
     }

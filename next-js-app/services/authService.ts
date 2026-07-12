@@ -1,30 +1,97 @@
 import { apiClient } from "@/lib/apiClient";
+
 import type { ApiResponse } from "@/types/api";
+
 import type {
-  LoginRequest,
-  LoginResponse,
-  SignupRequest,
-  SignupResponse,
+    LoginRequest,
+    LoginResponse,
+    SignupRequest,
+    SignupResponse,
+    ReissueTokenResponse,
 } from "@/types/auth";
+import axios from "axios";
+import { env } from "@/lib/env";
 
 export async function signup(
-  request: SignupRequest,
+    request: SignupRequest,
 ): Promise<SignupResponse> {
-  const response = await apiClient.post<ApiResponse<SignupResponse>>(
-    "/api/auth/signup",
-    request,
-  );
+    const response = await apiClient.post<
+        ApiResponse<SignupResponse>
+    >("/api/auth/signup", request);
 
-  return response.data.data;
+    return response.data.data;
 }
 
 export async function login(
-  request: LoginRequest,
+    request: LoginRequest,
 ): Promise<LoginResponse> {
-  const response = await apiClient.post<ApiResponse<LoginResponse>>(
-    "/api/auth/login",
-    request,
-  );
+    const response = await apiClient.post<
+        ApiResponse<LoginResponse>
+    >("/api/auth/login", request);
 
+    return response.data.data;
+}
+
+export async function reissueToken(): Promise<ReissueTokenResponse> {
+    const refreshToken =
+        localStorage.getItem("refreshToken");
+
+    const response = await apiClient.post<
+        ApiResponse<ReissueTokenResponse>
+    >("/api/auth/reissue", {
+        refreshToken,
+    });
+
+    return response.data.data;
+}
+
+const authClient = axios.create({
+  baseURL: env.apiBaseUrl,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+export async function logout(): Promise<void> {
+  const refreshToken = localStorage.getItem("refreshToken");
+
+  try {
+    await authClient.post("/api/auth/logout", {
+      refreshToken,
+    });
+  } finally {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("member");
+  }
+}
+
+export async function checkEmail(email: string): Promise<void> {
+  await apiClient.get<ApiResponse<void>>("/api/auth/check-email", {
+    params: { email },
+  });
+}
+
+export async function checkNickname(nickname: string): Promise<void> {
+  await apiClient.get<ApiResponse<void>>("/api/auth/check-nickname", {
+    params: { nickname },
+  });
+}
+
+export async function sendVerificationEmail(email: string): Promise<void> {
+  await apiClient.post<ApiResponse<void>>("/api/auth/email/send", { email });
+}
+
+export async function verifyEmailCode(email: string, code: string): Promise<void> {
+  await apiClient.post<ApiResponse<void>>("/api/auth/email/verify", { email, code });
+}
+
+export async function loginSocialKakao(code: string): Promise<LoginResponse> {
+  const response = await apiClient.post<ApiResponse<LoginResponse>>("/api/auth/social/kakao", { code });
+  return response.data.data;
+}
+
+export async function loginSocialNaver(code: string): Promise<LoginResponse> {
+  const response = await apiClient.post<ApiResponse<LoginResponse>>("/api/auth/social/naver", { code });
   return response.data.data;
 }

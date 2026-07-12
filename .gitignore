@@ -29,6 +29,7 @@ out/
 **/postgres_data/
 /sql/
 **/generated/**
+**/uploads/**
 
 ### NetBeans ###
 /nbproject/private/
@@ -43,3 +44,10 @@ out/
 ### FAST API ###
 get_place_by_title_and_category.py
 get_place_by_title_and_category_raw.py
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfvars
+*.tfvars.json

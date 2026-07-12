@@ -11,6 +11,7 @@ public record PlaceReviewResponse(
     String nickname,
     int rating,
     String content,
+    String imageUrl,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {
@@ -23,6 +24,7 @@ public record PlaceReviewResponse(
             review.getMember().getNickname(),
             review.getRating(),
             review.getContent(),
+            review.getImageUrl(),
             review.getCreatedAt(),
             review.getUpdatedAt()
         );

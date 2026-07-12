@@ -3,6 +3,7 @@ package xyz.datt.domain.bookmark.dto;
 import xyz.datt.domain.bookmark.entity.PlaceBookmark;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record PlaceBookmarkResponse(
     Long bookmarkId,
@@ -23,7 +24,8 @@ public record PlaceBookmarkResponse(
     Double lon,
     Double lat,
 
-    LocalDateTime bookmarkedAt
+    LocalDateTime bookmarkedAt,
+    List<BookmarkFolderResponse> folders
 ) {
 
     public static PlaceBookmarkResponse from(PlaceBookmark placeBookmark) {
@@ -46,7 +48,10 @@ public record PlaceBookmarkResponse(
             placeBookmark.getPlaceMaster().getLon(),
             placeBookmark.getPlaceMaster().getLat(),
 
-            placeBookmark.getCreatedAt()
+            placeBookmark.getCreatedAt(),
+            placeBookmark.getBookmarkFolders() != null ? placeBookmark.getBookmarkFolders().stream()
+                .map(BookmarkFolderResponse::from)
+                .toList() : List.of()
         );
     }
 }

@@ -8,4 +8,5 @@ import java.util.List;
 public interface AnchorPlaceRepository extends JpaRepository<AnchorPlace, Long> {
     List<AnchorPlace> findByAnchorIdOrderByCategoryAscRecommendOrderAsc(Long anchorId);
     int countByAnchorId(Long anchorId);
+    void deleteByAnchorId(Long anchorId);
 }

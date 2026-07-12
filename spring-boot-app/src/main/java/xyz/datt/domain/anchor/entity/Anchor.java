@@ -25,9 +25,7 @@ public class Anchor extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "base_place_id")
-    private PlaceMaster basePlace;
+
 
     @Column(length = 100)
     private String basePlaceName;
@@ -54,7 +52,6 @@ public class Anchor extends BaseEntity {
     private Anchor(
         Member member,
         String title,
-        PlaceMaster basePlace,
         String basePlaceName,
         String baseAddress,
         Double baseLon,
@@ -64,7 +61,6 @@ public class Anchor extends BaseEntity {
     ) {
         this.member = member;
         this.title = title;
-        this.basePlace = basePlace;
         this.basePlaceName = basePlaceName;
         this.baseAddress = baseAddress;
         this.baseLon = baseLon;
@@ -80,5 +76,9 @@ public class Anchor extends BaseEntity {
 
     public void changeVisibility(boolean isPublic) {
         this.isPublic = isPublic;
+    }
+
+    public void changeTitle(String title) {
+        this.title = title;
     }
 }

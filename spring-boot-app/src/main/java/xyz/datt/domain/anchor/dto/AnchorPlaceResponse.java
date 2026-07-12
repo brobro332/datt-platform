@@ -1,6 +1,7 @@
 package xyz.datt.domain.anchor.dto;
 
 import xyz.datt.domain.anchor.entity.AnchorPlace;
+import xyz.datt.domain.anchor.entity.AnchorPlaceCategory;
 
 public record AnchorPlaceResponse(
     Long placeId,
@@ -18,7 +19,8 @@ public record AnchorPlaceResponse(
 
     Double distanceKm,
 
-    int recommendOrder
+    int recommendOrder,
+    String category
 ) {
 
     public static AnchorPlaceResponse from(AnchorPlace anchorPlace) {
@@ -38,7 +40,10 @@ public record AnchorPlaceResponse(
 
             anchorPlace.getDistanceKm(),
 
-            anchorPlace.getRecommendOrder()
+            anchorPlace.getRecommendOrder(),
+            AnchorPlaceCategory.fromIndsMclsCd(anchorPlace.getPlaceMaster().getIndsMclsCd()) != null 
+                ? AnchorPlaceCategory.fromIndsMclsCd(anchorPlace.getPlaceMaster().getIndsMclsCd()).name() 
+                : "OTHER"
         );
     }
 }

@@ -22,11 +22,15 @@ class PlaceReviewServiceTest {
     private final PlaceReviewRepository placeReviewRepository = mock(PlaceReviewRepository.class);
     private final MemberRepository memberRepository = mock(MemberRepository.class);
     private final PlaceMasterRepository placeMasterRepository = mock(PlaceMasterRepository.class);
+    private final xyz.datt.domain.gamification.service.GamificationService gamificationService = mock(xyz.datt.domain.gamification.service.GamificationService.class);
+    private final xyz.datt.global.infrastructure.storage.FileStorageService fileStorageService = mock(xyz.datt.global.infrastructure.storage.FileStorageService.class);
 
     private final PlaceReviewService placeReviewService = new PlaceReviewService(
         placeReviewRepository,
         memberRepository,
-        placeMasterRepository
+        placeMasterRepository,
+        gamificationService,
+        fileStorageService
     );
 
     @Test
@@ -47,7 +51,7 @@ class PlaceReviewServiceTest {
         when(placeReviewRepository.existsByMemberIdAndPlaceMasterId(1L, 10L)).thenReturn(false);
         when(placeReviewRepository.save(any(PlaceReview.class))).thenReturn(review);
 
-        PlaceReviewCreateRequest request = new PlaceReviewCreateRequest(5, "좋았습니다.");
+        PlaceReviewCreateRequest request = new PlaceReviewCreateRequest(5, "좋았습니다.", null);
 
         PlaceReviewResponse response = placeReviewService.createReview(1L, 10L, request);
 
@@ -67,7 +71,7 @@ class PlaceReviewServiceTest {
         when(placeMasterRepository.findById(10L)).thenReturn(Optional.of(place));
         when(placeReviewRepository.existsByMemberIdAndPlaceMasterId(1L, 10L)).thenReturn(true);
 
-        PlaceReviewCreateRequest request = new PlaceReviewCreateRequest(4, "괜찮았습니다.");
+        PlaceReviewCreateRequest request = new PlaceReviewCreateRequest(4, "괜찮았습니다.", null);
 
         assertThatThrownBy(() -> placeReviewService.createReview(1L, 10L, request))
             .isInstanceOf(BusinessException.class);
@@ -90,7 +94,7 @@ class PlaceReviewServiceTest {
 
         when(placeReviewRepository.findById(100L)).thenReturn(Optional.of(review));
 
-        PlaceReviewUpdateRequest request = new PlaceReviewUpdateRequest(5, "수정 후 좋았습니다.");
+        PlaceReviewUpdateRequest request = new PlaceReviewUpdateRequest(5, "수정 후 좋았습니다.", null);
 
         PlaceReviewResponse response = placeReviewService.updateReview(
             null,

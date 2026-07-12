@@ -6,7 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.datt.domain.bookmark.dto.PlaceBookmarkResponse;
+import xyz.datt.domain.bookmark.entity.BookmarkFolder;
 import xyz.datt.domain.bookmark.entity.PlaceBookmark;
+import xyz.datt.domain.bookmark.repository.BookmarkFolderRepository;
 import xyz.datt.domain.bookmark.repository.PlaceBookmarkRepository;
 import xyz.datt.domain.member.entity.Member;
 import xyz.datt.domain.member.repository.MemberRepository;
@@ -15,6 +17,13 @@ import xyz.datt.domain.place.repository.PlaceMasterRepository;
 import xyz.datt.global.error.BusinessException;
 import xyz.datt.global.error.ErrorCode;
 
+import xyz.datt.domain.gamification.entity.ActivityType;
+import xyz.datt.domain.gamification.service.GamificationService;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -22,11 +31,31 @@ public class PlaceBookmarkService {
     private final PlaceBookmarkRepository placeBookmarkRepository;
     private final MemberRepository memberRepository;
     private final PlaceMasterRepository placeMasterRepository;
+    private final BookmarkFolderRepository bookmarkFolderRepository;
+    private final GamificationService gamificationService;
 
     @Transactional
     public PlaceBookmarkResponse addBookmark(
         Long memberId,
         Long placeId
+    ) {
+        return addBookmark(memberId, placeId, List.of());
+    }
+
+    @Transactional
+    public PlaceBookmarkResponse addBookmark(
+        Long memberId,
+        Long placeId,
+        Long folderId
+    ) {
+        return addBookmark(memberId, placeId, folderId != null ? List.of(folderId) : List.of());
+    }
+
+    @Transactional
+    public PlaceBookmarkResponse addBookmark(
+        Long memberId,
+        Long placeId,
+        List<Long> folderIds
     ) {
         Member member = memberRepository.findById(memberId)
             .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
@@ -34,16 +63,33 @@ public class PlaceBookmarkService {
         PlaceMaster placeMaster = placeMasterRepository.findById(placeId)
             .orElseThrow(() -> new BusinessException(ErrorCode.PLACE_NOT_FOUND));
 
-        validateNotBookmarked(memberId, placeId);
+        List<BookmarkFolder> bookmarkFolders = new ArrayList<>();
+        if (folderIds != null && !folderIds.isEmpty()) {
+            for (Long folderId : folderIds) {
+                BookmarkFolder folder = bookmarkFolderRepository.findByIdAndMemberId(folderId, memberId)
+                    .orElseThrow(() -> new BusinessException(ErrorCode.BOOKMARK_FOLDER_NOT_FOUND));
+                bookmarkFolders.add(folder);
+            }
+        }
 
-        PlaceBookmark placeBookmark = PlaceBookmark.builder()
-            .member(member)
-            .placeMaster(placeMaster)
-            .build();
+        PlaceBookmark placeBookmark = placeBookmarkRepository
+            .findByMemberIdAndPlaceMasterId(memberId, placeId)
+            .orElse(null);
 
-        PlaceBookmark savedBookmark = placeBookmarkRepository.save(placeBookmark);
+        if (placeBookmark == null) {
+            placeBookmark = PlaceBookmark.builder()
+                .member(member)
+                .placeMaster(placeMaster)
+                .bookmarkFolders(bookmarkFolders)
+                .build();
+            placeBookmark = placeBookmarkRepository.saveAndFlush(placeBookmark);
+            gamificationService.logActivity(memberId, ActivityType.BOOKMARK_ADD, "장소 '" + placeMaster.getBizesNm() + "' 저장");
+        } else {
+            placeBookmark.updateFolders(bookmarkFolders);
+            placeBookmark = placeBookmarkRepository.saveAndFlush(placeBookmark);
+        }
 
-        return PlaceBookmarkResponse.from(savedBookmark);
+        return PlaceBookmarkResponse.from(placeBookmark);
     }
 
     @Transactional
@@ -73,12 +119,10 @@ public class PlaceBookmarkService {
         return placeBookmarkRepository.existsByMemberIdAndPlaceMasterId(memberId, placeId);
     }
 
-    private void validateNotBookmarked(
+    public Optional<PlaceBookmark> getBookmark(
         Long memberId,
         Long placeId
     ) {
-        if (placeBookmarkRepository.existsByMemberIdAndPlaceMasterId(memberId, placeId)) {
-            throw new BusinessException(ErrorCode.PLACE_BOOKMARK_ALREADY_EXISTS);
-        }
+        return placeBookmarkRepository.findByMemberIdAndPlaceMasterId(memberId, placeId);
     }
 }
