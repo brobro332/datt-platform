@@ -25,6 +25,7 @@ jobs:
           --exclude='build' \
           --exclude='.gradle' \
           .
+        mv ../project.tar.gz ./project.tar.gz
 
     - name: Create destination directory on OCI VM
       uses: appleboy/ssh-action@v1.0.3
@@ -43,7 +44,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
-        source: "../project.tar.gz"
+        source: "project.tar.gz"
         target: "/home/ubuntu/datt-platform"
 
     - name: Extract, Configure, and Build/Run via Docker Compose
