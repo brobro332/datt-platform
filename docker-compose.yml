@@ -14,36 +14,40 @@ services:
     networks:
       - datt-network
 
-  # spring-boot-app:
-  #   build:
-  #     context: ./spring-boot-app
-  #     dockerfile: Dockerfile
-  #   container_name: spring-boot-app
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://datt-db:5432/datt
-  #     - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
-  #     - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
-  #   networks:
-  #     - datt-network
-  #   depends_on:
-  #     - datt-db
+  spring-boot-app:
+    build:
+      context: ./spring-boot-app
+      dockerfile: Dockerfile
+    container_name: spring-boot-app
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://datt-db:5432/datt
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - datt-network
+    depends_on:
+      - datt-db
 
-  # next-js-app:
-  #   build:
-  #     context: ./next-js-app
-  #     dockerfile: Dockerfile
-  #   container_name: next-js-app
-  #   restart: always
-  #   ports:
-  #     - "3000:3000"
-  #   environment:
-  #     - NEXT_PUBLIC_API_URL=${DOMAIN_BACKEND}
-  #   networks:
-  #     - datt-network
-  #   depends_on:
-  #     - spring-boot-app
+  next-js-app:
+    build:
+      context: ./next-js-app
+      dockerfile: Dockerfile
+    container_name: next-js-app
+    restart: always
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+    networks:
+      - datt-network
+    depends_on:
+      - spring-boot-app
 
   # nginx:
   #   image: nginx:latest
