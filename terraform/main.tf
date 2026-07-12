@@ -159,25 +159,4 @@ data "oci_core_instance" "datt_vm" {
   instance_id = var.existing_instance_ocid
 }
 
-# 1. Fetch VM's Primary VNIC details
-data "oci_core_vnic_attachments" "datt_vnics" {
-  compartment_id = var.compartment_ocid
-  instance_id    = data.oci_core_instance.datt_vm.id
-}
-
-data "oci_core_vnic" "datt_vnic" {
-  vnic_id = data.oci_core_vnic_attachments.datt_vnics.vnic_attachments[0].vnic_id
-}
-
-# 2. Fetch VM's Primary Private IP details
-data "oci_core_private_ips" "datt_private_ips" {
-  vnic_id = data.oci_core_vnic.datt_vnic.id
-}
-
-# 3. Create Reserved Public IP and bind it to the private IP
-resource "oci_core_public_ip" "datt_reserved_ip" {
-  compartment_id = var.compartment_ocid
-  lifetime       = "RESERVED"
-  display_name   = "datt-reserved-public-ip"
-  private_ip_id  = data.oci_core_private_ips.datt_private_ips.private_ips[0].id
-}
+# VM VNIC and public IP binding omitted as per Alternative B (using existing VM IP)
