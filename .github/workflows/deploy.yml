@@ -18,6 +18,7 @@ jobs:
     - name: Compress project files
       run: |
         tar -czf project.tar.gz \
+          --exclude='project.tar.gz' \
           --exclude='.git' \
           --exclude='.github' \
           --exclude='node_modules' \
