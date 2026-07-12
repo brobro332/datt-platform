@@ -614,7 +614,7 @@ export default function AnchorDetailPage() {
               </button>
 
               {/* Native Web Share (Conditional) */}
-              {typeof navigator !== "undefined" && navigator.share && (
+              {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
                 <button
                   onClick={shareNative}
                   className="w-full py-4 rounded-2xl bg-gradient-to-tr from-indigo-500 via-indigo-600 to-blue-600 hover:from-indigo-600 hover:to-blue-700 text-white font-black text-sm transition-all duration-200 active:scale-98 cursor-pointer flex items-center justify-center gap-2.5 shadow-md shadow-indigo-500/10 hover:shadow-indigo-500/20"
