@@ -1,0 +1,27 @@
+package xyz.datt.domain.review.dto;
+
+import xyz.datt.domain.review.entity.PlaceReview;
+
+import java.time.LocalDateTime;
+
+public record ProfileReviewResponse(
+    Long reviewId,
+    Long placeId,
+    String placeName,
+    int rating,
+    String content,
+    String imageUrl,
+    LocalDateTime createdAt
+) {
+    public static ProfileReviewResponse from(PlaceReview review) {
+        return new ProfileReviewResponse(
+            review.getId(),
+            review.getPlaceMaster().getId(),
+            review.getPlaceMaster().getBizesNm(),
+            review.getRating(),
+            review.getContent(),
+            review.getImageUrl(),
+            review.getCreatedAt()
+        );
+    }
+}

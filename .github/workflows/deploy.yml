@@ -1,0 +1,138 @@
+name: Deploy DATT Application
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'spring-boot-app/**'
+      - 'next-js-app/**'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
+
+jobs:
+  deploy-backend:
+    name: Build & Deploy Spring Boot Backend
+    runs-on: ubuntu-latest
+    # Run only if backend files changed or manual trigger
+    if: github.event_name == 'workflow_dispatch' || contains(join(github.event.commits.*.modified, ','), 'spring-boot-app/') || contains(join(github.event.commits.*.added, ','), 'spring-boot-app/')
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'corretto'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v3
+
+    - name: Build with Gradle
+      run: |
+        cd spring-boot-app
+        chmod +x ./gradlew
+        ./gradlew bootJar
+
+    - name: Transfer JAR to OCI VM via SSH
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        source: "spring-boot-app/build/libs/*.jar"
+        target: "/home/ubuntu/datt/backend"
+        strip_components: 3
+
+    - name: Restart Backend Service via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      env:
+        BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        envs: BACKEND_ENV
+        script: |
+          mkdir -p /home/ubuntu/datt/backend
+          cd /home/ubuntu/datt/backend
+          # Write .env file from secrets
+          echo "$BACKEND_ENV" > .env
+          # Find and kill the previous spring-boot app running on port 8080
+          PID=$(lsof -t -i:8080 || true)
+          if [ -n "$PID" ]; then
+            echo "Killing process $PID running on port 8080"
+            kill -15 $PID
+            sleep 3
+            kill -9 $PID || true
+          fi
+          # Start the backend jar in background
+          nohup java -jar *.jar --spring.profiles.active=prod > backend.log 2>&1 &
+          echo "Spring Boot application started in background."
+
+  deploy-frontend:
+    name: Build & Deploy Next.js Frontend
+    runs-on: ubuntu-latest
+    # Run only if frontend files changed or manual trigger
+    if: github.event_name == 'workflow_dispatch' || contains(join(github.event.commits.*.modified, ','), 'next-js-app/') || contains(join(github.event.commits.*.added, ','), 'next-js-app/')
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+        cache-dependency-path: next-js-app/package-lock.json
+
+    - name: Install dependencies & Build
+      env:
+        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      run: |
+        cd next-js-app
+        npm ci
+        npm run build
+
+    - name: Compress frontend build artifacts
+      run: |
+        tar -czf frontend.tar.gz -C next-js-app .next public package.json package-lock.json node_modules
+
+    - name: Transfer frontend artifacts via SSH
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        source: "frontend.tar.gz"
+        target: "/home/ubuntu/datt/frontend"
+
+    - name: Extract & Restart Frontend via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.VM_HOST }}
+        username: ubuntu
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        port: 22
+        script: |
+          mkdir -p /home/ubuntu/datt/frontend
+          cd /home/ubuntu/datt/frontend
+          tar -xzf frontend.tar.gz
+          rm frontend.tar.gz
+          
+          # Restart Next.js using PM2 (install if not exists)
+          if ! command -v pm2 &> /dev/null; then
+            echo "pm2 not found, installing globally..."
+            sudo npm install -g pm2
+          fi
+          
+          pm2 delete datt-frontend || true
+          pm2 start npm --name "datt-frontend" -- start
+          pm2 save
+          echo "Next.js application restarted via PM2."

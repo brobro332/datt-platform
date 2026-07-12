@@ -1,0 +1,99 @@
+package xyz.datt.domain.place.dto;
+
+import xyz.datt.domain.bookmark.dto.BookmarkFolderResponse;
+import xyz.datt.domain.bookmark.entity.PlaceBookmark;
+import xyz.datt.domain.place.entity.PlaceMaster;
+import xyz.datt.domain.anchor.entity.AnchorPlaceCategory;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record PlaceDetailResponse(
+    Long id,
+    String bizesId,
+
+    String bizesNm,
+    String brchNm,
+
+    String indsLclsCd,
+    String indsLclsNm,
+    String indsMclsCd,
+    String indsMclsNm,
+    String indsSclsCd,
+    String indsSclsNm,
+
+    String ctprvnNm,
+    String signguNm,
+    String adongNm,
+    String ldongNm,
+
+    String lnoAdr,
+    String rdnmAdr,
+    String newZipcd,
+
+    Double lon,
+    Double lat,
+
+    Boolean isBookmarked,
+    List<BookmarkFolderResponse> bookmarkFolders,
+
+    Double averageRating,
+    Long reviewCount,
+
+    LocalDateTime createdAt,
+    LocalDateTime updatedAt,
+    String category
+) {
+    public static PlaceDetailResponse from(
+        PlaceMaster placeMaster,
+        PlaceBookmark placeBookmark,
+        Double averageRating,
+        Long reviewCount
+    ) {
+        boolean isBookmarked = placeBookmark != null;
+        List<BookmarkFolderResponse> folders = (placeBookmark != null && placeBookmark.getBookmarkFolders() != null)
+            ? placeBookmark.getBookmarkFolders().stream()
+                .map(BookmarkFolderResponse::from)
+                .toList()
+            : List.of();
+
+        return new PlaceDetailResponse(
+            placeMaster.getId(),
+            placeMaster.getBizesId(),
+
+            placeMaster.getBizesNm(),
+            placeMaster.getBrchNm(),
+
+            placeMaster.getIndsLclsCd(),
+            placeMaster.getIndsLclsNm(),
+            placeMaster.getIndsMclsCd(),
+            placeMaster.getIndsMclsNm(),
+            placeMaster.getIndsSclsCd(),
+            placeMaster.getIndsSclsNm(),
+
+            placeMaster.getCtprvnNm(),
+            placeMaster.getSignguNm(),
+            placeMaster.getAdongNm(),
+            placeMaster.getLdongNm(),
+
+            placeMaster.getLnoAdr(),
+            placeMaster.getRdnmAdr(),
+            placeMaster.getNewZipcd(),
+
+            placeMaster.getLon(),
+            placeMaster.getLat(),
+
+            isBookmarked,
+            folders,
+
+            averageRating,
+            reviewCount,
+
+            placeMaster.getCreatedAt(),
+            placeMaster.getUpdatedAt(),
+            AnchorPlaceCategory.fromIndsMclsCd(placeMaster.getIndsMclsCd()) != null 
+                ? AnchorPlaceCategory.fromIndsMclsCd(placeMaster.getIndsMclsCd()).name() 
+                : "OTHER"
+        );
+    }
+}

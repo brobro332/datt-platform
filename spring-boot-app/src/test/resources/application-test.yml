@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:datt-test
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+
+  flyway:
+    enabled: false
+
+  batch:
+    job:
+      enabled: false
+
+public-data:
+  place:
+    base-url: https://apis.data.go.kr
+    endpoint: /B553077/api/open/sdsc2/storeListInUpjong
+    service-key: ${PUBLIC_DATA_SERVICE_KEY}
+    num-of-rows: 1000
+    type: json
+
+jwt:
+  secret: datt0test0secret0key0datt0test0secret0key0123456

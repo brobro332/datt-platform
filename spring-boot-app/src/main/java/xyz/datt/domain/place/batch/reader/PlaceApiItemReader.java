@@ -1,0 +1,52 @@
+package xyz.datt.domain.place.batch.reader;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.batch.infrastructure.item.ItemReader;
+import xyz.datt.domain.place.batch.client.PlacePublicDataClient;
+import xyz.datt.domain.place.batch.dto.PlacePublicDataItem;
+import xyz.datt.domain.place.entity.PlaceIndustryCategory;
+
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+@Slf4j
+@RequiredArgsConstructor
+public class PlaceApiItemReader implements ItemReader<PlacePublicDataItem> {
+    private static final String DIV_ID = "indsMclsCd";
+    private final PlacePublicDataClient placePublicDataClient;
+    private final List<PlaceIndustryCategory> categories = List.of(PlaceIndustryCategory.values());
+    private int categoryIndex = 0;
+    private int pageNo = 1;
+    private Iterator<PlacePublicDataItem> currentIterator = Collections.emptyIterator();
+
+    @Override
+    public PlacePublicDataItem read() {
+        while (true) {
+            if (currentIterator.hasNext()) return currentIterator.next();
+            if (categoryIndex >= categories.size()) return null;
+
+            PlaceIndustryCategory category = categories.get(categoryIndex);
+
+            log.info("[Batch Reader] 카테고리 요청 중: {} ({}), 페이지: {}, 진행상황: {}/{}", 
+                category.getName(), category.getCode(), pageNo, categoryIndex + 1, categories.size());
+
+            List<PlacePublicDataItem> items = placePublicDataClient.fetchPlaces(
+                DIV_ID,
+                category.getCode(),
+                pageNo
+            );
+
+            if (items.isEmpty()) {
+                log.info("[Batch Reader] 카테고리 완료: {} ({}), 다음 카테고리로 이동합니다.", category.getName(), category.getCode());
+                categoryIndex++;
+                pageNo = 1;
+                continue;
+            }
+
+            pageNo++;
+            currentIterator = items.iterator();
+        }
+    }
+}
