@@ -15,20 +15,24 @@ public enum PlaceIndustryCategory {
     WESTERN_FOOD("I204", "서양식"),
     SOUTHEAST_ASIAN_FOOD("I205", "동남아시아"),
     OTHER_FOREIGN_FOOD("I206", "기타 외국"),
-    CAFETERIA_BUFFET("I207", "구내식당·뷔페"),
-    CATERING("I208", "출장 음식"),
+    CAFE("I207", "커피점/카페"),
+    BAR("I208", "주점"),
     MOBILE_FOOD("I209", "이동 음식"),
     SIMPLE_FOOD("I210", "기타 간이"),
-    BAR("I211", "주점"),
-    NON_ALCOHOL("I212", "비알코올"),
+    
+    // Old codes (kept for compatibility during transition or if API still supports)
+    OLD_BAR("I211", "주점(구)"),
+    OLD_CAFE("I212", "비알코올(구)"),
 
-    GENERAL_ACCOMMODATION("I101", "일반 숙박"),
-    OTHER_ACCOMMODATION("I102", "기타 숙박"),
+    HOTEL("I101", "호텔"),
+    CONDO("I102", "콘도"),
+    CAMPING("I103", "캠핑"),
+    STAY_OTHER("I104", "기타 숙박"),
 
-    CREATIVE_ART("R101", "창작·예술"),
-    LIBRARY_HISTORIC_SITE("R102", "도서관·사적지"),
-    SPORTS_SERVICE("R103", "스포츠 서비스"),
-    AMUSEMENT("R104", "유원지·오락");
+    SPORTS("R103", "스포츠 서비스"),
+    AMUSEMENT("R104", "유원지·오락"),
+    PC_ROOM("R105", "PC방/게임장"),
+    KARAOKE("R106", "노래방");
 
     private final String code;
     private final String name;

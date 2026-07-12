@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import xyz.datt.domain.bookmark.dto.PlaceBookmarkResponse;
 import xyz.datt.domain.bookmark.entity.PlaceBookmark;
+import xyz.datt.domain.bookmark.repository.BookmarkFolderRepository;
 import xyz.datt.domain.bookmark.repository.PlaceBookmarkRepository;
 import xyz.datt.domain.member.entity.Member;
 import xyz.datt.domain.member.repository.MemberRepository;
@@ -24,11 +25,15 @@ class PlaceBookmarkServiceTest {
     private final PlaceBookmarkRepository placeBookmarkRepository = mock(PlaceBookmarkRepository.class);
     private final MemberRepository memberRepository = mock(MemberRepository.class);
     private final PlaceMasterRepository placeMasterRepository = mock(PlaceMasterRepository.class);
+    private final BookmarkFolderRepository bookmarkFolderRepository = mock(BookmarkFolderRepository.class);
+    private final xyz.datt.domain.gamification.service.GamificationService gamificationService = mock(xyz.datt.domain.gamification.service.GamificationService.class);
 
     private final PlaceBookmarkService placeBookmarkService = new PlaceBookmarkService(
         placeBookmarkRepository,
         memberRepository,
-        placeMasterRepository
+        placeMasterRepository,
+        bookmarkFolderRepository,
+        gamificationService
     );
 
     @Test
@@ -44,7 +49,7 @@ class PlaceBookmarkServiceTest {
         when(memberRepository.findById(1L)).thenReturn(Optional.of(member));
         when(placeMasterRepository.findById(10L)).thenReturn(Optional.of(placeMaster));
         when(placeBookmarkRepository.existsByMemberIdAndPlaceMasterId(1L, 10L)).thenReturn(false);
-        when(placeBookmarkRepository.save(any(PlaceBookmark.class))).thenReturn(bookmark);
+        when(placeBookmarkRepository.saveAndFlush(any(PlaceBookmark.class))).thenReturn(bookmark);
 
         PlaceBookmarkResponse response = placeBookmarkService.addBookmark(1L, 10L);
 
@@ -52,23 +57,29 @@ class PlaceBookmarkServiceTest {
         assertThat(response.bizesNm()).isEqualTo("스타벅스 강남점");
         assertThat(response.indsMclsCd()).isEqualTo("I212");
 
-        verify(placeBookmarkRepository).save(any(PlaceBookmark.class));
+        verify(placeBookmarkRepository).saveAndFlush(any(PlaceBookmark.class));
     }
 
     @Test
-    @DisplayName("이미 저장한 장소를 다시 북마크하면 예외가 발생한다.")
-    void givenDuplicatedBookmark_whenAddBookmark_thenThrowException() {
+    @DisplayName("이미 저장한 장소를 다시 북마크하면 폴더 정보를 업데이트한다.")
+    void givenDuplicatedBookmark_whenAddBookmark_thenUpdateFolders() {
         Member member = createMember();
         PlaceMaster placeMaster = createPlaceMaster();
+        PlaceBookmark placeBookmark = PlaceBookmark.builder()
+            .member(member)
+            .placeMaster(placeMaster)
+            .build();
 
         when(memberRepository.findById(1L)).thenReturn(Optional.of(member));
         when(placeMasterRepository.findById(10L)).thenReturn(Optional.of(placeMaster));
-        when(placeBookmarkRepository.existsByMemberIdAndPlaceMasterId(1L, 10L)).thenReturn(true);
+        when(placeBookmarkRepository.findByMemberIdAndPlaceMasterId(1L, 10L))
+            .thenReturn(Optional.of(placeBookmark));
+        when(placeBookmarkRepository.saveAndFlush(any(PlaceBookmark.class))).thenReturn(placeBookmark);
 
-        assertThatThrownBy(() -> placeBookmarkService.addBookmark(1L, 10L))
-            .isInstanceOf(BusinessException.class);
+        PlaceBookmarkResponse response = placeBookmarkService.addBookmark(1L, 10L, List.of());
 
-        verify(placeBookmarkRepository, never()).save(any(PlaceBookmark.class));
+        assertThat(response).isNotNull();
+        verify(placeBookmarkRepository).saveAndFlush(any(PlaceBookmark.class));
     }
 
     @Test

@@ -12,5 +12,6 @@ public class PlaceSearchCondition {
     private String signguNm;
     private String adongNm;
     private String indsMclsCd;
+    private String category;
     private PlaceSortType sortType = PlaceSortType.LATEST;
 }

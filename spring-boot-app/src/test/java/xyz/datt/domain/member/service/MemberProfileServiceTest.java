@@ -46,7 +46,7 @@ class MemberProfileServiceTest {
             "bro"
         );
 
-        member.addExp(130);
+        member.addExp(530);
 
         when(memberRepository.findById(1L)).thenReturn(Optional.of(member));
         when(memberTitleRepository.findByMemberIdAndSelectedTrue(1L)).thenReturn(Optional.empty());
@@ -64,7 +64,7 @@ class MemberProfileServiceTest {
         assertThat(response.email()).isEqualTo("test@test.com");
         assertThat(response.nickname()).isEqualTo("bro");
         assertThat(response.level()).isEqualTo(2);
-        assertThat(response.exp()).isEqualTo(130);
+        assertThat(response.exp()).isEqualTo(530);
         assertThat(response.achievementCount()).isEqualTo(2);
         assertThat(response.activitySummary().bookmarkCount()).isEqualTo(3L);
         assertThat(response.activitySummary().reviewCount()).isEqualTo(4L);

@@ -25,6 +25,8 @@ export function MapContainer({
   const mapInstanceRef = useRef<kakao.maps.Map | null>(null);
   const placeMarkersRef = useRef<kakao.maps.Marker[]>([]);
   const currentOverlayRef = useRef<kakao.maps.CustomOverlay | null>(null);
+  const normalImageRef = useRef<any | null>(null);
+  const selectedImageRef = useRef<any | null>(null);
   const [isMapReady, setIsMapReady] = useState(false);
 
   useEffect(() => {
@@ -53,7 +55,7 @@ export function MapContainer({
     }
 
     const script = document.createElement("script");
-    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${env.kakaoMapAppKey}&autoload=false`;
+    script.src = `https://dapi.kakao.com/v2/maps/sdk.js?appkey=${env.kakaoMapAppKey}&libraries=services&autoload=false`;
     script.async = true;
     script.onload = () => {
       window.kakao.maps.load(createMap);
@@ -91,6 +93,20 @@ export function MapContainer({
   }, [isMapReady, currentLat, currentLon]);
 
   useEffect(() => {
+    if (isMapReady && window.kakao?.maps) {
+      const maps = window.kakao.maps as any;
+      normalImageRef.current = new maps.MarkerImage(
+        "https://t1.daumcdn.net/localimg/localimages/07/2018/pc/img/marker_spot.png",
+        new maps.Size(24, 35)
+      );
+      selectedImageRef.current = new maps.MarkerImage(
+        "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/marker_red.png",
+        new maps.Size(31, 35)
+      );
+    }
+  }, [isMapReady]);
+
+  useEffect(() => {
     const map = mapInstanceRef.current;
 
     if (!isMapReady || !map) {
@@ -107,11 +123,15 @@ export function MapContainer({
 
       const position = new window.kakao.maps.LatLng(place.lat, place.lon);
 
+      const isSelected = selectedPlace?.id === place.id;
       const marker = new window.kakao.maps.Marker({
         map,
         position,
         title: place.bizesNm,
-      });
+        image: isSelected ? selectedImageRef.current : normalImageRef.current,
+      } as any);
+
+      (marker as any).placeId = place.id;
 
       window.kakao.maps.event.addListener(marker, "click", () => {
         onSelectPlace?.(place);
@@ -124,7 +144,25 @@ export function MapContainer({
       placeMarkersRef.current.forEach((marker) => marker.setMap(null));
       placeMarkersRef.current = [];
     };
-  }, [isMapReady, places, onSelectPlace]);
+  }, [isMapReady, places, onSelectPlace, selectedPlace]);
+
+  useEffect(() => {
+    if (!isMapReady) return;
+
+    placeMarkersRef.current.forEach((marker) => {
+      const placeId = (marker as any).placeId;
+      const isSelected = selectedPlace?.id === placeId;
+      const m = marker as any;
+
+      if (isSelected) {
+        if (selectedImageRef.current) m.setImage(selectedImageRef.current);
+        m.setZIndex(10);
+      } else {
+        if (normalImageRef.current) m.setImage(normalImageRef.current);
+        m.setZIndex(1);
+      }
+    });
+  }, [isMapReady, selectedPlace]);
 
   useEffect(() => {
     if (!isMapReady || !mapInstanceRef.current) {

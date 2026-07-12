@@ -2,6 +2,7 @@ export type SignupRequest = {
   email: string;
   password: string;
   nickname: string;
+  verificationCode: string;
 };
 
 export type LoginRequest = {
@@ -14,6 +15,7 @@ export type LoginResponse = {
   refreshToken: string;
   memberId: number;
   nickname: string;
+  isNewMember?: boolean;
 };
 
 export type SignupResponse = {

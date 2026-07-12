@@ -26,7 +26,10 @@ type AuthState = {
         },
     ) => void;
 
+    restoreAuth: () => void;
+    clearAuth: () => void;
     logout: () => void;
+    updateNickname: (nickname: string) => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -74,5 +77,13 @@ export const useAuthStore = create<AuthState>((set) => ({
         accessToken: null,
         refreshToken: null,
         member: null,
+    }),
+
+  updateNickname: (nickname) =>
+    set((state) => {
+      if (!state.member) return state;
+      const updatedMember = { ...state.member, nickname };
+      localStorage.setItem("member", JSON.stringify(updatedMember));
+      return { member: updatedMember };
     }),
 }));

@@ -32,27 +32,32 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = resolveToken(request);
 
         if (token != null) {
-            jwtProvider.validateToken(token);
+            try {
+                jwtProvider.validateToken(token);
 
-            Long memberId = jwtProvider.getMemberId(token);
-            String role = jwtProvider.getRole(token);
+                Long memberId = jwtProvider.getMemberId(token);
+                String role = jwtProvider.getRole(token);
 
-            CustomUserDetails userDetails = new CustomUserDetails(
-                memberId,
-                null,
-                null,
-                MemberRole.valueOf(role)
-            );
-
-            UsernamePasswordAuthenticationToken authentication =
-                new UsernamePasswordAuthenticationToken(
-                    userDetails,
+                CustomUserDetails userDetails = new CustomUserDetails(
+                    memberId,
                     null,
-                    List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                    null,
+                    MemberRole.valueOf(role)
                 );
 
-            SecurityContextHolder.getContext()
-                .setAuthentication(authentication);
+                UsernamePasswordAuthenticationToken authentication =
+                    new UsernamePasswordAuthenticationToken(
+                        userDetails,
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_" + role))
+                    );
+
+                SecurityContextHolder.getContext()
+                    .setAuthentication(authentication);
+            } catch (Exception e) {
+                // 토큰 검증에 실패해도 일단 통과시킵니다.
+                // permitAll() 경로는 통과될 것이고, 인증이 필요한 경로는 시큐리티 필터 단계에서 거부됩니다.
+            }
         }
 
         filterChain.doFilter(request, response);

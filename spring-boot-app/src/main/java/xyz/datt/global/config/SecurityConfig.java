@@ -27,9 +27,17 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth ->
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers(
-                        "/api/health",
+                        "/api/health", "/api/admin/batch/run",
                         "/api/auth/signup", "/api/auth/login", "/api/auth/reissue", "/api/auth/logout",
-                        "/api/place-masters", "/api/batch/place-sync").permitAll()
+                        "/api/auth/check-email", "/api/auth/check-nickname",
+                        "/api/auth/email/send", "/api/auth/email/verify", "/api/auth/social/**",
+                        "/api/place-masters", "/api/batch/place-sync",
+                        "/api/subway-stations", "/api/admin/subway-stations/sync",
+                        "/uploads/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/stats").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/anchors/{anchorId}").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/places/{placeId:[0-9]+}").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/places/{placeId:[0-9]+}/reviews").permitAll()
                     .anyRequest().authenticated()
             )
             .addFilterBefore(

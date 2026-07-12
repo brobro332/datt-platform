@@ -1,10 +1,14 @@
 package xyz.datt.domain.member.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import xyz.datt.domain.member.dto.MemberProfileResponse;
+import xyz.datt.domain.member.dto.UpdateNicknameRequest;
 import xyz.datt.domain.member.service.MemberProfileService;
 import xyz.datt.global.response.ApiResponse;
 import xyz.datt.global.security.CustomUserDetails;
@@ -20,6 +24,19 @@ public class MemberProfileController {
     ) {
         MemberProfileResponse response = memberProfileService.getMyProfile(
             userDetails.getMemberId()
+        );
+
+        return ApiResponse.success(response);
+    }
+
+    @PutMapping("/api/my/profile/nickname")
+    public ApiResponse<MemberProfileResponse> updateNickname(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @Valid @RequestBody UpdateNicknameRequest request
+    ) {
+        MemberProfileResponse response = memberProfileService.updateNickname(
+            userDetails.getMemberId(),
+            request.nickname()
         );
 
         return ApiResponse.success(response);

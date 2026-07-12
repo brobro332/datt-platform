@@ -18,6 +18,12 @@ import xyz.datt.domain.review.repository.PlaceReviewRepository;
 import xyz.datt.global.error.BusinessException;
 import xyz.datt.global.error.ErrorCode;
 
+import xyz.datt.domain.gamification.entity.ActivityType;
+import xyz.datt.domain.gamification.service.GamificationService;
+import lombok.extern.slf4j.Slf4j;
+import xyz.datt.global.infrastructure.storage.FileStorageService;
+
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -25,6 +31,8 @@ public class PlaceReviewService {
     private final PlaceReviewRepository placeReviewRepository;
     private final MemberRepository memberRepository;
     private final PlaceMasterRepository placeMasterRepository;
+    private final GamificationService gamificationService;
+    private final FileStorageService fileStorageService;
 
     @Transactional
     public PlaceReviewResponse createReview(
@@ -45,9 +53,12 @@ public class PlaceReviewService {
             .placeMaster(placeMaster)
             .rating(request.rating())
             .content(request.content())
+            .imageUrl(request.imageUrl())
             .build();
 
         PlaceReview savedReview = placeReviewRepository.save(review);
+
+        gamificationService.logActivity(memberId, ActivityType.PLACE_REVIEW_CREATE, "장소 '" + placeMaster.getBizesNm() + "' 리뷰 작성");
 
         return PlaceReviewResponse.from(savedReview);
     }
@@ -65,10 +76,23 @@ public class PlaceReviewService {
         validateReviewPlace(review, placeId);
         validateReviewOwner(review, memberId);
 
+        String oldImageUrl = review.getImageUrl();
+        String newImageUrl = request.imageUrl();
+
         review.update(
             request.rating(),
-            request.content()
+            request.content(),
+            newImageUrl
         );
+
+        // If the image changed/was removed, delete the old one from storage
+        if (oldImageUrl != null && !oldImageUrl.equals(newImageUrl)) {
+            try {
+                fileStorageService.deleteFile(oldImageUrl);
+            } catch (Exception e) {
+                log.warn("Failed to delete garbage review image: {}", oldImageUrl, e);
+            }
+        }
 
         return PlaceReviewResponse.from(review);
     }
@@ -86,6 +110,15 @@ public class PlaceReviewService {
         validateReviewOwner(review, memberId);
 
         placeReviewRepository.delete(review);
+
+        // Delete image from storage when review is deleted
+        if (review.getImageUrl() != null) {
+            try {
+                fileStorageService.deleteFile(review.getImageUrl());
+            } catch (Exception e) {
+                log.warn("Failed to delete garbage review image: {}", review.getImageUrl(), e);
+            }
+        }
     }
 
     public Page<PlaceReviewResponse> getPlaceReviews(

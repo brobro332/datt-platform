@@ -5,7 +5,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.datt.domain.auth.dto.*;
+import xyz.datt.domain.auth.entity.EmailVerification;
 import xyz.datt.domain.auth.entity.RefreshToken;
+import xyz.datt.domain.auth.repository.EmailVerificationRepository;
 import xyz.datt.domain.auth.repository.RefreshTokenRepository;
 import xyz.datt.domain.member.entity.Member;
 import xyz.datt.domain.member.repository.MemberRepository;
@@ -23,11 +25,14 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final EmailVerificationRepository emailVerificationRepository;
 
     @Transactional
     public SignupResponse signup(SignupRequest request) {
         validateEmail(request.email());
         validateNickname(request.nickname());
+
+        verifyEmailCode(request.email(), request.verificationCode());
 
         String encodedPassword = passwordEncoder.encode(request.password());
 
@@ -131,6 +136,27 @@ public class AuthService {
     private void validateNickname(String nickname) {
         if (memberRepository.existsByNickname(nickname)) {
             throw new BusinessException(ErrorCode.DUPLICATED_NICKNAME);
+        }
+    }
+
+    public void checkEmailDuplicate(String email) {
+        validateEmail(email);
+    }
+
+    public void checkNicknameDuplicate(String nickname) {
+        validateNickname(nickname);
+    }
+
+    public void verifyEmailCode(String email, String code) {
+        EmailVerification verification = emailVerificationRepository.findFirstByEmailOrderByCreatedAtDesc(email)
+                .orElseThrow(() -> new BusinessException(ErrorCode.EMAIL_VERIFICATION_NOT_FOUND));
+
+        if (!verification.getCode().equals(code)) {
+            throw new BusinessException(ErrorCode.INVALID_EMAIL_VERIFICATION_CODE);
+        }
+
+        if (verification.isExpired()) {
+            throw new BusinessException(ErrorCode.EMAIL_VERIFICATION_EXPIRED);
         }
     }
 }

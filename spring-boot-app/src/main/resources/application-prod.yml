@@ -1,0 +1,8 @@
+storage:
+  type: oci
+  oci:
+    config-path: ${OCI_CONFIG_PATH:~/.oci/config}
+    profile: ${OCI_PROFILE:DEFAULT}
+    bucket-name: ${OCI_BUCKET_NAME}
+    namespace: ${OCI_NAMESPACE}
+    region: ${OCI_REGION}

@@ -42,7 +42,7 @@ export function PlaceOverlay({ map, place }: PlaceOverlayProps) {
                 </p>
 
                 <a
-                    href="/places/${place.id}"
+                    href="/place-search/${place.id}"
                     style="display:inline-block;margin-top:10px;font-size:13px;font-weight:700;color:#111827;text-decoration:underline;"
                 >
                     상세 보기

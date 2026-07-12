@@ -14,3 +14,13 @@ export type PageResponse<T> = {
   last: boolean;
   empty: boolean;
 };
+
+export type SliceResponse<T> = {
+  content: T[];
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+  empty: boolean;
+  hasNext: boolean;
+};

@@ -7,6 +7,7 @@ import java.util.List;
 
 public record AnchorDetailResponse(
     Long anchorId,
+    Long memberId,
     String title,
 
     String basePlaceName,
@@ -35,6 +36,7 @@ public record AnchorDetailResponse(
     ) {
         return new AnchorDetailResponse(
             anchor.getId(),
+            anchor.getMember().getId(),
             anchor.getTitle(),
 
             anchor.getBasePlaceName(),

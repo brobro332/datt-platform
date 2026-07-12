@@ -9,3 +9,11 @@ export async function getMyProfile(): Promise<MemberProfileResponse> {
 
     return response.data.data;
 }
+
+export async function updateNickname(nickname: string): Promise<MemberProfileResponse> {
+    const response = await apiClient.put<ApiResponse<MemberProfileResponse>>(
+        "/api/my/profile/nickname",
+        { nickname }
+    );
+    return response.data.data;
+}

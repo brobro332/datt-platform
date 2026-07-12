@@ -11,4 +11,5 @@ public class PlaceNearbyCondition {
     private Double radiusKm = 3.0;
     private String keyword;
     private String indsMclsCd;
+    private String category;
 }

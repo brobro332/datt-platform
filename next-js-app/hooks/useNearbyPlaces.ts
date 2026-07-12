@@ -6,6 +6,7 @@ type UseNearbyPlacesParams = {
   lat?: number;
   lon?: number;
   radiusKm?: number;
+  category?: string;
   page?: number;
   size?: number;
 };
@@ -14,6 +15,7 @@ export function useNearbyPlaces({
   lat,
   lon,
   radiusKm = 3,
+  category,
   page = 0,
   size = 20,
 }: UseNearbyPlacesParams) {
@@ -23,6 +25,7 @@ export function useNearbyPlaces({
       lat,
       lon,
       radiusKm,
+      category,
       page,
       size,
     ],
@@ -32,6 +35,7 @@ export function useNearbyPlaces({
         lat: lat!,
         lon: lon!,
         radiusKm,
+        category,
         page,
         size,
       }),

@@ -8,8 +8,6 @@ public record AnchorCreateRequest(
         @Size(max = 100)
         String title,
 
-        Long basePlaceId,
-
         @Size(max = 100)
         String basePlaceName,
 

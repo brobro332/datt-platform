@@ -44,6 +44,7 @@ export async function searchNearbyPlaces(
       lat: params.lat,
       lon: params.lon,
       radiusKm: params.radiusKm ?? 3,
+      category: params.category,
       page: params.page ?? 0,
       size: params.size ?? 20,
     },

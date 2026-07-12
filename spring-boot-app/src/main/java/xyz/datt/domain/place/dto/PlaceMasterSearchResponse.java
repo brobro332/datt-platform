@@ -1,6 +1,7 @@
 package xyz.datt.domain.place.dto;
 
 import xyz.datt.domain.place.entity.PlaceMaster;
+import xyz.datt.domain.anchor.entity.AnchorPlaceCategory;
 
 public record PlaceMasterSearchResponse(
     Long id,
@@ -15,7 +16,8 @@ public record PlaceMasterSearchResponse(
     String rdnmAdr,
     String lnoAdr,
     Double lon,
-    Double lat
+    Double lat,
+    String category
 ) {
 
     public static PlaceMasterSearchResponse from(PlaceMaster placeMaster) {
@@ -32,7 +34,10 @@ public record PlaceMasterSearchResponse(
             placeMaster.getRdnmAdr(),
             placeMaster.getLnoAdr(),
             placeMaster.getLon(),
-            placeMaster.getLat()
+            placeMaster.getLat(),
+            AnchorPlaceCategory.fromIndsMclsCd(placeMaster.getIndsMclsCd()) != null 
+                ? AnchorPlaceCategory.fromIndsMclsCd(placeMaster.getIndsMclsCd()).name() 
+                : "OTHER"
         );
     }
 }

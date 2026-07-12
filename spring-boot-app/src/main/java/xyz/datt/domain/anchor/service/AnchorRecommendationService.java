@@ -17,7 +17,7 @@ import java.util.Map;
 public class AnchorRecommendationService {
     private final PlaceMasterRepository placeMasterRepository;
 
-    private static final int DEFAULT_CATEGORY_LIMIT = 5;
+    private static final int DEFAULT_CATEGORY_LIMIT = 10;
 
     public Map<AnchorPlaceCategory, List<PlaceNearbyResponse>> recommendByCategory(
         Double baseLat,
@@ -33,6 +33,28 @@ public class AnchorRecommendationService {
                     baseLat,
                     baseLon,
                     radiusKm,
+                    category.getMiddleCategoryCodes(),
+                    DEFAULT_CATEGORY_LIMIT
+                );
+
+            result.put(category, places);
+        }
+
+        return result;
+    }
+
+    public Map<AnchorPlaceCategory, List<PlaceNearbyResponse>> recommendByRegion(
+        String province,
+        String district
+    ) {
+        Map<AnchorPlaceCategory, List<PlaceNearbyResponse>> result =
+            new EnumMap<>(AnchorPlaceCategory.class);
+
+        for (AnchorPlaceCategory category : AnchorPlaceCategory.values()) {
+            List<PlaceNearbyResponse> places =
+                placeMasterRepository.findTopPlacesInRegion(
+                    province,
+                    district,
                     category.getMiddleCategoryCodes(),
                     DEFAULT_CATEGORY_LIMIT
                 );

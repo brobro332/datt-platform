@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import xyz.datt.domain.place.dto.PlaceMasterSearchResponse;
 import xyz.datt.domain.place.entity.PlaceMaster;
 import xyz.datt.domain.place.repository.PlaceMasterRepository;
@@ -30,11 +32,11 @@ class PlaceMasterServiceTest {
         placeMasterRepository.save(createPlaceMaster("TEST-001", "스타벅스 강남점"));
         placeMasterRepository.save(createPlaceMaster("TEST-002", "메가커피 선릉점"));
 
-        List<PlaceMasterSearchResponse> result =
-            placeMasterService.searchByKeyword("스타벅스");
+        Slice<PlaceMasterSearchResponse> result =
+            placeMasterService.searchPlaceMasters(null, null, "스타벅스", null, PageRequest.of(0, 10));
 
-        assertThat(result).hasSize(1);
-        assertThat(result.get(0).bizesNm())
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).bizesNm())
             .isEqualTo("스타벅스 강남점");
     }
 

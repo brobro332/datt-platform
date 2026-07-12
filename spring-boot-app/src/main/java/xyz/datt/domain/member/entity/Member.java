@@ -71,4 +71,8 @@ public class Member extends BaseEntity {
         this.exp += expAmount;
         this.level = LevelPolicy.calculateLevel(this.exp);
     }
+
+    public void updateNickname(String nickname) {
+        this.nickname = nickname;
+    }
 }

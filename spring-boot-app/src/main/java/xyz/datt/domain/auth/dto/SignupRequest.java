@@ -15,6 +15,10 @@ public record SignupRequest(
 
         @NotBlank(message = "닉네임은 필수입니다.")
         @Size(min = 2, max = 30, message = "닉네임은 2자 이상 30자 이하로 입력해야 합니다.")
-        String nickname
+        String nickname,
+
+        @NotBlank(message = "인증번호는 필수입니다.")
+        @Size(min = 6, max = 6, message = "인증번호는 6자리 숫자입니다.")
+        String verificationCode
 ) {
 }

@@ -6,6 +6,5 @@ export function usePlaceSearch(params: PlaceSearchParams) {
   return useQuery({
     queryKey: ["places", params],
     queryFn: () => searchPlaces(params),
-    enabled: Boolean(params.keyword),
   });
 }

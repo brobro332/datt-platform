@@ -61,7 +61,7 @@ export function ActivityLogItem({ log }: ActivityLogItemProps) {
                         </p>
                     </div>
 
-                    <span className="shrink-0 rounded-full bg-gray-950 px-3 py-1 text-xs font-semibold text-white">
+                    <span className="shrink-0 rounded-full bg-indigo-50 border border-indigo-100/50 px-3 py-1 text-xs font-extrabold text-indigo-600 shadow-sm">
                         +{log.expAmount} EXP
                     </span>
                 </div>

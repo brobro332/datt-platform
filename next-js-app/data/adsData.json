@@ -1,0 +1,64 @@
+[
+  {
+    "id": "dp-a400",
+    "title": "CD/DVD Mini 플레이어 블루투스 인 아웃 액센 DP-A400",
+    "description": "좋아하는 음악, 영화 DVD 등 내가 있는 곳 어디서든 즐겨보세요.",
+    "badge": "PREMIUM",
+    "subTitle": "CD/DVD, FM RADIO, BLUETOOTH, USB",
+    "emoji": "🎵",
+    "link": "https://smartstore.naver.com/hddigipia/products/6541019988",
+    "themeColor": "indigo",
+    "images": [
+      "/images/ads/DP-A400/50958653962998275_1464675714.jpeg",
+      "/images/ads/DP-A400/50958699955929563_406252639.jpeg",
+      "/images/ads/DP-A400/50958704075331280_1915328005.jpeg",
+      "/images/ads/DP-A400/50958730913458388_1923356972.jpg"
+    ]
+  },
+  {
+    "id": "klaleklang",
+    "title": "클라레클랑 오디오\n아날로그 감성의 정수",
+    "description": "최상의 퍼포먼스. 공간을 채우는 사운드",
+    "badge": "EXCLUSIVE",
+    "subTitle": "초강력 스테레오 TWS\n2.1채널 서브우퍼",
+    "emoji": "📻",
+    "link": "https://smartstore.naver.com/hddigipia/products/9893718550",
+    "themeColor": "rose",
+    "images": [
+      "/images/ads/KLALEKLANG/106530245864894956_557883237.png",
+      "/images/ads/KLALEKLANG/107470288465050807_549631017.jpg",
+      "/images/ads/KLALEKLANG/107470423849703780_1810675402.jpeg",
+      "/images/ads/KLALEKLANG/109011451453221681_762092860.png"
+    ]
+  },
+  {
+    "id": "mc-d800",
+    "title": "티악 MC-D800\n올인원 홈오디오 시스템",
+    "description": "턴테이블과 엠프는 물론. 매칭된 스피커까지! 완벽한 올인원 사운드 시스템",
+    "badge": "HOT",
+    "subTitle": "티악 멀티 오디오 플레이어\n입문자를 위한 올인원 패키지",
+    "emoji": "💿",
+    "link": "https://smartstore.naver.com/hddigipia/products/4884736486",
+    "themeColor": "blue",
+    "images": [
+      "/images/ads/MC-D800/26103947273358882_1875027051.jpg",
+      "/images/ads/MC-D800/26106432780160892_48580686.jpg"
+    ]
+  },
+  {
+    "id": "tn-180bt",
+    "title": "티악 TN-180BT\n입문용 블루투스 턴테이블",
+    "description": "선명하고 풍부한 사운드. 초심자를 위한 가장 똑똑한 선택",
+    "badge": "RECOMMENDED",
+    "subTitle": "블루투스 무선 연동 지원\n최고의 가성비 턴테이블",
+    "emoji": "✨",
+    "link": "https://smartstore.naver.com/hddigipia/products/5892738547",
+    "themeColor": "teal",
+    "images": [
+      "/images/ads/TN-180BT/34031657730730644_906258345.jpg",
+      "/images/ads/TN-180BT/34031679942126368_1196107123.jpg",
+      "/images/ads/TN-180BT/34031685514216647_287090153.jpg",
+      "/images/ads/TN-180BT/34031731429091123_290591919.jpg"
+    ]
+  }
+]
