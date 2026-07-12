@@ -19,12 +19,28 @@ spring:
       ddl-auto: validate
     properties:
       hibernate:
-        show_sql: true
-        format_sql: true
+        show_sql: false
+        format_sql: false
+        jdbc:
+          batch_size: 1000
+        order_inserts: true
+        order_updates: true
 
   batch:
     job:
       enabled: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 public-data:
   place:
@@ -38,6 +54,28 @@ app:
   cors:
     allowed-origins:
       - ${DOMAIN_FRONTEND}
+  batch:
+    file-pattern: uploads/소상공인시장진흥공단_상가(상권)정보_*.csv
+    encoding: UTF-8
+  kakao:
+    client-id: ${APP_KAKAO_CLIENT_ID:}
+    redirect-uri: ${APP_KAKAO_REDIRECT_URI:}
+    client-secret: ${APP_KAKAO_CLIENT_SECRET:}
+  naver:
+    client-id: ${APP_NAVER_CLIENT_ID:}
+    client-secret: ${APP_NAVER_CLIENT_SECRET:}
 
 jwt:
   secret: ${JWT_SECRET}
+
+storage:
+  type: ${STORAGE_TYPE:local}
+  local:
+    upload-dir: uploads
+    server-url: ${DOMAIN_BACKEND:http://localhost:8080}
+  oci:
+    config-path: ${OCI_CONFIG_PATH:~/.oci/config}
+    profile: ${OCI_PROFILE:DEFAULT}
+    bucket-name: ${OCI_BUCKET_NAME:}
+    namespace: ${OCI_NAMESPACE:}
+    region: ${OCI_REGION:}

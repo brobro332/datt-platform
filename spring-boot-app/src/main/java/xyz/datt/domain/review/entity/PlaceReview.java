@@ -42,12 +42,16 @@ public class PlaceReview extends BaseEntity {
     @Column(nullable = false, length = 1000)
     private String content;
 
+    @Column(length = 512)
+    private String imageUrl;
+
     @Builder
     private PlaceReview(
         Member member,
         PlaceMaster placeMaster,
         int rating,
-        String content
+        String content,
+        String imageUrl
     ) {
         validateRating(rating);
 
@@ -55,16 +59,23 @@ public class PlaceReview extends BaseEntity {
         this.placeMaster = placeMaster;
         this.rating = rating;
         this.content = content;
+        this.imageUrl = imageUrl;
     }
 
     public void update(
         int rating,
-        String content
+        String content,
+        String imageUrl
     ) {
         validateRating(rating);
 
         this.rating = rating;
         this.content = content;
+        this.imageUrl = imageUrl;
+    }
+
+    public void clearImageUrl() {
+        this.imageUrl = null;
     }
 
     private void validateRating(int rating) {
