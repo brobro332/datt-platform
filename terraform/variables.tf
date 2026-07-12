@@ -63,8 +63,3 @@ variable "instance_memory_in_gbs" {
   description = "Amount of memory in GBs for flex shape"
   default     = 24
 }
-
-variable "existing_instance_ocid" {
-  type        = string
-  description = "OCID of the existing OCI Compute Instance to bind the reserved IP to"
-}
