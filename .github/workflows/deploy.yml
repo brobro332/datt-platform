@@ -17,8 +17,7 @@ jobs:
 
     - name: Compress project files
       run: |
-        tar -czf project.tar.gz \
-          --exclude='project.tar.gz' \
+        tar -czf ../project.tar.gz \
           --exclude='.git' \
           --exclude='.github' \
           --exclude='node_modules' \
@@ -44,7 +43,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
-        source: "project.tar.gz"
+        source: "../project.tar.gz"
         target: "/home/ubuntu/datt-platform"
 
     - name: Extract, Configure, and Build/Run via Docker Compose
