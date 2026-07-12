@@ -9,6 +9,6 @@ output "object_storage_namespace" {
 }
 
 output "bucket_url" {
-  value       = "https://objectstorage.${var.region}.oraclecloud.com/n/${data.oci_objectstorage_namespace.ns.namespace}/b/${oci_objectstorage_bucket.datt_bucket.name}"
+  value       = "https://objectstorage.${var.region}.oraclecloud.com/n/${data.oci_objectstorage_namespace.ns.namespace}/b/${var.bucket_name != "" && var.bucket_name != null ? var.bucket_name : "datt-image-bucket"}"
   description = "The base URL of the OCI storage bucket"
 }

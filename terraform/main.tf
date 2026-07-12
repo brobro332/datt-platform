@@ -129,14 +129,7 @@ resource "oci_core_subnet" "datt_subnet" {
   security_list_ids = [oci_core_security_list.datt_sl.id]
 }
 
-# OCI Object Storage Bucket (Public Read for web display)
-resource "oci_objectstorage_bucket" "datt_bucket" {
-  compartment_id = var.compartment_ocid
-  name           = var.bucket_name != "" && var.bucket_name != null ? var.bucket_name : "datt-image-bucket"
-  namespace      = data.oci_objectstorage_namespace.ns.namespace
-  access_type    = "ObjectRead" 
-  storage_tier   = "Standard"
-}
+# OCI Object Storage Bucket creation omitted (using pre-existing bucket)
 
 # Get latest Ubuntu 22.04 LTS Image OCID dynamically
 data "oci_core_images" "ubuntu" {
