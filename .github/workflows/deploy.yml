@@ -51,13 +51,13 @@ jobs:
       uses: appleboy/ssh-action@v1.0.3
       env:
         BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
-        NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+        NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
       with:
         host: ${{ secrets.VM_HOST }}
         username: ubuntu
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
-        envs: BACKEND_ENV, NEXT_PUBLIC_API_URL
+        envs: BACKEND_ENV, NEXT_PUBLIC_API_BASE_URL
         script: |
           cd /home/ubuntu/datt-platform
           tar -xzf project.tar.gz
@@ -65,7 +65,7 @@ jobs:
           
           # Write environment variables to .env
           echo "$BACKEND_ENV" > .env
-          echo "NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL" >> .env
+          echo "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL" >> .env
           
           # Run Docker Compose (build and start in background)
           if command -v docker-compose &> /dev/null; then

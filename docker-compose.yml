@@ -47,7 +47,7 @@ services:
       context: ./next-js-app
       dockerfile: Dockerfile
       args:
-        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
     container_name: next-js-app
     restart: always
     ports:
@@ -55,7 +55,7 @@ services:
     env_file:
       - .env
     environment:
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
     networks:
       - datt-network
     depends_on:
