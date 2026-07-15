@@ -24,4 +24,10 @@ public interface PlaceMasterRepository extends JpaRepository<PlaceMaster, Long>,
 
     @Query("select p.bizesId from PlaceMaster p where p.bizesId in :bizesIds")
     List<String> findBizesIdsByBizesIdIn(@Param("bizesIds") Collection<String> bizesIds);
+
+    List<PlaceMaster> findByBizesIdIn(Collection<String> bizesIds);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("update PlaceMaster p set p.status = 'CLOSED', p.updatedAt = NOW() where p.lastSyncedAt < :batchStartTime and p.status = 'ACTIVE'")
+    int updateClosedPlaces(@Param("batchStartTime") java.time.LocalDateTime batchStartTime);
 }

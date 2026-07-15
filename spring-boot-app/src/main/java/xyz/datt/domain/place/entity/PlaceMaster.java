@@ -87,6 +87,12 @@ public class PlaceMaster extends BaseEntity {
     @Column(length = 100)
     private String location; // 좌표 문자열
 
+    @Column(nullable = false, length = 20)
+    private String status = "ACTIVE"; // ACTIVE, CLOSED 등
+
+    @Column
+    private java.time.LocalDateTime lastSyncedAt;
+
     @Builder
     private PlaceMaster(
         String bizesId,
@@ -128,6 +134,8 @@ public class PlaceMaster extends BaseEntity {
         this.lon = lon;
         this.lat = lat;
         this.location = location;
+        this.status = "ACTIVE";
+        this.lastSyncedAt = java.time.LocalDateTime.now();
     }
 
     public void updateFrom(PlaceMaster placeMaster) {
@@ -149,5 +157,11 @@ public class PlaceMaster extends BaseEntity {
         this.lon = placeMaster.getLon();
         this.lat = placeMaster.getLat();
         this.location = placeMaster.getLocation();
+        this.status = "ACTIVE";
+        this.lastSyncedAt = java.time.LocalDateTime.now();
+    }
+
+    public void updateStatus(String status) {
+        this.status = status;
     }
 }

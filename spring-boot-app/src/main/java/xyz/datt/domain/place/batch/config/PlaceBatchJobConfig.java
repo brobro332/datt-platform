@@ -21,9 +21,14 @@ public class PlaceBatchJobConfig {
     private static final int CHUNK_SIZE = 1000;
 
     @Bean
-    public Job placeSyncJob(JobRepository jobRepository, Step placeSyncStep) {
+    public Job placeSyncJob(
+        JobRepository jobRepository,
+        Step placeSyncStep,
+        PlaceSyncJobListener placeSyncJobListener
+    ) {
         return new JobBuilder("placeSyncJob", jobRepository)
             .start(placeSyncStep)
+            .listener(placeSyncJobListener)
             .build();
     }
 

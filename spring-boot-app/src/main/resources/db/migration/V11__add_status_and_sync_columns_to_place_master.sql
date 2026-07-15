@@ -1,0 +1,2 @@
+ALTER TABLE place_master ADD COLUMN status VARCHAR(20) DEFAULT 'ACTIVE' NOT NULL;
+ALTER TABLE place_master ADD COLUMN last_synced_at TIMESTAMP;

@@ -23,14 +23,24 @@ public class PlaceItemWriter implements ItemWriter<PlaceMaster> {
             .map(PlaceMaster::getBizesId)
             .toList();
 
-        List<String> existingBizesIds = placeMasterRepository.findBizesIdsByBizesIdIn(bizesIds);
+        List<PlaceMaster> existingPlaces = placeMasterRepository.findByBizesIdIn(bizesIds);
+        java.util.Map<String, PlaceMaster> existingPlacesMap = existingPlaces.stream()
+            .collect(java.util.stream.Collectors.toMap(PlaceMaster::getBizesId, p -> p));
 
-        List<? extends PlaceMaster> newPlaces = chunk.getItems().stream()
-            .filter(item -> !existingBizesIds.contains(item.getBizesId()))
-            .toList();
+        List<PlaceMaster> toSave = new java.util.ArrayList<>();
 
-        if (!newPlaces.isEmpty()) {
-            placeMasterRepository.saveAll(newPlaces);
+        for (PlaceMaster incoming : chunk.getItems()) {
+            PlaceMaster existing = existingPlacesMap.get(incoming.getBizesId());
+            if (existing != null) {
+                existing.updateFrom(incoming);
+                toSave.add(existing);
+            } else {
+                toSave.add(incoming);
+            }
+        }
+
+        if (!toSave.isEmpty()) {
+            placeMasterRepository.saveAll(toSave);
         }
 
         if (entityManager != null) {
