@@ -46,6 +46,8 @@ services:
     build:
       context: ./next-js-app
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
     container_name: next-js-app
     restart: always
     ports:
