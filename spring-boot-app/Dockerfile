@@ -11,4 +11,4 @@ EXPOSE 8080
 WORKDIR /app
 RUN mkdir -p /app
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/datt.jar
-ENTRYPOINT ["java", "-jar", "/app/datt.jar", "--spring.profiles.active=prod"]
+ENTRYPOINT ["java", "-Dfile.encoding=UTF-8", "-jar", "/app/datt.jar", "--spring.profiles.active=prod"]

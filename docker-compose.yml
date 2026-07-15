@@ -34,6 +34,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://datt-db:5432/datt
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - LANG=C.UTF-8
+      - LC_ALL=C.UTF-8
     volumes:
       - ${OCI_CONFIG_VOLUME:-/home/ubuntu/.oci}:/root/.oci:ro
       - ./uploads:/app/uploads
