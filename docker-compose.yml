@@ -13,12 +13,19 @@ services:
       - ${DB_VOLUMES}
     networks:
       - datt-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d datt -U ${POSTGRES_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
   spring-boot-app:
     build:
       context: ./spring-boot-app
       dockerfile: Dockerfile
     container_name: spring-boot-app
+    restart: on-failure:3
     ports:
       - "8080:8080"
     env_file:
@@ -30,7 +37,8 @@ services:
     networks:
       - datt-network
     depends_on:
-      - datt-db
+      datt-db:
+        condition: service_healthy
 
   next-js-app:
     build:
