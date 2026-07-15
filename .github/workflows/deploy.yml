@@ -51,18 +51,13 @@ jobs:
       uses: appleboy/ssh-action@v1.0.3
       env:
         BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
-        NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
-        NEXT_PUBLIC_KAKAO_MAP_APP_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_APP_KEY }}
-        NEXT_PUBLIC_KAKAO_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_KAKAO_CLIENT_ID }}
-        NEXT_PUBLIC_KAKAO_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_KAKAO_REDIRECT_URI }}
-        NEXT_PUBLIC_NAVER_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_NAVER_CLIENT_ID }}
-        NEXT_PUBLIC_NAVER_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_NAVER_REDIRECT_URI }}
+        FRONTEND_ENV: ${{ secrets.FRONTEND_ENV }}
       with:
         host: ${{ secrets.VM_HOST }}
         username: ubuntu
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
-        envs: BACKEND_ENV, NEXT_PUBLIC_API_BASE_URL, NEXT_PUBLIC_KAKAO_MAP_APP_KEY, NEXT_PUBLIC_KAKAO_CLIENT_ID, NEXT_PUBLIC_KAKAO_REDIRECT_URI, NEXT_PUBLIC_NAVER_CLIENT_ID, NEXT_PUBLIC_NAVER_REDIRECT_URI
+        envs: BACKEND_ENV, FRONTEND_ENV
         script: |
           cd /home/ubuntu/datt-platform
           tar -xzf project.tar.gz
@@ -70,12 +65,7 @@ jobs:
           
           # Write environment variables to .env
           echo "$BACKEND_ENV" > .env
-          echo "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL" >> .env
-          echo "NEXT_PUBLIC_KAKAO_MAP_APP_KEY=$NEXT_PUBLIC_KAKAO_MAP_APP_KEY" >> .env
-          echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=$NEXT_PUBLIC_KAKAO_CLIENT_ID" >> .env
-          echo "NEXT_PUBLIC_KAKAO_REDIRECT_URI=$NEXT_PUBLIC_KAKAO_REDIRECT_URI" >> .env
-          echo "NEXT_PUBLIC_NAVER_CLIENT_ID=$NEXT_PUBLIC_NAVER_CLIENT_ID" >> .env
-          echo "NEXT_PUBLIC_NAVER_REDIRECT_URI=$NEXT_PUBLIC_NAVER_REDIRECT_URI" >> .env
+          echo "$FRONTEND_ENV" >> .env
           
           # Run Docker Compose (build and start in background)
           if command -v docker-compose &> /dev/null; then
