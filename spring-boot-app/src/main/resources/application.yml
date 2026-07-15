@@ -56,7 +56,7 @@ app:
     allowed-origins:
       - ${DOMAIN_FRONTEND}
   batch:
-    file-pattern: uploads/소상공인시장진흥공단_상가(상권)정보_*.csv
+    file-pattern: file:uploads/소상공인시장진흥공단_상가(상권)정보_*.csv
     encoding: UTF-8
   kakao:
     client-id: ${APP_KAKAO_CLIENT_ID:}
