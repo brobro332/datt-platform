@@ -36,6 +36,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - ${OCI_CONFIG_VOLUME:-/home/ubuntu/.oci}:/root/.oci:ro
+      - ./uploads:/app/uploads
     networks:
       - datt-network
     depends_on:
