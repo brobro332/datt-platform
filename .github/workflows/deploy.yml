@@ -26,6 +26,7 @@ jobs:
           --exclude='.gradle' \
           --exclude='postgres_data' \
           --exclude='uploads' \
+          --exclude='nginx/certbot' \
           .
         mv ../project.tar.gz ./project.tar.gz
 
