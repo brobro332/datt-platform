@@ -4,7 +4,6 @@ import path from "path";
 
 export async function GET() {
   try {
-    // next-js-app의 기준 디렉토리(process.cwd())에서 상위 디렉토리의 docs/DEVELOPMENT_NOTE.md 경로를 지정합니다.
     const filePath = path.join(process.cwd(), "../docs/DEVELOPMENT_NOTE.md");
     
     if (fs.existsSync(filePath)) {

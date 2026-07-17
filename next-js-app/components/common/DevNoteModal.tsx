@@ -21,7 +21,7 @@ export function DevNoteModal({ isOpen, onClose }: DevNoteModalProps) {
       try {
         setLoading(true);
         setError("");
-        const res = await fetch("/api/dev-note");
+        const res = await fetch("/next-api/dev-note");
         if (!res.ok) {
           throw new Error("개발자 노트를 불러오는 데 실패했습니다.");
         }
@@ -57,13 +57,13 @@ export function DevNoteModal({ isOpen, onClose }: DevNoteModalProps) {
         <div className="p-6 md:p-8 border-b border-slate-100 flex items-start justify-between shrink-0">
           <div>
             <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full uppercase tracking-wider">
-              DATT Docs
+              DATT History
             </span>
             <h3 className="text-2xl font-black text-slate-900 tracking-tight mt-3 flex items-center gap-2">
-              ⚓ DATT 히스토리 백과 (개발자 노트)
+              ⚓ DATT 개발자 노트
             </h3>
             <p className="text-xs font-semibold text-slate-450 mt-1.5 leading-relaxed">
-              `docs/DEVELOPMENT_NOTE.md` 원천 문서의 변경 사항이 실시간으로 로드되어 표기됩니다.
+              더 나은 서비스를 만들기 위해, DATT 크루가 차곡차곡 쌓아 올린 릴리즈 히스토리입니다.
             </p>
           </div>
           <button
