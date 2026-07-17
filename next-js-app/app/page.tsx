@@ -42,6 +42,16 @@ export default function HomePage() {
     fetchStats();
   }, []);
 
+  const handleOpenDevNote = () => {
+    if (typeof window !== "undefined") {
+      window.open(
+        "https://app.notion.com/p/DATT-v2-0-0-3a06ed77cc058013b39ac5323cb6809e?source=copy_link",
+        "_blank",
+        "width=1200,height=800,noopener,noreferrer"
+      );
+    }
+  };
+
   return (
     <MainLayout>
       {/* Hero Section */}
@@ -70,15 +80,14 @@ export default function HomePage() {
                 <Anchor className="w-4 h-4" /> 닻내리기
               </Button>
             </Link>
-            <a 
-              href="https://app.notion.com/p/DATT-v2-0-0-3a06ed77cc058013b39ac5323cb6809e?source=copy_link" 
-              target="_blank" 
-              rel="noopener noreferrer"
+            <Button 
+              variant="secondary" 
+              size="lg" 
+              className="rounded-2xl flex items-center gap-1.5"
+              onClick={handleOpenDevNote}
             >
-              <Button variant="secondary" size="lg" className="rounded-2xl flex items-center gap-1.5">
-                개발자 노트 <FileText className="w-4 h-4" />
-              </Button>
-            </a>
+              개발자 노트 <FileText className="w-4 h-4" />
+            </Button>
           </div>
         </div>
 
