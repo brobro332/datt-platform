@@ -70,31 +70,32 @@ services:
     depends_on:
       - spring-boot-app
 
-  # nginx:
-  #   image: nginx:latest
-  #   profiles: ["prd"]
-  #   ports:
-  #     - "${NGINX_PORT_IN}:80"
-  #     - "${NGINX_PORT_IN_SSL}:443"
-  #   volumes:
-  #     - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
-  #     - ./nginx/certbot/www:/var/www/certbot
-  #     - ./nginx/certbot/conf:/etc/letsencrypt
-  #   depends_on:
-  #     - spring-boot-app
-  #     - next-js-app
-  #     - fast-api-agent
-  #   restart: always
-  #   networks:
-  #     - datt-network
+  nginx:
+    image: nginx:latest
+    container_name: nginx-server
+    ports:
+      - "${NGINX_PORT_IN:-80}:80"
+      - "${NGINX_PORT_IN_SSL:-443}:443"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/certbot/www:/var/www/certbot:ro
+      - ./nginx/certbot/conf:/etc/letsencrypt:ro
+    depends_on:
+      - spring-boot-app
+      - next-js-app
+    restart: always
+    networks:
+      - datt-network
 
-  # certbot:
-  #   image: certbot/certbot
-  #   profiles: ["prd"]
-  #   volumes:
-  #     - ./nginx/certbot/conf:/etc/letsencrypt
-  #     - ./nginx/certbot/www:/var/www/certbot
-  #   entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+  certbot:
+    image: certbot/certbot
+    container_name: certbot-ssl
+    volumes:
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - datt-network
 
 networks:
   datt-network:
