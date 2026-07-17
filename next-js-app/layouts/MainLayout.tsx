@@ -64,13 +64,13 @@ export function MainLayout({ children, requireAuth = false }: MainLayoutProps) {
         {leftAd ? (
           <AdBannerCard ad={leftAd} />
         ) : (
-          <div className="hidden 2xl:block w-[240px] shrink-0 h-[700px]" />
+          <div className="hidden xl:block w-[240px] shrink-0 h-[700px]" />
         )}
 
         {/* Center Main Content */}
         <main className="flex-1 max-w-6xl py-8 pb-28 md:py-12 min-w-0">
-          {/* Mobile/Tablet/Laptop Inline Ads (Visible when screen < 2xl) */}
-          <div className="2xl:hidden w-full mb-8 grid gap-4 sm:grid-cols-2">
+          {/* Mobile/Tablet/Laptop Inline Ads (Visible when screen < xl) */}
+          <div className="xl:hidden w-full mb-8 grid grid-cols-2 gap-2 sm:gap-4">
             {leftAd && <AdInlineCard ad={leftAd} />}
             {rightAd && <AdInlineCard ad={rightAd} />}
           </div>
@@ -82,7 +82,7 @@ export function MainLayout({ children, requireAuth = false }: MainLayoutProps) {
         {rightAd ? (
           <AdBannerCard ad={rightAd} />
         ) : (
-          <div className="hidden 2xl:block w-[240px] shrink-0 h-[700px]" />
+          <div className="hidden xl:block w-[240px] shrink-0 h-[700px]" />
         )}
       </div>
 
@@ -192,33 +192,36 @@ function AdInlineCard({ ad }: { ad: AdItem }) {
         e.preventDefault();
         window.open(ad.link, '_blank', 'width=1200,height=800,noopener,noreferrer');
       }}
-      className="flex items-center gap-4 rounded-3xl border border-slate-200/50 bg-white/80 p-4 shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-slate-300 hover:bg-white transition-all duration-300 group overflow-hidden relative cursor-pointer h-[110px]"
+      className="flex items-center gap-2 sm:gap-4 rounded-2xl sm:rounded-3xl border border-slate-200/50 bg-white/80 p-2.5 sm:p-4 shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-slate-300 hover:bg-white transition-all duration-300 group overflow-hidden relative cursor-pointer h-[72px] sm:h-[110px]"
     >
       {/* Thumbnail */}
-      <div className="h-16 w-16 shrink-0 rounded-2xl overflow-hidden relative border border-slate-100">
+      <div className="hidden sm:block h-16 w-16 shrink-0 rounded-2xl overflow-hidden relative border border-slate-100">
         <img src={ad.images[0]} alt={ad.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700" />
       </div>
 
       {/* Text Info */}
       <div className="min-w-0 flex-1 flex flex-col justify-center">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <span className="text-[8px] font-black text-white bg-slate-400 dark:bg-slate-500 px-1.5 py-0.5 rounded tracking-wider">
+            AD
+          </span>
           {ad.badge && (
             <span className="text-[8px] font-black tracking-widest text-slate-400 uppercase bg-slate-100 px-1.5 py-0.5 rounded">
               {ad.badge}
             </span>
           )}
-          <span className="text-[10px]">{ad.emoji}</span>
+          <span className="text-[10px] hidden sm:inline">{ad.emoji}</span>
         </div>
-        <h4 className="mt-1 text-xs font-black text-slate-800 truncate">
+        <h4 className="mt-1 text-[11px] sm:text-xs font-black text-slate-800 truncate">
           {ad.title.replace(/\n/g, ' ')}
         </h4>
-        <p className="mt-0.5 text-[10px] font-medium text-slate-450 truncate">
+        <p className="mt-0.5 text-[10px] font-medium text-slate-450 truncate hidden sm:block">
           {ad.description}
         </p>
       </div>
 
       {/* Button */}
-      <div className="shrink-0">
+      <div className="shrink-0 hidden sm:block">
         <span className="inline-flex items-center justify-center rounded-xl bg-slate-50 border border-slate-100/50 px-3 py-2 text-[10px] font-bold text-slate-650 group-hover:bg-indigo-50 group-hover:text-indigo-600 group-hover:border-indigo-100 transition-colors">
           이동
         </span>

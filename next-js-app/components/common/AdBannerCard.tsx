@@ -41,16 +41,21 @@ export function AdBannerCard({ ad }: AdBannerCardProps) {
   const theme = themeColors[ad.themeColor as keyof typeof themeColors] || themeColors.indigo;
 
   return (
-    <aside className="hidden 2xl:flex w-[240px] shrink-0 sticky top-24 self-start h-[700px] rounded-[2.5rem] border border-slate-200/50 bg-white/70 backdrop-blur-md p-6 shadow-sm flex-col justify-between overflow-hidden group hover:shadow-md transition-all duration-300">
+    <aside className="hidden xl:flex w-[240px] shrink-0 sticky top-24 self-start h-[700px] rounded-[2.5rem] border border-slate-200/50 bg-white/70 backdrop-blur-md p-6 shadow-sm flex-col justify-between overflow-hidden group hover:shadow-md transition-all duration-300">
       {/* Premium glowing background overlay */}
       <div className={`absolute inset-0 bg-gradient-to-b ${theme.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
 
       <div className="relative z-10 flex flex-col items-center text-center space-y-3.5">
-        {ad.badge && (
-          <span className="text-[9px] font-black tracking-widest text-slate-400 uppercase bg-slate-100 px-2 py-0.5 rounded-md">
-            {ad.badge}
+        <div className="flex items-center gap-1.5 justify-center">
+          <span className="text-[9px] font-black text-white bg-slate-400 dark:bg-slate-500 px-1.5 py-0.5 rounded-md tracking-wider">
+            AD
           </span>
-        )}
+          {ad.badge && (
+            <span className="text-[9px] font-black tracking-widest text-slate-400 uppercase bg-slate-100 px-2 py-0.5 rounded-md">
+              {ad.badge}
+            </span>
+          )}
+        </div>
 
         <h4 className="text-sm font-black text-slate-800 leading-snug whitespace-pre-line">
           {ad.title}
