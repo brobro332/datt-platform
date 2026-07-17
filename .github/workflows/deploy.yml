@@ -98,7 +98,7 @@ jobs:
           
           # Fallback to secure absolute path if DB_VOLUMES secret is not configured
           if [ -z "$DB_VOLUMES" ]; then
-            DB_VOLUMES="/home/ubuntu/datt-platform/postgres_data:/var/lib/postgresql/data"
+            DB_VOLUMES="/home/ubuntu/datt-platform/postgres_data:/var/lib/postgresql"
           fi
           echo "DB_VOLUMES=$DB_VOLUMES" >> .env
           
