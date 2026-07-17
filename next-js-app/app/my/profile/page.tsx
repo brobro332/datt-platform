@@ -443,7 +443,7 @@ export default function MyProfilePage() {
                 <div className="flex flex-col h-full">
                   <div className="mb-4 flex items-center justify-between shrink-0">
                     <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-                      <Bookmark className="w-4 h-4 text-rose-500 animate-pulse" /> 최근 저장한 장소
+                      <Bookmark className="w-4 h-4 text-rose-500 animate-pulse" /> 최근 저장 장소
                     </h2>
                     <Link
                       href="/my/bookmarks"
