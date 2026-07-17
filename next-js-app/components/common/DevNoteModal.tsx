@@ -113,7 +113,7 @@ function MarkdownRenderer({ text }: { text: string }) {
 
   const lines = text.split("\n");
   
-  // 간단한 inline bold 및 link 파서
+  // 간단한 inline bold, code, link 파서
   const parseInlineElements = (rawText: string) => {
     // 1. Link 파싱: [표시텍스트](경로) 형태 지원
     const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
@@ -126,7 +126,7 @@ function MarkdownRenderer({ text }: { text: string }) {
       
       // 링크 이전 텍스트 처리
       if (matchIndex > lastIndex) {
-        parts.push(...parseBold(rawText.slice(lastIndex, matchIndex)));
+        parts.push(...parseBoldAndCode(rawText.slice(lastIndex, matchIndex)));
       }
 
       const linkText = match[1];
@@ -145,10 +145,28 @@ function MarkdownRenderer({ text }: { text: string }) {
     }
 
     if (lastIndex < rawText.length) {
-      parts.push(...parseBold(rawText.slice(lastIndex)));
+      parts.push(...parseBoldAndCode(rawText.slice(lastIndex)));
     }
 
-    return parts.length > 0 ? parts : parseBold(rawText);
+    return parts.length > 0 ? parts : parseBoldAndCode(rawText);
+  };
+
+  const parseBoldAndCode = (rawText: string): any[] => {
+    // 백틱으로 둘러싸인 inline code 블록 분할
+    const codeParts = rawText.split(/`([^`]+)`/g);
+    return codeParts.flatMap((part, i) => {
+      if (i % 2 === 1) {
+        return [
+          <code 
+            key={`code-${i}`} 
+            className="font-mono text-[10px] text-pink-650 bg-slate-50 border border-slate-200/50 px-1.5 py-0.5 rounded-md mx-0.5 font-bold shadow-sm"
+          >
+            {part}
+          </code>
+        ];
+      }
+      return parseBold(part);
+    });
   };
 
   const parseBold = (rawText: string) => {
