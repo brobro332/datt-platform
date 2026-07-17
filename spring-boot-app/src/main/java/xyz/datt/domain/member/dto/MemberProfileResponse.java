@@ -1,6 +1,7 @@
 package xyz.datt.domain.member.dto;
 
 import xyz.datt.domain.anchor.dto.ProfileAnchorResponse;
+import xyz.datt.domain.bookmark.dto.PlaceBookmarkResponse;
 import xyz.datt.domain.member.entity.Member;
 import xyz.datt.domain.review.dto.ProfileReviewResponse;
 
@@ -22,7 +23,8 @@ public record MemberProfileResponse(
     MemberActivitySummaryResponse activitySummary,
 
     List<ProfileAnchorResponse> recentAnchors,
-    List<ProfileReviewResponse> recentReviews
+    List<ProfileReviewResponse> recentReviews,
+    List<PlaceBookmarkResponse> recentBookmarks
 ) {
     public static MemberProfileResponse of(
         Member member,
@@ -32,7 +34,8 @@ public record MemberProfileResponse(
         int achievementCount,
         MemberActivitySummaryResponse activitySummary,
         List<ProfileAnchorResponse> recentAnchors,
-        List<ProfileReviewResponse> recentReviews
+        List<ProfileReviewResponse> recentReviews,
+        List<PlaceBookmarkResponse> recentBookmarks
     ) {
         return new MemberProfileResponse(
             member.getId(),
@@ -50,7 +53,8 @@ public record MemberProfileResponse(
             activitySummary,
 
             recentAnchors,
-            recentReviews
+            recentReviews,
+            recentBookmarks
         );
     }
 }

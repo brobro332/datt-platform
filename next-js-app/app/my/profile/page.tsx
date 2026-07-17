@@ -340,11 +340,11 @@ export default function MyProfilePage() {
         {/* Dashboard Sections Grid - Pixel-perfect height alignment in desktop */}
         <div className="grid gap-8 lg:grid-cols-12 items-start">
           
-          {/* LEFT: Recent Activities & Logs (7/12) */}
-          <div className="lg:col-span-7 space-y-8">
+          {/* LEFT: Recent Activities & Logs (8/12) */}
+          <div className="lg:col-span-8 space-y-8">
             
-            {/* Recent Anchor & Reviews Box (Height 360px) */}
-            <div className="grid gap-6 sm:grid-cols-2">
+            {/* Recent Anchor, Reviews & Bookmarks Box (Height 360px) */}
+            <div className="grid gap-6 md:grid-cols-3">
               
               {/* Recent Anchors */}
               <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)]">
@@ -438,6 +438,52 @@ export default function MyProfilePage() {
                 </div>
               </Card>
 
+              {/* Recent Bookmarked Places */}
+              <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)]">
+                <div className="flex flex-col h-full">
+                  <div className="mb-4 flex items-center justify-between shrink-0">
+                    <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                      <Bookmark className="w-4 h-4 text-rose-500 animate-pulse" /> 최근 저장한 장소
+                    </h2>
+                    <Link
+                      href="/my/bookmarks"
+                      className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1.5 rounded-xl hover:bg-rose-100 transition-colors"
+                    >
+                      전체 보기
+                    </Link>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-0.5 min-h-0">
+                    {profile.recentBookmarks.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center py-10 gap-2">
+                        <Bookmark className="w-8 h-8 text-slate-300" />
+                        <p className="text-xs font-bold text-slate-400">아직 저장한 장소가 없습니다.</p>
+                      </div>
+                    ) : (
+                      profile.recentBookmarks.map((bookmark) => (
+                        <Link
+                          key={bookmark.bookmarkId}
+                          href={`/place-search/${bookmark.placeId}`}
+                          className="block rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-rose-300 hover:bg-rose-50/20 transition-all duration-200"
+                        >
+                          <div className="min-w-0 flex-1">
+                            <p className="font-extrabold text-slate-900 text-xs truncate">
+                              {bookmark.bizesNm}
+                            </p>
+                            <p className="mt-0.5 text-[10px] font-medium text-slate-500 truncate flex items-center gap-0.5">
+                              <MapPin className="w-3.5 h-3.5 text-slate-450 shrink-0" /> {bookmark.ctprvnNm} {bookmark.signguNm}
+                            </p>
+                            <p className="mt-1 text-[9px] font-black text-rose-600">
+                              {bookmark.indsMclsNm}
+                            </p>
+                          </div>
+                        </Link>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </Card>
+
             </div>
 
             {/* Experience Timeline Logs (Height 360px) */}
@@ -447,9 +493,9 @@ export default function MyProfilePage() {
 
           </div>
 
-          {/* RIGHT: Interactive Titles & Achievements Locker (5/12) */}
+          {/* RIGHT: Interactive Titles & Achievements Locker (4/12) */}
           {/* Aligned height of 360 + 360 + 32 (gap) = 752px in large screens */}
-          <div className="lg:col-span-5 w-full lg:h-[752px]">
+          <div className="lg:col-span-4 w-full lg:h-[752px]">
             <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col h-full overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)]">
               
               {/* Premium Capsule Tab Navigation Header */}

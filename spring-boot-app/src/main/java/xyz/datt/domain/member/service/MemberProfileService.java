@@ -14,6 +14,8 @@ import xyz.datt.domain.gamification.repository.MemberTitleRepository;
 import xyz.datt.domain.member.dto.MemberActivitySummaryResponse;
 import xyz.datt.domain.member.dto.MemberProfileResponse;
 import xyz.datt.domain.member.dto.SelectedTitleResponse;
+import org.springframework.data.domain.PageRequest;
+import xyz.datt.domain.bookmark.dto.PlaceBookmarkResponse;
 import xyz.datt.domain.member.entity.Member;
 import xyz.datt.domain.member.repository.MemberRepository;
 import xyz.datt.domain.review.dto.ProfileReviewResponse;
@@ -64,6 +66,12 @@ public class MemberProfileService {
             .map(ProfileReviewResponse::from)
             .toList();
 
+        List<PlaceBookmarkResponse> recentBookmarks = placeBookmarkRepository
+            .findByMemberIdOrderByCreatedAtDesc(memberId, PageRequest.of(0, 3))
+            .stream()
+            .map(PlaceBookmarkResponse::from)
+            .toList();
+
         return MemberProfileResponse.of(
             member,
             LevelPolicy.getRequiredExpForNextLevel(member.getLevel()),
@@ -77,7 +85,8 @@ public class MemberProfileService {
                 receivedLikeCount
             ),
             recentAnchors,
-            recentReviews
+            recentReviews,
+            recentBookmarks
         );
     }
 

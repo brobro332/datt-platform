@@ -1,3 +1,5 @@
+import { PlaceBookmarkResponse } from "./bookmark";
+
 export type SelectedTitleResponse = {
     titleId: number;
     code: string;
@@ -46,4 +48,5 @@ export type MemberProfileResponse = {
 
     recentAnchors: ProfileAnchorResponse[];
     recentReviews: ProfileReviewResponse[];
+    recentBookmarks: PlaceBookmarkResponse[];
 };
