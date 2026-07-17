@@ -10,7 +10,7 @@ services:
     ports:
       - "${DB_PORT_IN}:5432"
     volumes:
-      - ${DB_VOLUMES:-./postgres_data:/var/lib/postgresql}
+      - datt-db-data:/var/lib/postgresql
     networks:
       - datt-network
     healthcheck:
@@ -99,3 +99,6 @@ services:
 networks:
   datt-network:
     driver: bridge
+
+volumes:
+  datt-db-data:
