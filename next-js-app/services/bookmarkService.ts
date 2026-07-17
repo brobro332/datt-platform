@@ -25,6 +25,7 @@ export async function removePlaceBookmark(
 export async function getMyPlaceBookmarks(
   page = 0,
   size = 10,
+  folderId?: number,
 ): Promise<PageResponse<PlaceBookmarkResponse>> {
   const response = await apiClient.get<
     ApiResponse<PageResponse<PlaceBookmarkResponse>>
@@ -32,6 +33,7 @@ export async function getMyPlaceBookmarks(
     params: {
       page,
       size,
+      folderId,
     },
   });
 

@@ -44,10 +44,12 @@ public class PlaceBookmarkController {
     @GetMapping("/api/bookmarks/places")
     public ApiResponse<Page<PlaceBookmarkResponse>> getMyPlaceBookmarks(
         @AuthenticationPrincipal CustomUserDetails userDetails,
+        @RequestParam(value = "folderId", required = false) Long folderId,
         Pageable pageable
     ) {
         Page<PlaceBookmarkResponse> response = placeBookmarkService.getMyBookmarks(
             userDetails.getMemberId(),
+            folderId,
             pageable
         );
 

@@ -120,9 +120,9 @@ export function useDeleteBookmarkFolder() {
   });
 }
 
-export function useMyPlaceBookmarks(page = 0, size = 10) {
+export function useMyPlaceBookmarks(page = 0, size = 10, folderId?: number) {
   return useQuery({
-    queryKey: ["my-place-bookmarks", page, size],
-    queryFn: () => getMyPlaceBookmarks(page, size),
+    queryKey: ["my-place-bookmarks", page, size, folderId],
+    queryFn: () => getMyPlaceBookmarks(page, size, folderId),
   });
 }

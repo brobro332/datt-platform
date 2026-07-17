@@ -108,6 +108,18 @@ public class PlaceBookmarkService {
         Long memberId,
         Pageable pageable
     ) {
+        return getMyBookmarks(memberId, null, pageable);
+    }
+
+    public Page<PlaceBookmarkResponse> getMyBookmarks(
+        Long memberId,
+        Long folderId,
+        Pageable pageable
+    ) {
+        if (folderId != null) {
+            return placeBookmarkRepository.findByMemberIdAndFolderId(memberId, folderId, pageable)
+                .map(PlaceBookmarkResponse::from);
+        }
         return placeBookmarkRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable)
             .map(PlaceBookmarkResponse::from);
     }

@@ -7,7 +7,7 @@ import { Card } from "@/components/common/Card";
 import { Button } from "@/components/common/Button";
 import { AsyncStateView } from "@/components/common/AsyncStateView";
 
-import { useMyPlaceBookmarks, useRemovePlaceBookmark } from "@/hooks/usePlaceBookmark";
+import { useMyPlaceBookmarks, useRemovePlaceBookmark, useGetBookmarkFolders } from "@/hooks/usePlaceBookmark";
 import { PlaceThumbnail } from "@/components/common/PlaceThumbnail";
 import { getCategoryFromText, type PlaceCategory } from "@/utils/category";
 import type { PlaceBookmarkResponse, BookmarkFolder } from "@/types/bookmark";
@@ -18,7 +18,10 @@ const PAGE_SIZE = 6;
 
 export default function MyBookmarksPage() {
   const [page, setPage] = useState(0);
-  const { data, isLoading, isError } = useMyPlaceBookmarks(page, PAGE_SIZE);
+  const [selectedFolderId, setSelectedFolderId] = useState<number | undefined>(undefined);
+
+  const { data: folders = [] } = useGetBookmarkFolders();
+  const { data, isLoading, isError } = useMyPlaceBookmarks(page, PAGE_SIZE, selectedFolderId);
 
   function handlePreviousPage() {
     setPage((prev) => Math.max(prev - 1, 0));
@@ -54,6 +57,42 @@ export default function MyBookmarksPage() {
             </Link>
           </div>
         </div>
+
+        {/* Bookmark Folder Filtering Chips */}
+        {folders.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 pb-2">
+            <button
+              onClick={() => {
+                setSelectedFolderId(undefined);
+                setPage(0);
+              }}
+              className={`px-4.5 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
+                selectedFolderId === undefined
+                  ? "bg-indigo-600 text-white shadow-md shadow-indigo-100"
+                  : "bg-white/80 border border-slate-200/50 text-slate-500 hover:text-slate-700 hover:bg-white"
+              }`}
+            >
+              전체 보기
+            </button>
+            {folders.map((folder) => (
+              <button
+                key={folder.id}
+                onClick={() => {
+                  setSelectedFolderId(folder.id);
+                  setPage(0);
+                }}
+                className={`px-4.5 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
+                  selectedFolderId === folder.id
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-100"
+                    : "bg-white/80 border border-slate-200/50 text-slate-500 hover:text-slate-700 hover:bg-white"
+                }`}
+              >
+                <Folder className="w-3.5 h-3.5" />
+                {folder.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         <AsyncStateView
           isLoading={isLoading}
