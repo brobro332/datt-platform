@@ -192,29 +192,31 @@ function AdInlineCard({ ad }: { ad: AdItem }) {
         e.preventDefault();
         window.open(ad.link, '_blank', 'width=1200,height=800,noopener,noreferrer');
       }}
-      className="flex items-center gap-2 sm:gap-4 rounded-2xl sm:rounded-3xl border border-slate-200/50 bg-white/80 p-2.5 sm:p-4 shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-slate-300 hover:bg-white transition-all duration-300 group overflow-hidden relative cursor-pointer h-[72px] sm:h-[110px]"
+      className="flex flex-col sm:flex-row items-center sm:items-stretch gap-2.5 sm:gap-4 rounded-2xl sm:rounded-3xl border border-slate-200/50 bg-white/80 p-3 sm:p-4 shadow-[0_8px_30px_rgba(0,0,0,0.01)] hover:shadow-md hover:border-slate-300 hover:bg-white transition-all duration-300 group overflow-hidden relative cursor-pointer min-h-[185px] sm:min-h-0 sm:h-[110px]"
     >
       {/* Thumbnail */}
-      <div className="hidden sm:block h-16 w-16 shrink-0 rounded-2xl overflow-hidden relative border border-slate-100">
+      <div className="h-20 w-full sm:h-16 sm:w-16 shrink-0 rounded-xl sm:rounded-2xl overflow-hidden relative border border-slate-100/60">
         <img src={ad.images[0]} alt={ad.title} className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700" />
       </div>
 
       {/* Text Info */}
-      <div className="min-w-0 flex-1 flex flex-col justify-center">
-        <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[8px] font-black text-white bg-slate-400 dark:bg-slate-500 px-1.5 py-0.5 rounded tracking-wider">
-            AD
-          </span>
-          {ad.badge && (
-            <span className="text-[8px] font-black tracking-widest text-slate-400 uppercase bg-slate-100 px-1.5 py-0.5 rounded">
-              {ad.badge}
+      <div className="min-w-0 flex-1 flex flex-col justify-between sm:justify-center w-full">
+        <div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="text-[8px] font-black text-white bg-slate-400 dark:bg-slate-500 px-1.5 py-0.5 rounded tracking-wider">
+              AD
             </span>
-          )}
-          <span className="text-[10px] hidden sm:inline">{ad.emoji}</span>
+            {ad.badge && (
+              <span className="text-[8px] font-black tracking-widest text-slate-400 uppercase bg-slate-100 px-1.5 py-0.5 rounded">
+                {ad.badge}
+              </span>
+            )}
+            <span className="text-[10px] hidden sm:inline">{ad.emoji}</span>
+          </div>
+          <h4 className="mt-1.5 text-[10px] sm:text-xs font-black text-slate-800 leading-snug break-all sm:truncate whitespace-normal">
+            {ad.title}
+          </h4>
         </div>
-        <h4 className="mt-1 text-[11px] sm:text-xs font-black text-slate-800 truncate">
-          {ad.title.replace(/\n/g, ' ')}
-        </h4>
         <p className="mt-0.5 text-[10px] font-medium text-slate-450 truncate hidden sm:block">
           {ad.description}
         </p>
