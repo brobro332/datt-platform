@@ -12,4 +12,5 @@ public interface PlaceBookmarkRepository extends JpaRepository<PlaceBookmark, Lo
     Optional<PlaceBookmark> findByMemberIdAndPlaceMasterId(Long memberId, Long placeId);
     Page<PlaceBookmark> findByMemberIdOrderByCreatedAtDesc(Long memberId, Pageable pageable);
     long countByMemberId(Long memberId);
+    void deleteByMemberId(Long memberId);
 }

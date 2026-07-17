@@ -8,4 +8,5 @@ public interface MemberAchievementRepository extends JpaRepository<MemberAchieve
     boolean existsByMemberIdAndAchievementCode(Long memberId, String achievementCode);
     int countByMemberId(Long memberId);
     List<MemberAchievement> findByMemberId(Long memberId);
+    void deleteByMemberId(Long memberId);
 }

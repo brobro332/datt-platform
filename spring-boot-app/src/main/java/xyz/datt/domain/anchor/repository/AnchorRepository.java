@@ -25,4 +25,5 @@ public interface AnchorRepository extends JpaRepository<Anchor, Long> {
 
     long countByMemberId(Long memberId);
     List<Anchor> findTop3ByMemberIdOrderByCreatedAtDesc(Long memberId);
+    void deleteByMemberId(Long memberId);
 }

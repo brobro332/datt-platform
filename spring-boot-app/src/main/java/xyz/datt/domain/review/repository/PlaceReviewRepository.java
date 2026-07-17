@@ -31,4 +31,5 @@ public interface PlaceReviewRepository extends JpaRepository<PlaceReview, Long> 
     double getAverageRatingOfAllReviews();
 
     Optional<PlaceReview> findByImageUrl(String imageUrl);
+    void deleteByMemberId(Long memberId);
 }

@@ -17,3 +17,9 @@ export async function updateNickname(nickname: string): Promise<MemberProfileRes
     );
     return response.data.data;
 }
+
+export async function withdrawMember(): Promise<void> {
+    await apiClient.delete<ApiResponse<void>>(
+        "/api/my/profile"
+    );
+}

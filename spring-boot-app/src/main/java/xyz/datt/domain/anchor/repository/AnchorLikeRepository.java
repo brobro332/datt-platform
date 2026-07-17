@@ -12,6 +12,11 @@ public interface AnchorLikeRepository extends JpaRepository<AnchorLike, Long> {
     Optional<AnchorLike> findByMemberIdAndAnchorId(Long memberId, Long anchorId);
     int countByAnchorId(Long anchorId);
     void deleteByAnchorId(Long anchorId);
+    void deleteByMemberId(Long memberId);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("delete from AnchorLike al where al.anchor.member.id = :memberId")
+    void deleteByAnchorMemberId(@Param("memberId") Long memberId);
 
     @Query("""
         select count(al)

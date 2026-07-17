@@ -105,4 +105,34 @@ public class MemberProfileService {
 
         return getMyProfile(memberId);
     }
+
+    @Transactional
+    public void withdraw(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.MEMBER_NOT_FOUND));
+
+        // 1. 회원이 작성한 앵커에 속한 모든 좋아요 일괄 삭제
+        anchorLikeRepository.deleteByAnchorMemberId(memberId);
+
+        // 2. 회원이 다른 앵커에 누른 좋아요 삭제
+        anchorLikeRepository.deleteByMemberId(memberId);
+
+        // 3. 회원이 작성한 모든 앵커 삭제
+        anchorRepository.deleteByMemberId(memberId);
+
+        // 4. 회원이 작성한 모든 리뷰 삭제
+        placeReviewRepository.deleteByMemberId(memberId);
+
+        // 5. 회원의 모든 북마크 삭제
+        placeBookmarkRepository.deleteByMemberId(memberId);
+
+        // 6. 회원의 모든 칭호 내역 삭제
+        memberTitleRepository.deleteByMemberId(memberId);
+
+        // 7. 회원의 모든 업적 내역 삭제
+        memberAchievementRepository.deleteByMemberId(memberId);
+
+        // 8. 최종적으로 회원 삭제
+        memberRepository.delete(member);
+    }
 }

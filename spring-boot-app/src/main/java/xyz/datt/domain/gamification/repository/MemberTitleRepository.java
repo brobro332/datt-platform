@@ -24,4 +24,5 @@ public interface MemberTitleRepository extends JpaRepository<MemberTitle, Long> 
         Long memberId,
         Long titleId
     );
+    void deleteByMemberId(Long memberId);
 }
