@@ -113,7 +113,7 @@ export default function LoginPage() {
                 로그인
               </h1>
               <p className="mt-1.5 text-xs text-slate-500">
-                저장한 장소와 나의 Anchor를 다시 탐색해보세요.
+                저장한 장소와 나의 닻을 다시 탐색해보세요.
               </p>
             </div>
 

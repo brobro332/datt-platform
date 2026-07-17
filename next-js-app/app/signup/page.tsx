@@ -249,7 +249,7 @@ export default function SignupPage() {
                 회원가입
               </h1>
               <p className="mt-1.5 text-xs text-slate-500">
-                나만의 장소를 저장하고, 나만의 Anchor를 만들어보세요.
+                나만의 장소를 저장하고, 나만의 닻을 만들어보세요.
               </p>
             </div>
 

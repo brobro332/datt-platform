@@ -62,9 +62,7 @@ app:
     client-id: ${APP_KAKAO_CLIENT_ID:}
     redirect-uri: ${APP_KAKAO_REDIRECT_URI:}
     client-secret: ${APP_KAKAO_CLIENT_SECRET:}
-  naver:
-    client-id: ${APP_NAVER_CLIENT_ID:}
-    client-secret: ${APP_NAVER_CLIENT_SECRET:}
+
 
 jwt:
   secret: ${JWT_SECRET}
