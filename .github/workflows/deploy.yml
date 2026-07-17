@@ -95,7 +95,13 @@ jobs:
           
           # Write environment variables to .env
           echo "DB_PORT_IN=$DB_PORT_IN" > .env
+          
+          # Fallback to secure absolute path if DB_VOLUMES secret is not configured
+          if [ -z "$DB_VOLUMES" ]; then
+            DB_VOLUMES="/home/ubuntu/datt-platform/postgres_data:/var/lib/postgresql/data"
+          fi
           echo "DB_VOLUMES=$DB_VOLUMES" >> .env
+          
           echo "POSTGRES_USER=$POSTGRES_USER" >> .env
           echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
           echo "DATASOURCE_URL=$DATASOURCE_URL" >> .env
