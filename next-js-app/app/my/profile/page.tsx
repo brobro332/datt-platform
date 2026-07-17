@@ -355,7 +355,7 @@ export default function MyProfilePage() {
                     </h2>
                     <Link
                       href="/my/anchors"
-                      className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-xl hover:bg-indigo-100 transition-colors"
+                      className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-xl hover:bg-indigo-100 transition-colors shrink-0 whitespace-nowrap"
                     >
                       전체 보기
                     </Link>
@@ -447,7 +447,7 @@ export default function MyProfilePage() {
                     </h2>
                     <Link
                       href="/my/bookmarks"
-                      className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1.5 rounded-xl hover:bg-rose-100 transition-colors"
+                      className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1.5 rounded-xl hover:bg-rose-100 transition-colors shrink-0 whitespace-nowrap"
                     >
                       전체 보기
                     </Link>
