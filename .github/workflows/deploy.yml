@@ -24,6 +24,8 @@ jobs:
           --exclude='.next' \
           --exclude='build' \
           --exclude='.gradle' \
+          --exclude='postgres_data' \
+          --exclude='uploads' \
           .
         mv ../project.tar.gz ./project.tar.gz
 
