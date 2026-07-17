@@ -93,6 +93,7 @@ export default function MyProfilePage() {
   };
 
   const [activeTab, setActiveTab] = useState<"titles" | "achievements">("titles");
+  const [recentTab, setRecentTab] = useState<"anchors" | "reviews" | "bookmarks">("anchors");
   const [titleNotice, setTitleNotice] = useState<string | null>(null);
 
   // Pagination states
@@ -257,12 +258,12 @@ export default function MyProfilePage() {
 
           {/* Level Progress Bar */}
           <div className="mt-8 space-y-3">
-            <div className="flex items-center justify-between text-xs font-bold">
-              <span className="bg-slate-100/85 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200/20">
+            <div className="flex items-center justify-between gap-2 text-[10px] sm:text-xs font-bold">
+              <span className="bg-slate-100/85 text-slate-700 px-2 sm:px-2.5 py-1 rounded-lg border border-slate-200/20 shrink-0">
                 EXP {profile.exp.toLocaleString()} / {profile.requiredExpForNextLevel.toLocaleString()}
               </span>
-              <span className="text-indigo-600 font-black">
-                다음 레벨까지 {remainingExp.toLocaleString()} EXP 남음
+              <span className="text-indigo-600 font-black text-right truncate">
+                다음 Lv까지 {remainingExp.toLocaleString()} EXP 남음
               </span>
             </div>
 
@@ -343,147 +344,191 @@ export default function MyProfilePage() {
           {/* LEFT: Recent Activities & Logs (8/12) */}
           <div className="lg:col-span-8 space-y-8">
             
+            {/* Recent Items Tab Navigation Header */}
+            <div className="flex items-center bg-slate-100/80 p-1.5 rounded-2xl mb-5 max-w-md border border-slate-200/10 shadow-inner">
+              <button
+                type="button"
+                onClick={() => setRecentTab("anchors")}
+                className={`flex-1 text-center py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  recentTab === "anchors"
+                    ? "text-indigo-600 bg-white shadow-[0_4px_15px_rgba(0,0,0,0.02)]"
+                    : "text-slate-400 hover:text-slate-650"
+                }`}
+              >
+                최근 생성한 닻
+              </button>
+              <button
+                type="button"
+                onClick={() => setRecentTab("reviews")}
+                className={`flex-1 text-center py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  recentTab === "reviews"
+                    ? "text-indigo-600 bg-white shadow-[0_4px_15px_rgba(0,0,0,0.02)]"
+                    : "text-slate-400 hover:text-slate-650"
+                }`}
+              >
+                최근 작성 후기
+              </button>
+              <button
+                type="button"
+                onClick={() => setRecentTab("bookmarks")}
+                className={`flex-1 text-center py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  recentTab === "bookmarks"
+                    ? "text-indigo-600 bg-white shadow-[0_4px_15px_rgba(0,0,0,0.02)]"
+                    : "text-slate-400 hover:text-slate-650"
+                }`}
+              >
+                최근 저장 장소
+              </button>
+            </div>
+
             {/* Recent Anchor, Reviews & Bookmarks Box (Height 360px) */}
-            <div className="grid gap-6 md:grid-cols-3">
-              
-              {/* Recent Anchors */}
-              <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)]">
-                <div className="flex flex-col h-full">
-                  <div className="mb-4 flex items-center justify-between shrink-0">
-                    <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-                      <Anchor className="w-4 h-4 text-indigo-600" /> 최근 생성한 닻
-                    </h2>
-                    <Link
-                      href="/my/anchors"
-                      className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-xl hover:bg-indigo-100 transition-colors shrink-0 whitespace-nowrap"
-                    >
-                      전체 보기
-                    </Link>
-                  </div>
+            <div className="min-h-[360px]">
+              {recentTab === "anchors" && (
+                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
+                  <div className="flex flex-col h-full">
+                    <div className="mb-4 flex items-center justify-between shrink-0">
+                      <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                        <Anchor className="w-4 h-4 text-indigo-600" /> 최근 생성한 닻
+                      </h2>
+                      <Link
+                        href="/my/anchors"
+                        className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2.5 py-1.5 rounded-xl hover:bg-indigo-100 transition-colors shrink-0 whitespace-nowrap"
+                      >
+                        전체 보기
+                      </Link>
+                    </div>
 
-                  <div className="flex-1 overflow-y-auto space-y-3 pr-0.5 min-h-0">
-                    {profile.recentAnchors.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center py-10 gap-2">
-                        <Compass className="w-8 h-8 text-slate-300" />
-                        <p className="text-xs font-bold text-slate-400">아직 생성한 닻이 없습니다.</p>
-                      </div>
-                    ) : (
-                      profile.recentAnchors.map((anchor) => (
-                        <Link
-                          key={anchor.anchorId}
-                          href={`/anchors/${anchor.anchorId}`}
-                          className="flex items-center gap-3 rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-blue-300 hover:bg-blue-50/20 transition-all duration-200"
-                        >
-                          <div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
-                            <Anchor className="w-5 h-5" />
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="font-extrabold text-slate-900 text-xs truncate">
-                              {anchor.title}
-                            </p>
-                            <p className="mt-0.5 text-[10px] font-medium text-slate-500 truncate flex items-center gap-0.5">
-                              <MapPin className="w-3.5 h-3.5 text-slate-400" /> {anchor.basePlaceName || "구역 정박"}
-                            </p>
-                            <p className="mt-1 text-[9px] font-black text-blue-600">
-                              조회 {anchor.viewCount}회
-                            </p>
-                          </div>
-                        </Link>
-                      ))
-                    )}
+                    <div className="flex-1 overflow-y-auto pr-0.5 min-h-0">
+                      {profile.recentAnchors.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center py-10 gap-2">
+                          <Compass className="w-8 h-8 text-slate-300" />
+                          <p className="text-xs font-bold text-slate-400">아직 생성한 닻이 없습니다.</p>
+                        </div>
+                      ) : (
+                        <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                          {profile.recentAnchors.map((anchor) => (
+                            <Link
+                              key={anchor.anchorId}
+                              href={`/anchors/${anchor.anchorId}`}
+                              className="flex items-center gap-3 rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-blue-300 hover:bg-blue-50/20 transition-all duration-200"
+                            >
+                              <div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+                                <Anchor className="w-5 h-5" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="font-extrabold text-slate-900 text-xs truncate">
+                                  {anchor.title}
+                                </p>
+                                <p className="mt-0.5 text-[10px] font-medium text-slate-500 truncate flex items-center gap-0.5">
+                                  <MapPin className="w-3.5 h-3.5 text-slate-400" /> {anchor.basePlaceName || "구역 정박"}
+                                </p>
+                                <p className="mt-1 text-[9px] font-black text-blue-600">
+                                  조회 {anchor.viewCount}회
+                                </p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
+                </Card>
+              )}
 
-              {/* Recent Reviews */}
-              <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)]">
-                <div className="flex flex-col h-full">
-                  <div className="mb-4 flex items-center justify-between shrink-0">
-                    <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-                      <MessageSquare className="w-4 h-4 text-indigo-600" /> 최근 작성 후기
-                    </h2>
-                    <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
-                      후기 {profile.activitySummary.reviewCount}개
-                    </span>
+              {recentTab === "reviews" && (
+                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
+                  <div className="flex flex-col h-full">
+                    <div className="mb-4 flex items-center justify-between shrink-0">
+                      <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                        <MessageSquare className="w-4 h-4 text-indigo-600" /> 최근 작성 후기
+                      </h2>
+                      <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-1 rounded-md">
+                        후기 {profile.activitySummary.reviewCount}개
+                      </span>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto pr-0.5 min-h-0">
+                      {profile.recentReviews.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center py-10 gap-2">
+                          <MessageSquare className="w-8 h-8 text-slate-300" />
+                          <p className="text-xs font-bold text-slate-400">아직 작성한 리뷰가 없습니다.</p>
+                        </div>
+                      ) : (
+                        <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                          {profile.recentReviews.map((review) => (
+                            <Link
+                              key={review.placeId}
+                              href={`/place-search/${review.placeId}`}
+                              className="block rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-indigo-400 hover:bg-indigo-50/20 transition-all duration-200"
+                            >
+                              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 mb-1.5">
+                                <p className="font-extrabold text-slate-900 text-xs truncate">
+                                  {review.placeName}
+                                </p>
+                                <span className="shrink-0 rounded-lg bg-amber-50 px-2 py-0.5 text-[9px] font-black text-amber-700 border border-amber-200/20 flex items-center gap-0.5">
+                                  <Star className="w-3 h-3 fill-amber-500 text-amber-500" /> {review.rating.toFixed(1)}
+                                </span>
+                              </div>
+                              <p className="line-clamp-2 text-[10px] font-medium leading-normal text-slate-500">
+                                {review.content}
+                              </p>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                </Card>
+              )}
 
-                  <div className="flex-1 overflow-y-auto space-y-3 pr-0.5 min-h-0">
-                    {profile.recentReviews.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center py-10 gap-2">
-                        <MessageSquare className="w-8 h-8 text-slate-300" />
-                        <p className="text-xs font-bold text-slate-400">아직 작성한 리뷰가 없습니다.</p>
-                      </div>
-                    ) : (
-                      profile.recentReviews.map((review) => (
-                        <Link
-                          key={review.placeId}
-                          href={`/place-search/${review.placeId}`}
-                          className="block rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-indigo-400 hover:bg-indigo-50/20 transition-all duration-200"
-                        >
-                          <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 mb-1.5">
-                            <p className="font-extrabold text-slate-900 text-xs truncate">
-                              {review.placeName}
-                            </p>
-                            <span className="shrink-0 rounded-lg bg-amber-50 px-2 py-0.5 text-[9px] font-black text-amber-700 border border-amber-200/20 flex items-center gap-0.5">
-                              <Star className="w-3 h-3 fill-amber-500 text-amber-500" /> {review.rating.toFixed(1)}
-                            </span>
-                          </div>
-                          <p className="line-clamp-2 text-[10px] font-medium leading-normal text-slate-500">
-                            {review.content}
-                          </p>
-                        </Link>
-                      ))
-                    )}
+              {recentTab === "bookmarks" && (
+                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
+                  <div className="flex flex-col h-full">
+                    <div className="mb-4 flex items-center justify-between shrink-0">
+                      <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                        <Bookmark className="w-4 h-4 text-rose-500" /> 최근 저장 장소
+                      </h2>
+                      <Link
+                        href="/my/bookmarks"
+                        className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1.5 rounded-xl hover:bg-rose-100 transition-colors shrink-0 whitespace-nowrap"
+                      >
+                        전체 보기
+                      </Link>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto pr-0.5 min-h-0">
+                      {profile.recentBookmarks.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center py-10 gap-2">
+                          <Bookmark className="w-8 h-8 text-slate-300" />
+                          <p className="text-xs font-bold text-slate-400">아직 저장한 장소가 없습니다.</p>
+                        </div>
+                      ) : (
+                        <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                          {profile.recentBookmarks.map((bookmark) => (
+                            <Link
+                              key={bookmark.bookmarkId}
+                              href={`/place-search/${bookmark.placeId}`}
+                              className="block rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-rose-300 hover:bg-rose-50/20 transition-all duration-200"
+                            >
+                              <div className="min-w-0 flex-1">
+                                <p className="font-extrabold text-slate-900 text-xs truncate">
+                                  {bookmark.bizesNm}
+                                </p>
+                                <p className="mt-0.5 text-[10px] font-medium text-slate-500 truncate flex items-center gap-0.5">
+                                  <MapPin className="w-3.5 h-3.5 text-slate-450 shrink-0" /> {bookmark.ctprvnNm} {bookmark.signguNm}
+                                </p>
+                                <p className="mt-1 text-[9px] font-black text-rose-600">
+                                  {bookmark.indsMclsNm}
+                                </p>
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </Card>
-
-              {/* Recent Bookmarked Places */}
-              <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)]">
-                <div className="flex flex-col h-full">
-                  <div className="mb-4 flex items-center justify-between shrink-0">
-                    <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-                      <Bookmark className="w-4 h-4 text-rose-500 animate-pulse" /> 최근 저장 장소
-                    </h2>
-                    <Link
-                      href="/my/bookmarks"
-                      className="text-[10px] font-bold text-rose-600 bg-rose-50 px-2.5 py-1.5 rounded-xl hover:bg-rose-100 transition-colors shrink-0 whitespace-nowrap"
-                    >
-                      전체 보기
-                    </Link>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto space-y-3 pr-0.5 min-h-0">
-                    {profile.recentBookmarks.length === 0 ? (
-                      <div className="h-full flex flex-col items-center justify-center py-10 gap-2">
-                        <Bookmark className="w-8 h-8 text-slate-300" />
-                        <p className="text-xs font-bold text-slate-400">아직 저장한 장소가 없습니다.</p>
-                      </div>
-                    ) : (
-                      profile.recentBookmarks.map((bookmark) => (
-                        <Link
-                          key={bookmark.bookmarkId}
-                          href={`/place-search/${bookmark.placeId}`}
-                          className="block rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-rose-300 hover:bg-rose-50/20 transition-all duration-200"
-                        >
-                          <div className="min-w-0 flex-1">
-                            <p className="font-extrabold text-slate-900 text-xs truncate">
-                              {bookmark.bizesNm}
-                            </p>
-                            <p className="mt-0.5 text-[10px] font-medium text-slate-500 truncate flex items-center gap-0.5">
-                              <MapPin className="w-3.5 h-3.5 text-slate-450 shrink-0" /> {bookmark.ctprvnNm} {bookmark.signguNm}
-                            </p>
-                            <p className="mt-1 text-[9px] font-black text-rose-600">
-                              {bookmark.indsMclsNm}
-                            </p>
-                          </div>
-                        </Link>
-                      ))
-                    )}
-                  </div>
-                </div>
-              </Card>
-
+                </Card>
+              )}
             </div>
 
             {/* Experience Timeline Logs (Height 360px) */}

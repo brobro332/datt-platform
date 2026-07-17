@@ -41,7 +41,7 @@ export function AdBannerCard({ ad }: AdBannerCardProps) {
   const theme = themeColors[ad.themeColor as keyof typeof themeColors] || themeColors.indigo;
 
   return (
-    <aside className="hidden xl:flex w-[240px] shrink-0 sticky top-24 self-start h-[580px] rounded-[2.5rem] border border-slate-200/50 bg-white/70 backdrop-blur-md p-6 shadow-sm flex-col justify-between overflow-hidden group hover:shadow-md transition-all duration-300">
+    <aside className="hidden xl:flex w-[200px] shrink-0 sticky top-24 self-start h-[580px] rounded-[2.5rem] border border-slate-200/50 bg-white/70 backdrop-blur-md p-5 shadow-sm flex-col justify-between overflow-hidden group hover:shadow-md transition-all duration-300">
       {/* Premium glowing background overlay */}
       <div className={`absolute inset-0 bg-gradient-to-b ${theme.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`} />
 

@@ -28,31 +28,31 @@ export function LevelProgressCard({
         <Card className="p-6 overflow-hidden relative">
             <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-indigo-500 to-violet-500 opacity-20" />
             
-            <div className="flex items-start justify-between gap-4">
-                <div>
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            <div className="flex items-start justify-between gap-3 sm:gap-4">
+                <div className="min-w-0 flex-1">
+                    <p className="text-[10px] sm:text-xs font-semibold text-slate-400 uppercase tracking-wider">
                         Level Progress
                     </p>
 
-                    <h2 className="mt-1 text-2xl font-black text-slate-900">
+                    <h2 className="mt-0.5 sm:mt-1 text-xl sm:text-2xl font-black text-slate-900">
                         Lv. {level}
                     </h2>
 
-                    <p className="mt-1 text-xs font-semibold text-slate-400">
-                        다음 레벨까지 <span className="text-indigo-600 font-extrabold">{remainingExp} EXP</span> 남았습니다.
+                    <p className="mt-1 text-[10.5px] sm:text-xs font-semibold text-slate-400 whitespace-nowrap truncate">
+                        다음 Lv까지 <span className="text-indigo-600 font-extrabold">{remainingExp} EXP</span> 남음
                     </p>
                 </div>
 
-                <div className="rounded-2xl bg-slate-900 px-5 py-3 text-white shadow-lg shadow-slate-950/15 bg-gradient-to-tr from-slate-950 to-indigo-950 text-right">
-                    <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">현재 경험치</p>
-                    <p className="mt-0.5 text-2xl font-black">
+                <div className="rounded-2xl bg-slate-900 px-3 py-2 sm:px-5 sm:py-3 text-white shadow-lg shadow-slate-950/15 bg-gradient-to-tr from-slate-950 to-indigo-950 text-right shrink-0">
+                    <p className="text-[9px] sm:text-[10px] font-semibold text-slate-450 uppercase tracking-widest">현재 경험치</p>
+                    <p className="mt-0.5 text-lg sm:text-2xl font-black">
                         {exp}
                     </p>
                 </div>
             </div>
 
             <div className="mt-6">
-                <div className="flex items-center justify-between text-xs font-bold">
+                <div className="flex items-center justify-between text-[10px] sm:text-xs font-bold">
                   <span className="text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-md">
                         {exp} EXP
                     </span>
