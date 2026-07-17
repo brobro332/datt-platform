@@ -101,7 +101,7 @@ export function RecommendationSection({ recommendations }: RecommendationSection
                 onClick={() => router.push(`/place-search/${place.id}`)}
                 className="w-full text-left focus:outline-none cursor-pointer flex items-center gap-4 rounded-2xl border border-slate-200/50 bg-white/80 backdrop-blur-sm p-5 shadow-sm hover:shadow-md hover:border-slate-350 transition-all duration-200 group"
               >
-                <PlaceThumbnail placeId={place.id} indsMclsNm={cat} className="h-16 w-16 rounded-2xl" />
+                <PlaceThumbnail placeId={place.id} indsMclsNm={cat} thumbnailUrl={place.thumbnailUrl} className="h-16 w-16 rounded-2xl" />
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1">

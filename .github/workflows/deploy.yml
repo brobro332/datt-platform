@@ -50,22 +50,70 @@ jobs:
     - name: Extract, Configure, and Build/Run via Docker Compose
       uses: appleboy/ssh-action@v1.0.3
       env:
-        BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
-        FRONTEND_ENV: ${{ secrets.FRONTEND_ENV }}
+        DB_PORT_IN: ${{ secrets.DB_PORT_IN }}
+        DB_VOLUMES: ${{ secrets.DB_VOLUMES }}
+        POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+        POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        DATASOURCE_URL: ${{ secrets.DATASOURCE_URL }}
+        MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+        MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        PUBLIC_DATA_SERVICE_KEY: ${{ secrets.PUBLIC_DATA_SERVICE_KEY }}
+        DOMAIN_FRONTEND: ${{ secrets.DOMAIN_FRONTEND }}
+        DOMAIN_BACKEND: ${{ secrets.DOMAIN_BACKEND }}
+        APP_KAKAO_CLIENT_ID: ${{ secrets.APP_KAKAO_CLIENT_ID }}
+        APP_KAKAO_REDIRECT_URI: ${{ secrets.APP_KAKAO_REDIRECT_URI }}
+        APP_KAKAO_CLIENT_SECRET: ${{ secrets.APP_KAKAO_CLIENT_SECRET }}
+        APP_NAVER_CLIENT_ID: ${{ secrets.APP_NAVER_CLIENT_ID }}
+        APP_NAVER_CLIENT_SECRET: ${{ secrets.APP_NAVER_CLIENT_SECRET }}
+        JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        STORAGE_TYPE: ${{ secrets.STORAGE_TYPE }}
+        OCI_CONFIG_VOLUME: ${{ secrets.OCI_CONFIG_VOLUME }}
+        NGINX_PORT_IN: ${{ secrets.NGINX_PORT_IN }}
+        NGINX_PORT_IN_SSL: ${{ secrets.NGINX_PORT_IN_SSL }}
+        NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+        NEXT_PUBLIC_KAKAO_MAP_APP_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_APP_KEY }}
+        NEXT_PUBLIC_KAKAO_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_KAKAO_CLIENT_ID }}
+        NEXT_PUBLIC_KAKAO_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_KAKAO_REDIRECT_URI }}
+        NEXT_PUBLIC_NAVER_CLIENT_ID: ${{ secrets.NEXT_PUBLIC_NAVER_CLIENT_ID }}
+        NEXT_PUBLIC_NAVER_REDIRECT_URI: ${{ secrets.NEXT_PUBLIC_NAVER_REDIRECT_URI }}
       with:
         host: ${{ secrets.VM_HOST }}
         username: ubuntu
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         port: 22
-        envs: BACKEND_ENV, FRONTEND_ENV
+        envs: DB_PORT_IN,DB_VOLUMES,POSTGRES_USER,POSTGRES_PASSWORD,DATASOURCE_URL,MAIL_USERNAME,MAIL_PASSWORD,PUBLIC_DATA_SERVICE_KEY,DOMAIN_FRONTEND,DOMAIN_BACKEND,APP_KAKAO_CLIENT_ID,APP_KAKAO_REDIRECT_URI,APP_KAKAO_CLIENT_SECRET,APP_NAVER_CLIENT_ID,APP_NAVER_CLIENT_SECRET,JWT_SECRET,STORAGE_TYPE,OCI_CONFIG_VOLUME,NGINX_PORT_IN,NGINX_PORT_IN_SSL,NEXT_PUBLIC_API_BASE_URL,NEXT_PUBLIC_KAKAO_MAP_APP_KEY,NEXT_PUBLIC_KAKAO_CLIENT_ID,NEXT_PUBLIC_KAKAO_REDIRECT_URI,NEXT_PUBLIC_NAVER_CLIENT_ID,NEXT_PUBLIC_NAVER_REDIRECT_URI
         script: |
           cd /home/ubuntu/datt-platform
           tar -xzf project.tar.gz
           rm project.tar.gz
           
           # Write environment variables to .env
-          echo "$BACKEND_ENV" > .env
-          echo "$FRONTEND_ENV" >> .env
+          echo "DB_PORT_IN=$DB_PORT_IN" > .env
+          echo "DB_VOLUMES=$DB_VOLUMES" >> .env
+          echo "POSTGRES_USER=$POSTGRES_USER" >> .env
+          echo "POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> .env
+          echo "DATASOURCE_URL=$DATASOURCE_URL" >> .env
+          echo "MAIL_USERNAME=$MAIL_USERNAME" >> .env
+          echo "MAIL_PASSWORD=$MAIL_PASSWORD" >> .env
+          echo "PUBLIC_DATA_SERVICE_KEY=$PUBLIC_DATA_SERVICE_KEY" >> .env
+          echo "DOMAIN_FRONTEND=$DOMAIN_FRONTEND" >> .env
+          echo "DOMAIN_BACKEND=$DOMAIN_BACKEND" >> .env
+          echo "APP_KAKAO_CLIENT_ID=$APP_KAKAO_CLIENT_ID" >> .env
+          echo "APP_KAKAO_REDIRECT_URI=$APP_KAKAO_REDIRECT_URI" >> .env
+          echo "APP_KAKAO_CLIENT_SECRET=$APP_KAKAO_CLIENT_SECRET" >> .env
+          echo "APP_NAVER_CLIENT_ID=$APP_NAVER_CLIENT_ID" >> .env
+          echo "APP_NAVER_CLIENT_SECRET=$APP_NAVER_CLIENT_SECRET" >> .env
+          echo "JWT_SECRET=$JWT_SECRET" >> .env
+          echo "STORAGE_TYPE=$STORAGE_TYPE" >> .env
+          echo "OCI_CONFIG_VOLUME=$OCI_CONFIG_VOLUME" >> .env
+          echo "NGINX_PORT_IN=$NGINX_PORT_IN" >> .env
+          echo "NGINX_PORT_IN_SSL=$NGINX_PORT_IN_SSL" >> .env
+          echo "NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL" >> .env
+          echo "NEXT_PUBLIC_KAKAO_MAP_APP_KEY=$NEXT_PUBLIC_KAKAO_MAP_APP_KEY" >> .env
+          echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=$NEXT_PUBLIC_KAKAO_CLIENT_ID" >> .env
+          echo "NEXT_PUBLIC_KAKAO_REDIRECT_URI=$NEXT_PUBLIC_KAKAO_REDIRECT_URI" >> .env
+          echo "NEXT_PUBLIC_NAVER_CLIENT_ID=$NEXT_PUBLIC_NAVER_CLIENT_ID" >> .env
+          echo "NEXT_PUBLIC_NAVER_REDIRECT_URI=$NEXT_PUBLIC_NAVER_REDIRECT_URI" >> .env
           
           # Run Docker Compose (build and start in background)
           if command -v docker-compose &> /dev/null; then

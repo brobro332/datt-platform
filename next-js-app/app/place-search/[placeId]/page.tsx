@@ -55,15 +55,31 @@ const CATEGORY_ICONS: Record<PlaceCategory, React.ComponentType<{ className?: st
 
 export default function PlaceDetailPage() {
   const [userCoords, setUserCoords] = useState<{ lat: number; lon: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
 
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setUserCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+          setLocationError(null);
         },
-        (err) => console.log("Failed to get location", err)
+        (err) => {
+          console.log("Failed to get location", err);
+          let errMsg = "위치 확인 불가";
+          if (err.code === err.PERMISSION_DENIED) {
+            errMsg = "위치 권한 필요";
+          } else if (err.code === err.POSITION_UNAVAILABLE) {
+            errMsg = "위치 정보 없음";
+          } else if (err.code === err.TIMEOUT) {
+            errMsg = "위치 측정 시간 초과";
+          }
+          setLocationError(errMsg);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
       );
+    } else {
+      setLocationError("지원하지 않는 브라우저");
     }
   }, []);
 
@@ -376,7 +392,7 @@ export default function PlaceDetailPage() {
                   <MapPin className="w-5 h-5 text-sky-500" />
                   {userCoords 
                     ? formatDistance(getDistanceMeter(userCoords.lat, userCoords.lon, place.lat, place.lon)) 
-                    : "위치 확인 중..."}
+                    : locationError || "위치 확인 중..."}
                 </p>
               </div>
               <MapPin className="w-8 h-8 text-sky-100 fill-sky-100" />

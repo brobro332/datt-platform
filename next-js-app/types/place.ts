@@ -15,6 +15,7 @@ export type PlaceSearchResponse = {
   averageRating: number;
   reviewCount: number;
   category?: string;
+  thumbnailUrl?: string | null;
 };
 
 export type PlaceNearbyResponse = {
@@ -33,6 +34,7 @@ export type PlaceNearbyResponse = {
   averageRating: number;
   reviewCount: number;
   category?: string;
+  thumbnailUrl?: string | null;
 };
 
 export type PlaceSearchParams = {

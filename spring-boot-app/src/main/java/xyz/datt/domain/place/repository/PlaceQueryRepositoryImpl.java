@@ -1,11 +1,13 @@
 package xyz.datt.domain.place.repository;
 
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -77,7 +79,8 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
                 placeMaster.lon,
                 placeMaster.lat,
                 placeReview.rating.avg().coalesce(0.0),
-                placeReview.count()
+                placeReview.count(),
+                latestReviewImageExpression()
             ))
             .from(placeMaster)
             .leftJoin(placeReview).on(placeReview.placeMaster.eq(placeMaster))
@@ -143,7 +146,8 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
                 placeMaster.lat,
                 distanceExpression,
                 placeReview.rating.avg().coalesce(0.0),
-                placeReview.count()
+                placeReview.count(),
+                latestReviewImageExpression()
             ))
             .from(placeMaster)
             .leftJoin(placeReview).on(placeReview.placeMaster.eq(placeMaster))
@@ -215,7 +219,8 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
                 placeMaster.lat,
                 distanceExpression,
                 avgRating,
-                placeReview.count()
+                placeReview.count(),
+                latestReviewImageExpression()
             ))
             .from(placeMaster)
             .leftJoin(placeReview).on(placeReview.placeMaster.eq(placeMaster))
@@ -307,7 +312,8 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
                 placeMaster.lat,
                 Expressions.asNumber(0.0), // distance is 0 as we're region-based
                 avgRating,
-                placeReview.count()
+                placeReview.count(),
+                latestReviewImageExpression()
             ))
             .from(placeMaster)
             .leftJoin(placeReview).on(placeReview.placeMaster.eq(placeMaster))
@@ -419,5 +425,19 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
         NumberExpression<Double> distanceExpression
     ) {
         return distanceExpression.asc();
+    }
+
+    private com.querydsl.core.types.Expression<String> latestReviewImageExpression() {
+        xyz.datt.domain.review.entity.QPlaceReview subReview = new xyz.datt.domain.review.entity.QPlaceReview("subReview");
+        return ExpressionUtils.as(
+            JPAExpressions.select(subReview.imageUrl)
+                .from(subReview)
+                .where(subReview.placeMaster.eq(placeMaster)
+                    .and(subReview.imageUrl.isNotNull())
+                    .and(subReview.imageUrl.ne("")))
+                .orderBy(subReview.id.desc())
+                .limit(1),
+            "thumbnailUrl"
+        );
     }
 }

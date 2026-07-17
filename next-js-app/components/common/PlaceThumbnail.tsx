@@ -9,6 +9,7 @@ type PlaceThumbnailProps = {
   indsMclsNm: string;
   indsSclsNm?: string;
   category?: string;
+  thumbnailUrl?: string | null;
   className?: string;
 };
 
@@ -26,22 +27,24 @@ export function PlaceThumbnail({
   indsMclsNm,
   indsSclsNm = "",
   category,
+  thumbnailUrl,
   className = "h-14 w-14",
 }: PlaceThumbnailProps) {
   const resolvedCategory = (category as PlaceCategory) || getCategoryFromText(indsMclsNm, indsSclsNm);
   const placeholder = getPlaceholderDetails(resolvedCategory);
-  const { data: latestImage } = useLatestReviewImage(placeId);
+  const { data: latestImage } = useLatestReviewImage(placeId, !thumbnailUrl);
   const [imgError, setImgError] = useState(false);
 
   const Icon = CATEGORY_ICONS[resolvedCategory] || Sparkles;
 
-  const showImage = latestImage && !imgError;
+  const activeImage = thumbnailUrl || latestImage;
+  const showImage = activeImage && !imgError;
 
   const handleImageError = async () => {
     setImgError(true);
-    if (latestImage) {
+    if (activeImage) {
       try {
-        await apiClient.post("/api/files/report-broken", { imageUrl: latestImage });
+        await apiClient.post("/api/files/report-broken", { imageUrl: activeImage });
       } catch (err) {
         console.error("Failed to report broken image URL:", err);
       }
@@ -56,7 +59,7 @@ export function PlaceThumbnail({
     >
       {showImage ? (
         <img
-          src={latestImage}
+          src={activeImage || undefined}
           alt="Thumbnail"
           className="h-full w-full object-cover"
           onError={handleImageError}

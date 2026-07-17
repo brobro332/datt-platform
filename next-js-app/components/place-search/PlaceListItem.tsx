@@ -38,7 +38,7 @@ export function PlaceListItem({
         className="w-full text-left focus:outline-none cursor-pointer px-6 py-5"
       >
         <div className="flex items-center gap-5">
-          <PlaceThumbnail placeId={place.id} indsMclsNm={place.indsMclsNm} category={place.category} className="h-16 w-16 rounded-[1.25rem] shadow-sm shrink-0" />
+          <PlaceThumbnail placeId={place.id} indsMclsNm={place.indsMclsNm} category={place.category} thumbnailUrl={place.thumbnailUrl} className="h-16 w-16 rounded-[1.25rem] shadow-sm shrink-0" />
 
           <div className="min-w-0 flex-1">
             <div className="mb-2 flex items-center gap-2.5 flex-wrap">

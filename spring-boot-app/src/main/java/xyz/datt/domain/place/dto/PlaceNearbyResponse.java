@@ -17,7 +17,8 @@ public record PlaceNearbyResponse(
     Double distanceKm,
     Double averageRating,
     Long reviewCount,
-    String category
+    String category,
+    String thumbnailUrl
 ) {
 
     public PlaceNearbyResponse(
@@ -34,7 +35,8 @@ public record PlaceNearbyResponse(
         Double lat,
         Double distanceKm,
         Double averageRating,
-        Long reviewCount
+        Long reviewCount,
+        String thumbnailUrl
     ) {
         this(
             id,
@@ -53,7 +55,8 @@ public record PlaceNearbyResponse(
             reviewCount,
             AnchorPlaceCategory.fromIndsMclsCd(indsMclsCd) != null 
                 ? AnchorPlaceCategory.fromIndsMclsCd(indsMclsCd).name() 
-                : "OTHER"
+                : "OTHER",
+            thumbnailUrl
         );
     }
 }

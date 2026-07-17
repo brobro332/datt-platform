@@ -17,7 +17,8 @@ public record PlaceSearchResponse(
     Double lat,
     Double averageRating,
     Long reviewCount,
-    String category
+    String category,
+    String thumbnailUrl
 ) {
 
     public PlaceSearchResponse(
@@ -33,7 +34,8 @@ public record PlaceSearchResponse(
         Double lon,
         Double lat,
         Double averageRating,
-        Long reviewCount
+        Long reviewCount,
+        String thumbnailUrl
     ) {
         this(
             id,
@@ -51,7 +53,8 @@ public record PlaceSearchResponse(
             reviewCount,
             AnchorPlaceCategory.fromIndsMclsCd(indsMclsCd) != null 
                 ? AnchorPlaceCategory.fromIndsMclsCd(indsMclsCd).name() 
-                : "OTHER"
+                : "OTHER",
+            thumbnailUrl
         );
     }
 
@@ -69,7 +72,8 @@ public record PlaceSearchResponse(
             placeMaster.getLon(),
             placeMaster.getLat(),
             0.0,
-            0L
+            0L,
+            null
         );
     }
 }
