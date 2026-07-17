@@ -22,11 +22,6 @@ public class PlatformStatsService {
         long anchorCount = anchorRepository.count();
         long reviewCount = placeReviewRepository.count();
         double averageRating = placeReviewRepository.getAverageRatingOfAllReviews();
-        
-        // If there are no reviews or average is 0, fallback to a satisfying baseline score (e.g. 4.9)
-        if (reviewCount == 0 || averageRating == 0.0) {
-            averageRating = 4.9;
-        }
 
         return new PlatformStatsResponse(placeCount, anchorCount, reviewCount, averageRating);
     }
