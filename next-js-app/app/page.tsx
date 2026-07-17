@@ -7,7 +7,7 @@ import { Card } from "@/components/common/Card";
 import { Button } from "@/components/common/Button";
 import { useAuthStore } from "@/stores/authStore";
 import { getPlatformStats, type PlatformStatsResponse } from "@/services/statsService";
-import { UserGuideModal } from "@/components/common/UserGuideModal";
+import { DevNoteModal } from "@/components/common/DevNoteModal";
 import { 
   Sparkles, 
   Anchor, 
@@ -21,13 +21,13 @@ import {
   Users,
   Map,
   TrendingUp,
-  HelpCircle
+  FileText
 } from "lucide-react";
 
 export default function HomePage() {
   const [stats, setStats] = useState<PlatformStatsResponse | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [isUserGuideOpen, setIsUserGuideOpen] = useState(false);
+  const [isDevNoteOpen, setIsDevNoteOpen] = useState(false);
   
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
@@ -76,9 +76,9 @@ export default function HomePage() {
               variant="secondary" 
               size="lg" 
               className="rounded-2xl flex items-center gap-1.5"
-              onClick={() => setIsUserGuideOpen(true)}
+              onClick={() => setIsDevNoteOpen(true)}
             >
-              사용 가이드 <HelpCircle className="w-4 h-4" />
+              개발자 노트 <FileText className="w-4 h-4" />
             </Button>
           </div>
         </div>
@@ -245,7 +245,7 @@ export default function HomePage() {
         </section>
       )}
 
-      <UserGuideModal isOpen={isUserGuideOpen} onClose={() => setIsUserGuideOpen(false)} />
+      <DevNoteModal isOpen={isDevNoteOpen} onClose={() => setIsDevNoteOpen(false)} />
     </MainLayout>
   );
 }
