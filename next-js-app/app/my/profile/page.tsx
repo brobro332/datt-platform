@@ -345,7 +345,7 @@ export default function MyProfilePage() {
           <div className="lg:col-span-8 space-y-8">
             
             {/* Recent Items Tab Navigation Header */}
-            <div className="flex items-center bg-slate-100/80 p-1.5 rounded-2xl mb-5 max-w-md border border-slate-200/10 shadow-inner">
+            <div className="flex items-center bg-slate-100/80 p-1.5 rounded-2xl mb-5 w-full border border-slate-200/10 shadow-inner">
               <button
                 type="button"
                 onClick={() => setRecentTab("anchors")}

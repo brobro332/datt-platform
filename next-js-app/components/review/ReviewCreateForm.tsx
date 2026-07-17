@@ -169,7 +169,7 @@ export function ReviewCreateForm({
             
             <div className="mb-6">
                 <h2 className="text-xl font-extrabold text-slate-900 flex items-center gap-2">
-                    ⚓ 정박지 경험 공유하기
+                    ⚓ 리뷰 작성하기
                 </h2>
                 <p className="mt-1 text-xs font-semibold text-slate-400">
                     이 장소에 대한 생생한 방문 경험을 다른 선원들과 솔직하게 나누어 보세요.

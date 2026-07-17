@@ -55,7 +55,7 @@ export function RecommendationSection({ recommendations }: RecommendationSection
   return (
     <div className="space-y-6">
       {/* Category tabs */}
-      <div className="flex flex-wrap gap-2 p-1.5 rounded-2xl bg-slate-100/70 border border-slate-200/50 backdrop-blur-sm">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 p-1.5 rounded-2xl bg-slate-100/70 border border-slate-200/50 backdrop-blur-sm w-full">
         {tabs.map((tab) => {
           const isSelected = activeTab === tab.key;
           return (
@@ -63,7 +63,7 @@ export function RecommendationSection({ recommendations }: RecommendationSection
               key={tab.key}
               type="button"
               onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-2 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition-all duration-200 cursor-pointer active:scale-95 ${
+              className={`py-2 rounded-xl text-xs font-extrabold flex items-center justify-center gap-1.5 transition-all duration-200 cursor-pointer active:scale-95 w-full ${
                 isSelected
                   ? "bg-white text-indigo-600 shadow-sm border border-slate-200/30"
                   : "text-slate-500 hover:text-slate-800 hover:bg-white/40"

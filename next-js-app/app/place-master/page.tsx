@@ -229,6 +229,14 @@ export default function PlaceMasterPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const getTodayString = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    return `${year}${month}${day}`;
+  };
+
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const [isLoginGuideOpen, setIsLoginGuideOpen] = useState(false);
 
@@ -292,7 +300,10 @@ export default function PlaceMasterPage() {
   async function handleCreateAnchor(customTitle: string) {
     if (!submittedRegion || (!regionCenter && !customCenter)) return;
 
-    const defaultTitle = selectedSubway ? `${selectedSubway.name} 닻` : `${submittedRegion.province} ${submittedRegion.district} 닻`;
+    const todayStr = getTodayString();
+    const defaultTitle = selectedSubway 
+      ? `${todayStr} ${selectedSubway.name} 닻` 
+      : `${todayStr} ${submittedRegion.province} ${submittedRegion.district} 닻`;
     const finalTitle = customTitle.trim() || defaultTitle;
 
     const baseLat = customCenter ? customCenter[0] : regionCenter?.[0];
@@ -599,7 +610,10 @@ export default function PlaceMasterPage() {
                   if (!isLoggedIn) {
                     setIsLoginGuideOpen(true);
                   } else {
-                    setAnchorTitle(selectedSubway ? `${selectedSubway.name} 닻` : `${submittedRegion?.province} ${submittedRegion?.district} 닻`);
+                    const todayStr = getTodayString();
+                    setAnchorTitle(selectedSubway 
+                      ? `${todayStr} ${selectedSubway.name} 닻` 
+                      : `${todayStr} ${submittedRegion?.province} ${submittedRegion?.district} 닻`);
                     setIsTitleModalOpen(true);
                   }
                 }}
