@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { env } from "@/lib/env";
+import { useAuthStore } from "@/stores/authStore";
+import { LoginGuideModal } from "@/components/common/LoginGuideModal";
 
 import { MainLayout } from "@/layouts/MainLayout";
 import { AsyncStateView } from "@/components/common/AsyncStateView";
@@ -227,6 +229,9 @@ export default function PlaceMasterPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const [isLoginGuideOpen, setIsLoginGuideOpen] = useState(false);
+
   // Anchor Title Modal States
   const [isTitleModalOpen, setIsTitleModalOpen] = useState(false);
   const [anchorTitle, setAnchorTitle] = useState("");
@@ -318,7 +323,7 @@ export default function PlaceMasterPage() {
   }
 
   return (
-    <MainLayout requireAuth>
+    <MainLayout>
       <section className="space-y-8 pb-2">
         <div className="relative z-40 rounded-[2rem] border border-white/80 bg-white/60 backdrop-blur-xl p-8 md:p-10 shadow-[0_30px_100px_rgba(99,102,241,0.06)]">
           <p className="text-xs font-semibold text-blue-600 uppercase tracking-widest flex items-center gap-1.5">
@@ -591,8 +596,12 @@ export default function PlaceMasterPage() {
                 size="lg" 
                 className="w-full max-w-md h-16 text-lg font-black rounded-2xl bg-indigo-600 hover:bg-indigo-700 shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                 onClick={() => {
-                  setAnchorTitle(selectedSubway ? `${selectedSubway.name} 닻` : `${submittedRegion?.province} ${submittedRegion?.district} 닻`);
-                  setIsTitleModalOpen(true);
+                  if (!isLoggedIn) {
+                    setIsLoginGuideOpen(true);
+                  } else {
+                    setAnchorTitle(selectedSubway ? `${selectedSubway.name} 닻` : `${submittedRegion?.province} ${submittedRegion?.district} 닻`);
+                    setIsTitleModalOpen(true);
+                  }
                 }}
                 isLoading={creatingAnchor}
               >
@@ -668,6 +677,7 @@ export default function PlaceMasterPage() {
           <ArrowUp className="w-4 h-4 text-indigo-600 transition-transform duration-300 group-hover:-translate-y-0.5" />
         </button>
       )}
+      <LoginGuideModal isOpen={isLoginGuideOpen} onClose={() => setIsLoginGuideOpen(false)} />
     </MainLayout>
   );
 }

@@ -8,6 +8,7 @@ import { env } from "@/lib/env";
 
 import { MainLayout } from "@/layouts/MainLayout";
 import { Card } from "@/components/common/Card";
+import { LoginGuideModal } from "@/components/common/LoginGuideModal";
 import { LoadingState } from "@/components/common/LoadingState";
 import { ErrorState } from "@/components/common/ErrorState";
 
@@ -62,6 +63,7 @@ export default function AnchorDetailPage() {
   const { member } = useAuthStore();
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
+  const [isLoginGuideOpen, setIsLoginGuideOpen] = useState(false);
 
   const handleDelete = async () => {
     if (!confirm("정말 이 닻을 삭제하시겠습니까?")) return;
@@ -213,8 +215,7 @@ export default function AnchorDetailPage() {
 
   const handleToggleLike = async () => {
     if (!member) {
-      alert("로그인이 필요한 서비스입니다.");
-      router.push("/login");
+      setIsLoginGuideOpen(true);
       return;
     }
     if (!anchor || isLiking) return;
@@ -647,6 +648,7 @@ export default function AnchorDetailPage() {
           </div>
         </div>
       )}
+      <LoginGuideModal isOpen={isLoginGuideOpen} onClose={() => setIsLoginGuideOpen(false)} />
     </MainLayout>
   );
 }

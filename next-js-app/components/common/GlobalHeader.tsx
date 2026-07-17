@@ -118,14 +118,14 @@ export function GlobalHeader() {
               <>
                 <Link
                   href="/login"
-                  className="hidden rounded-xl px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 sm:inline-flex"
+                  className="inline-flex rounded-xl px-3.5 sm:px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
                 >
                   로그인
                 </Link>
 
                 <Link
                   href="/signup"
-                  className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-100 hover:bg-blue-500 hover:shadow-blue-200 transition active:scale-95"
+                  className="rounded-xl bg-blue-600 px-3.5 sm:px-4 py-2 text-sm font-semibold text-white shadow-md shadow-blue-100 hover:bg-blue-500 hover:shadow-blue-200 transition active:scale-95"
                 >
                   회원가입
                 </Link>

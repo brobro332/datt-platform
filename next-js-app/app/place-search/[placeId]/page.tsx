@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { BookmarkFolderModal } from "@/components/bookmark/BookmarkFolderModal";
+import { LoginGuideModal } from "@/components/common/LoginGuideModal";
 import { env } from "@/lib/env";
 import { apiClient } from "@/lib/apiClient";
 
@@ -105,6 +106,8 @@ export default function PlaceDetailPage() {
   const placeId = Number(params.placeId);
 
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const [isLoginGuideOpen, setIsLoginGuideOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [brokenImages, setBrokenImages] = useState<string[]>([]);
   const [placeImgError, setPlaceImgError] = useState(false);
@@ -142,7 +145,11 @@ export default function PlaceDetailPage() {
     addBookmarkMutation.isPending || removeBookmarkMutation.isPending;
 
   function handleToggleBookmark() {
-    setIsFolderModalOpen(true);
+    if (!isLoggedIn) {
+      setIsLoginGuideOpen(true);
+    } else {
+      setIsFolderModalOpen(true);
+    }
   }
 
   async function handleSelectFolders(folderIds: number[]) {
@@ -408,19 +415,15 @@ export default function PlaceDetailPage() {
             <div id="detail-static-map" className="w-full h-full" />
           </Card>
 
-          {!member ? (
-            <Card className="p-6 border border-slate-200/50 bg-white/70 backdrop-blur-md text-center shadow-sm flex items-center justify-center gap-2 text-slate-500 font-bold text-sm">
-              <Anchor className="w-4 h-4 text-slate-400" /> 로그인한 선원만 리뷰를 작성할 수 있습니다.
-            </Card>
-          ) : hasWrittenReview ? (
+          <ReviewListSection placeId={placeId} />
+
+          {!member ? null : hasWrittenReview ? (
             <Card className="p-6 border border-slate-200/50 bg-white/70 backdrop-blur-md text-center shadow-sm flex items-center justify-center gap-2 text-slate-500 font-bold text-sm">
               <Anchor className="w-4 h-4 text-slate-400" /> 이미 리뷰를 남기셨습니다.
             </Card>
           ) : (
             <ReviewCreateForm placeId={placeId} />
           )}
-
-          <ReviewListSection placeId={placeId} />
 
           <BookmarkFolderModal
             isOpen={isFolderModalOpen}
@@ -434,6 +437,7 @@ export default function PlaceDetailPage() {
           />
         </section>
       )}
+      <LoginGuideModal isOpen={isLoginGuideOpen} onClose={() => setIsLoginGuideOpen(false)} />
     </MainLayout>
   );
 }
