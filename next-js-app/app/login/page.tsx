@@ -20,7 +20,7 @@ export default function LoginPage() {
   const handleKakaoLogin = () => {
     const clientId = env.kakaoClientId || "YOUR_KAKAO_CLIENT_ID_PLACEHOLDER";
     const redirectUri = env.kakaoRedirectUri || `${window.location.origin}/login/oauth2/code/kakao`;
-    const url = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=profile_nickname,account_email`;
+    const url = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=account_email`;
     window.location.href = url;
   };
 
