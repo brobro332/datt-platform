@@ -2,6 +2,7 @@ package xyz.datt.domain.anchor.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.util.List;
 
 public record AnchorCreateRequest(
         @NotBlank
@@ -20,6 +21,8 @@ public record AnchorCreateRequest(
 
         Double radiusKm,
 
-        Boolean isPublic
+        Boolean isPublic,
+
+        List<Long> placeIds
 ) {
 }

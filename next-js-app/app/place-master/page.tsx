@@ -13,6 +13,7 @@ import { Card } from "@/components/common/Card";
 import { PlaceMasterListItem } from "@/components/place-master/PlaceMasterListItem";
 import { PlaceFilterChips } from "@/components/place-search/PlaceFilterChips";
 import type { PlaceMasterSearchResponse } from "@/types/placeMaster";
+import type { PlaceNearbyResponse } from "@/types/place";
 
 import { useCreateAnchor } from "@/hooks/useAnchorMutation";
 import {
@@ -319,6 +320,14 @@ export default function PlaceMasterPage() {
   const placeMasters = data ? data.pages.flatMap((page) => page.content) : [];
   const displayPlaces = placeMasters;
 
+  const [excludedPlaceIds, setExcludedPlaceIds] = useState<number[]>([]);
+  const [replacedPlaces, setReplacedPlaces] = useState<Record<number, PlaceNearbyResponse>>({});
+
+  useEffect(() => {
+    setExcludedPlaceIds([]);
+    setReplacedPlaces({});
+  }, [recommendations]);
+
   function handleRegionSubmit(event: { preventDefault: () => void }) {
     event.preventDefault();
     if (!selectedProvince || !selectedDistrict) return;
@@ -350,6 +359,23 @@ export default function PlaceMasterPage() {
     const basePlaceName = selectedSubway ? selectedSubway.name : `${submittedRegion.province} ${submittedRegion.district}`;
     const baseAddress = selectedSubway ? `${submittedRegion.province} ${submittedRegion.district} ${selectedSubway.name} (${selectedSubway.line})` : `${submittedRegion.province} ${submittedRegion.district}`;
 
+    // Collect active place IDs: original recommendations minus excluded, or their replacements
+    const activePlaceIds: number[] = [];
+    if (recommendations) {
+      Object.entries(recommendations).forEach(([category, places]) => {
+        (places || []).forEach((place) => {
+          if (excludedPlaceIds.includes(place.id)) {
+            return;
+          }
+          if (replacedPlaces[place.id]) {
+            activePlaceIds.push(replacedPlaces[place.id].id);
+          } else {
+            activePlaceIds.push(place.id);
+          }
+        });
+      });
+    }
+
     try {
       setCreatingAnchor(true);
 
@@ -362,6 +388,7 @@ export default function PlaceMasterPage() {
         baseLat: baseLat!,
         radiusKm: 3,
         isPublic: true,
+        placeIds: activePlaceIds,
       });
 
       setIsTitleModalOpen(false);
@@ -636,7 +663,18 @@ export default function PlaceMasterPage() {
               loadingMessage="닻내리기 중심 좌표 분석 및 추천 명소를 큐레이션하고 있습니다..."
             >
               {recommendations ? (
-                <RecommendationSection recommendations={recommendations} />
+                <RecommendationSection 
+                  recommendations={recommendations}
+                  excludedPlaceIds={excludedPlaceIds}
+                  replacedPlaces={replacedPlaces}
+                  onExclude={(id) => setExcludedPlaceIds((prev) => [...prev, id])}
+                  onInclude={(id) => setExcludedPlaceIds((prev) => prev.filter((x) => x !== id))}
+                  onReplace={(oldId, newPlace) => setReplacedPlaces((prev) => ({ ...prev, [oldId]: newPlace }))}
+                  baseLat={customCenter ? customCenter[0] : regionCenter?.[0] || 0}
+                  baseLon={customCenter ? customCenter[1] : regionCenter?.[1] || 0}
+                  province={submittedRegion?.province}
+                  district={submittedRegion?.district}
+                />
               ) : null}
             </AsyncStateView>
 

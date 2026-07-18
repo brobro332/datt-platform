@@ -65,14 +65,18 @@ public class AnchorCreateService {
 
         Anchor savedAnchor = anchorRepository.save(anchor);
 
-        Map<AnchorPlaceCategory, List<PlaceNearbyResponse>> recommendations =
-            anchorRecommendationService.recommendByCategory(
-                savedAnchor.getBaseLat(),
-                savedAnchor.getBaseLon(),
-                savedAnchor.getRadiusKm()
-            );
+        if (request.placeIds() != null && !request.placeIds().isEmpty()) {
+            anchorPlaceCreateService.createCustomAnchorPlaces(savedAnchor, request.placeIds());
+        } else {
+            Map<AnchorPlaceCategory, List<PlaceNearbyResponse>> recommendations =
+                anchorRecommendationService.recommendByCategory(
+                    savedAnchor.getBaseLat(),
+                    savedAnchor.getBaseLon(),
+                    savedAnchor.getRadiusKm()
+                );
 
-        anchorPlaceCreateService.createAnchorPlaces(savedAnchor, recommendations);
+            anchorPlaceCreateService.createAnchorPlaces(savedAnchor, recommendations);
+        }
 
         gamificationService.logActivity(memberId, ActivityType.ANCHOR_CREATE, "정박지 '" + savedAnchor.getTitle() + "' 생성");
 

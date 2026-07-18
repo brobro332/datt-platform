@@ -7,6 +7,7 @@ export type AnchorCreateRequest = {
     baseLat?: number | null;
     radiusKm?: number | null;
     isPublic: boolean;
+    placeIds?: number[] | null;
 };
 
 export type AnchorPlaceResponse = {
