@@ -28,6 +28,6 @@ public interface PlaceMasterRepository extends JpaRepository<PlaceMaster, Long>,
     List<PlaceMaster> findByBizesIdIn(Collection<String> bizesIds);
 
     @org.springframework.data.jpa.repository.Modifying
-    @Query("update PlaceMaster p set p.status = 'CLOSED', p.updatedAt = CURRENT_TIMESTAMP where p.lastSyncedAt < :batchStartTime and p.status = 'ACTIVE'")
+    @Query("update PlaceMaster p set p.status = 'CLOSED', p.updatedAt = CURRENT_TIMESTAMP where p.lastSyncedAt < :batchStartTime and p.status = 'ACTIVE' and p.bizesId not like 'MANUAL-%'")
     int updateClosedPlaces(@Param("batchStartTime") java.time.LocalDateTime batchStartTime);
 }
