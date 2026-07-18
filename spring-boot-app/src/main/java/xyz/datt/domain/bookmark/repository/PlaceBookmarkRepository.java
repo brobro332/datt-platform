@@ -22,4 +22,7 @@ public interface PlaceBookmarkRepository extends JpaRepository<PlaceBookmark, Lo
         @Param("folderId") Long folderId,
         Pageable pageable
     );
+
+    @Query("select pb from PlaceBookmark pb join pb.bookmarkFolders bf where bf.id = :folderId order by pb.createdAt desc")
+    java.util.List<PlaceBookmark> findByFolderId(@Param("folderId") Long folderId);
 }

@@ -7,6 +7,7 @@ import {
   updateBookmarkFolder,
   deleteBookmarkFolder,
   getMyPlaceBookmarks,
+  getPublicBookmarkFolder,
 } from "@/services/bookmarkService";
 
 export function useAddPlaceBookmark(placeId: number) {
@@ -124,5 +125,13 @@ export function useMyPlaceBookmarks(page = 0, size = 10, folderId?: number) {
   return useQuery({
     queryKey: ["my-place-bookmarks", page, size, folderId],
     queryFn: () => getMyPlaceBookmarks(page, size, folderId),
+  });
+}
+
+export function usePublicBookmarkFolder(folderId: number) {
+  return useQuery({
+    queryKey: ["public-bookmark-folder", folderId],
+    queryFn: () => getPublicBookmarkFolder(folderId),
+    enabled: !isNaN(folderId),
   });
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { MainLayout } from "@/layouts/MainLayout";
 import { Card } from "@/components/common/Card";
@@ -11,8 +11,9 @@ import { useMyPlaceBookmarks, useRemovePlaceBookmark, useGetBookmarkFolders } fr
 import { PlaceThumbnail } from "@/components/common/PlaceThumbnail";
 import { getCategoryFromText, type PlaceCategory } from "@/utils/category";
 import type { PlaceBookmarkResponse, BookmarkFolder } from "@/types/bookmark";
-import { MapPin, Search, ExternalLink, Trash2, Bookmark, Folder } from "lucide-react";
+import { MapPin, Search, ExternalLink, Trash2, Bookmark, Folder, Share2, Copy, X } from "lucide-react";
 import { CategoryBadge } from "@/components/common/CategoryBadge";
+import { env } from "@/lib/env";
 
 const PAGE_SIZE = 6;
 
@@ -22,6 +23,85 @@ export default function MyBookmarksPage() {
 
   const { data: folders = [] } = useGetBookmarkFolders();
   const { data, isLoading, isError } = useMyPlaceBookmarks(page, PAGE_SIZE, selectedFolderId);
+
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+
+  const initKakao = () => {
+    if (typeof window !== "undefined") {
+      const Kakao = (window as any).Kakao;
+      if (Kakao) {
+        if (!Kakao.isInitialized()) {
+          Kakao.init(env.kakaoMapAppKey);
+        }
+        return Kakao;
+      }
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (!(window as any).Kakao) {
+        const script = document.createElement("script");
+        script.src = "https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js";
+        script.onload = () => {
+          initKakao();
+        };
+        document.head.appendChild(script);
+      } else {
+        initKakao();
+      }
+    }
+  }, []);
+
+  const shareToKakao = () => {
+    const Kakao = initKakao();
+    if (Kakao && Kakao.Share) {
+      try {
+        const selectedFolder = folders.find(f => f.id === selectedFolderId);
+        const folderName = selectedFolder ? selectedFolder.name : "보관함";
+        const shareUrl = window.location.origin + `/bookmarks/${selectedFolderId}`;
+        Kakao.Share.sendDefault({
+          objectType: "feed",
+          content: {
+            title: `DATT [${folderName}] 보관함 공유`,
+            description: "DATT에서 특별히 큐레이션한 맛집/핫플레이스 공유 폴더를 확인해 보세요.",
+            imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&auto=format&fit=crop&q=60",
+            link: {
+              mobileWebUrl: shareUrl,
+              webUrl: shareUrl,
+            },
+          },
+          buttons: [
+            {
+              title: "보관함 확인하기",
+              link: {
+                mobileWebUrl: shareUrl,
+                webUrl: shareUrl,
+              },
+            },
+          ],
+        });
+        setIsShareModalOpen(false);
+      } catch (err) {
+        console.error("Kakao share failed:", err);
+        alert("카카오톡 공유에 실패했습니다. 링크 복사를 이용해 주세요.");
+      }
+    } else {
+      alert("카카오톡 SDK 로딩 중입니다. 잠시 후 다시 시도해 주세요.");
+    }
+  };
+
+  const handleCopyLink = async () => {
+    const shareUrl = window.location.origin + `/bookmarks/${selectedFolderId}`;
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      alert("공유 링크가 클립보드에 복사되었습니다!");
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+      alert("링크 복사에 실패했습니다. 주소창의 주소를 직접 복사해 주세요.");
+    }
+  };
 
   function handlePreviousPage() {
     setPage((prev) => Math.max(prev - 1, 0));
@@ -50,11 +130,21 @@ export default function MyBookmarksPage() {
                 탐색하면서 보관해둔 나만의 핫플레이스 목록입니다. 즐겨찾는 폴더별로 정돈하여 확인해 보세요.
               </p>
             </div>
-            <Link href="/place-search" className="shrink-0">
-              <Button size="md" className="rounded-xl shadow-md flex items-center gap-1.5">
-                <Search className="w-4 h-4" /> 새로운 장소 찾기
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2 shrink-0">
+              {selectedFolderId !== undefined && (
+                <button
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="h-10 rounded-xl px-4 text-xs font-bold bg-indigo-50 border border-indigo-200 text-indigo-750 hover:bg-indigo-100 transition active:scale-95 flex items-center gap-1.5 cursor-pointer shadow-sm"
+                >
+                  <Share2 className="w-3.5 h-3.5" /> 공유
+                </button>
+              )}
+              <Link href="/place-search">
+                <Button size="md" className="rounded-xl shadow-md flex items-center gap-1.5">
+                  <Search className="w-4 h-4" /> 새로운 장소 찾기
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
@@ -142,6 +232,43 @@ export default function MyBookmarksPage() {
           )}
         </AsyncStateView>
       </section>
+
+      {/* Share Modal */}
+      {isShareModalOpen && selectedFolderId !== undefined && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-sm rounded-[2rem] border border-white/50 bg-white/95 p-6 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setIsShareModalOpen(false)}
+              className="absolute top-5 right-5 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+              <Share2 className="w-5 h-5 text-indigo-650" /> 보관함 폴더 공유
+            </h3>
+            <p className="text-xs font-semibold text-slate-400 mt-1">
+              선택한 보관함 폴더를 친구들과 함께 공유해보세요.
+            </p>
+
+            <div className="mt-6 space-y-3">
+              <button
+                onClick={shareToKakao}
+                className="w-full h-12 rounded-xl bg-[#FEE500] hover:bg-[#FDD835] text-slate-900 font-bold text-sm transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-sm border border-yellow-300"
+              >
+                <span className="text-sm font-black">💬 카카오톡 공유</span>
+              </button>
+
+              <button
+                onClick={handleCopyLink}
+                className="w-full h-12 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-bold text-sm transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+              >
+                <Copy className="w-4 h-4" /> 링크 주소 복사
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </MainLayout>
   );
 }

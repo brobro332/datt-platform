@@ -35,11 +35,17 @@
         * 이미 저장/생성 완료된 기존 닻도 작성자(소유주)에 한해 언제든 닻을 구성하는 매장(AnchorPlace)을 편집("제외/복구" 및 "교체")할 수 있는 기능 추가.
         * 백엔드에 PUT `/api/anchors/{anchorId}/places` 엔드포인트를 구현하여 기존 닻 소속 매장 정보를 삭제 후 신규 선택 리스트로 통째로 갱신하는 트랜잭션 구축.
         * 매장 교체 시, 해당 닻의 baseAddress 주소에서 시도명(province) 및 시군구명(district)을 파싱(parseRegionFromAddress)하여, 오직 해당 지역구 내에 위치한 매장들만 필터검색 및 교체 선택이 가능하도록 엄격히 락인(Lock-in) 적용.
-* `75ffb89` (예정) - **장소 탐색 페이지네이션 개편 및 평점/리뷰/거리순 정렬 조건 커스텀**
+* `75ffb89` - **장소 탐색 페이지네이션 개편 및 평점/리뷰/거리순 정렬 조건 커스텀**
     * **작업 내용**:
         * 장소 탐색 메뉴의 하단 페이징 인터페이스를 단순 "이전/다음" 버튼 구조에서 직관적인 "숫자 버튼 목록(최대 5개씩 슬라이딩 윈도우)" 형태로 전면 개편.
         * 장소 정렬 기준을 기존 4개(최신순, 이름순, 리뷰순, 평점순)에서 사용자 요구사항인 3개(평점순, 리뷰순, 거리순)로 간결하게 필터 재편.
         * 백엔드(PlaceSortType, PlaceSearchCondition, PlaceQueryRepositoryImpl)에 거리순(DISTANCE) 정렬 유형과 좌표 필드를 연동하고, 프론트엔드에서 거리순 선택 시 브라우저 Geolocation API를 통해 사용자의 현재 위도/경도를 실시간 획득하여 구면 삼각법(Haversine) 기반 거리순 정렬 쿼리 수행 및 카드에 거리 표시 구현.
+* `0d9124a` (예정) - **저장한 장소 보관함 폴더 공유 기능 추가**
+    * **작업 내용**:
+        * 사용자가 스크랩한 장소들을 폴더별로 외부 공유할 수 있는 공유 시스템 구축.
+        * 백엔드(BookmarkFolderController, BookmarkFolderService, PlaceBookmarkRepository, PublicBookmarkFolderResponse)에 비로그인 사용자도 조회할 수 있는 폴더 및 북마크 조회 공개 API(GET `/api/bookmarks/folders/{folderId}/public`) 설계 및 Security Config 접근 권한 허용(permitAll) 적용.
+        * 프론트엔드에 공유된 폴더의 북마크 리스트를 비로그인 상태로 볼 수 있는 공유 전용 페이지(`/bookmarks/[folderId]/page.tsx`)를 신설.
+        * 내 보관함 페이지(`/my/bookmarks/page.tsx`)에서 특정 폴더 선택 시 작동하는 "공유" 액션 모달을 탑재하여 카카오톡 공유하기 및 공유용 링크 복사 기능 구현.
 
 ## 🔍 핵심 챌린지 해결 사례 (Troubleshooting)
 

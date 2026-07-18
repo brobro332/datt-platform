@@ -29,3 +29,10 @@ export type BookmarkFolder = {
 export type BookmarkFolderRequest = {
   name: string;
 };
+
+export type PublicBookmarkFolderResponse = {
+  folderId: number;
+  folderName: string;
+  ownerNickname: string;
+  bookmarks: PlaceBookmarkResponse[];
+};

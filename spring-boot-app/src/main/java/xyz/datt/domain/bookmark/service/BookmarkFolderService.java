@@ -4,8 +4,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.datt.domain.bookmark.dto.BookmarkFolderResponse;
+import xyz.datt.domain.bookmark.dto.PlaceBookmarkResponse;
+import xyz.datt.domain.bookmark.dto.PublicBookmarkFolderResponse;
 import xyz.datt.domain.bookmark.entity.BookmarkFolder;
+import xyz.datt.domain.bookmark.entity.PlaceBookmark;
 import xyz.datt.domain.bookmark.repository.BookmarkFolderRepository;
+import xyz.datt.domain.bookmark.repository.PlaceBookmarkRepository;
 import xyz.datt.domain.member.entity.Member;
 import xyz.datt.domain.member.repository.MemberRepository;
 import xyz.datt.global.error.BusinessException;
@@ -19,6 +23,7 @@ import java.util.List;
 public class BookmarkFolderService {
     private final BookmarkFolderRepository bookmarkFolderRepository;
     private final MemberRepository memberRepository;
+    private final PlaceBookmarkRepository placeBookmarkRepository;
 
     @Transactional
     public BookmarkFolderResponse createFolder(Long memberId, String name) {
@@ -63,5 +68,23 @@ public class BookmarkFolderService {
             .orElseThrow(() -> new BusinessException(ErrorCode.BOOKMARK_FOLDER_NOT_FOUND));
 
         bookmarkFolderRepository.delete(folder);
+    }
+
+    public PublicBookmarkFolderResponse getPublicFolder(Long folderId) {
+        BookmarkFolder folder = bookmarkFolderRepository.findById(folderId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.BOOKMARK_FOLDER_NOT_FOUND));
+
+        List<PlaceBookmark> bookmarks = placeBookmarkRepository.findByFolderId(folderId);
+
+        List<PlaceBookmarkResponse> bookmarkResponses = bookmarks.stream()
+            .map(PlaceBookmarkResponse::from)
+            .toList();
+
+        return new PublicBookmarkFolderResponse(
+            folder.getId(),
+            folder.getName(),
+            folder.getMember().getNickname(),
+            bookmarkResponses
+        );
     }
 }

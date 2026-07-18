@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import xyz.datt.domain.bookmark.dto.BookmarkFolderRequest;
 import xyz.datt.domain.bookmark.dto.BookmarkFolderResponse;
+import xyz.datt.domain.bookmark.dto.PublicBookmarkFolderResponse;
 import xyz.datt.domain.bookmark.service.BookmarkFolderService;
 import xyz.datt.global.response.ApiResponse;
 import xyz.datt.global.security.CustomUserDetails;
@@ -61,5 +62,13 @@ public class BookmarkFolderController {
     ) {
         bookmarkFolderService.deleteFolder(userDetails.getMemberId(), folderId);
         return ApiResponse.success(null);
+    }
+
+    @GetMapping("/{folderId}/public")
+    public ApiResponse<PublicBookmarkFolderResponse> getPublicFolder(
+        @PathVariable Long folderId
+    ) {
+        PublicBookmarkFolderResponse response = bookmarkFolderService.getPublicFolder(folderId);
+        return ApiResponse.success(response);
     }
 }

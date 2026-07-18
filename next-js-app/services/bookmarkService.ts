@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/apiClient";
 import type { ApiResponse, PageResponse } from "@/types/api";
-import { PlaceBookmarkResponse, BookmarkFolder } from "@/types/bookmark";
+import { PlaceBookmarkResponse, BookmarkFolder, PublicBookmarkFolderResponse } from "@/types/bookmark";
 
 export async function addPlaceBookmark(
   placeId: number,
@@ -74,4 +74,13 @@ export async function deleteBookmarkFolder(
   await apiClient.delete<ApiResponse<null>>(
     `/api/bookmarks/folders/${folderId}`,
   );
+}
+
+export async function getPublicBookmarkFolder(
+  folderId: number,
+): Promise<PublicBookmarkFolderResponse> {
+  const response = await apiClient.get<ApiResponse<PublicBookmarkFolderResponse>>(
+    `/api/bookmarks/folders/${folderId}/public`,
+  );
+  return response.data.data;
 }
