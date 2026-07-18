@@ -528,6 +528,19 @@ export default function PlaceMasterPage() {
           )}
         </div>
 
+        {/* Mobile Anchor Creation Button (Visible only on mobile) */}
+        {submittedRegion && !showRecommendations && (
+          <div className="block md:hidden mt-4 animate-in fade-in slide-in-from-top-4 duration-300">
+            <Button
+              size="lg"
+              className="w-full h-14 px-8 rounded-2xl text-sm font-black gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-650 text-white shadow-lg active:scale-95 transition-all duration-300 flex items-center justify-center"
+              onClick={() => setShowRecommendations(true)}
+            >
+              <Anchor className="w-5 h-5 stroke-[2.5px]" /> {selectedSubway ? `"${selectedSubway.name}"에 닻 내리기` : `"${submittedRegion.district}" 구역에 닻 내리기`}
+            </Button>
+          </div>
+        )}
+
         {!showRecommendations && (
           <section className="space-y-4">
             <div className="flex flex-col justify-between gap-3 md:flex-row md:items-center">
@@ -628,7 +641,7 @@ export default function PlaceMasterPage() {
         )}
 
         {submittedRegion && !showRecommendations && (
-          <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-50">
+          <div className="hidden md:block fixed bottom-10 left-1/2 -translate-x-1/2 z-50">
             <Button
               size="lg"
               className="shadow-2xl h-14 px-8 rounded-full text-base font-bold gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:scale-105 active:scale-95 transition-all duration-300 flex items-center"

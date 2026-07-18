@@ -64,7 +64,7 @@ export function MainLayout({ children, requireAuth = false }: MainLayoutProps) {
         {leftAd ? (
           <AdBannerCard ad={leftAd} />
         ) : (
-          <div className="hidden xl:block w-[200px] shrink-0 h-[580px]" />
+          <div className="hidden xl:block w-[200px] shrink-0 h-[500px]" />
         )}
 
         {/* Center Main Content */}
@@ -82,7 +82,7 @@ export function MainLayout({ children, requireAuth = false }: MainLayoutProps) {
         {rightAd ? (
           <AdBannerCard ad={rightAd} />
         ) : (
-          <div className="hidden xl:block w-[200px] shrink-0 h-[580px]" />
+          <div className="hidden xl:block w-[200px] shrink-0 h-[500px]" />
         )}
       </div>
 
