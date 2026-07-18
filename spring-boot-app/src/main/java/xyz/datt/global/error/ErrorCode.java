@@ -48,7 +48,8 @@ public enum ErrorCode {
 
     EMAIL_VERIFICATION_NOT_FOUND(HttpStatus.NOT_FOUND, "auth.email_verification_not_found", "이메일 인증 요청 내역을 찾을 수 없습니다."),
     INVALID_EMAIL_VERIFICATION_CODE(HttpStatus.BAD_REQUEST, "auth.invalid_email_verification_code", "이메일 인증 코드가 일치하지 않습니다."),
-    EMAIL_VERIFICATION_EXPIRED(HttpStatus.BAD_REQUEST, "auth.email_verification_expired", "이메일 인증 코드가 만료되었습니다.");
+    EMAIL_VERIFICATION_EXPIRED(HttpStatus.BAD_REQUEST, "auth.email_verification_expired", "이메일 인증 코드가 만료되었습니다."),
+    ADVERTISEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "advertisement.not_found", "광고를 찾을 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String code;

@@ -33,6 +33,7 @@ public class SecurityConfig {
                         "/api/auth/email/send", "/api/auth/email/verify", "/api/auth/social/**",
                         "/api/place-masters/**", "/api/batch/place-sync",
                         "/api/subway-stations", "/api/admin/subway-stations/sync",
+                        "/api/ads",
                         "/uploads/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/stats").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/anchors/{anchorId}").permitAll()
@@ -41,6 +42,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/places/{placeId:[0-9]+}/reviews").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/bookmarks/folders/{folderId}/public").permitAll()
                     .requestMatchers("/api/admin/places/**").hasRole("ADMIN")
+                    .requestMatchers("/api/admin/ads/**").hasRole("ADMIN")
                     .anyRequest().authenticated()
             )
             .addFilterBefore(
