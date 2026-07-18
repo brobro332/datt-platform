@@ -528,15 +528,15 @@ export default function PlaceMasterPage() {
           )}
         </div>
 
-        {/* Mobile Anchor Creation Button (Visible only on mobile) */}
+        {/* Mobile Anchor Creation Button (Fixed floating at the top for mobile) */}
         {submittedRegion && !showRecommendations && (
-          <div className="block md:hidden mt-4 animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="block md:hidden fixed top-20 left-1/2 -translate-x-1/2 z-40 w-auto max-w-[90vw] animate-in fade-in slide-in-from-top-4 duration-300">
             <Button
               size="lg"
-              className="w-full h-14 px-8 rounded-2xl text-sm font-black gap-2 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-650 text-white shadow-lg active:scale-95 transition-all duration-300 flex items-center justify-center"
+              className="shadow-2xl h-12 px-6 rounded-full text-xs font-black gap-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-650 text-white hover:scale-105 active:scale-95 transition-all duration-300 flex items-center whitespace-nowrap"
               onClick={() => setShowRecommendations(true)}
             >
-              <Anchor className="w-5 h-5 stroke-[2.5px]" /> {selectedSubway ? `"${selectedSubway.name}"에 닻 내리기` : `"${submittedRegion.district}" 구역에 닻 내리기`}
+              <Anchor className="w-4 h-4 stroke-[2.5px]" /> {selectedSubway ? `"${selectedSubway.name}"에 닻 내리기` : `"${submittedRegion.district}" 구역에 닻 내리기`}
             </Button>
           </div>
         )}
