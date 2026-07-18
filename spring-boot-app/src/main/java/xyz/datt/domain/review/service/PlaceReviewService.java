@@ -13,6 +13,7 @@ import xyz.datt.domain.review.dto.PlaceRatingSummary;
 import xyz.datt.domain.review.dto.PlaceReviewCreateRequest;
 import xyz.datt.domain.review.dto.PlaceReviewResponse;
 import xyz.datt.domain.review.dto.PlaceReviewUpdateRequest;
+import xyz.datt.domain.review.dto.ProfileReviewResponse;
 import xyz.datt.domain.review.entity.PlaceReview;
 import xyz.datt.domain.review.repository.PlaceReviewRepository;
 import xyz.datt.global.error.BusinessException;
@@ -33,6 +34,7 @@ public class PlaceReviewService {
     private final PlaceMasterRepository placeMasterRepository;
     private final GamificationService gamificationService;
     private final FileStorageService fileStorageService;
+    private final xyz.datt.domain.gamification.repository.MemberTitleRepository memberTitleRepository;
 
     @Transactional
     public PlaceReviewResponse createReview(
@@ -60,7 +62,11 @@ public class PlaceReviewService {
 
         gamificationService.logActivity(memberId, ActivityType.PLACE_REVIEW_CREATE, "장소 '" + placeMaster.getBizesNm() + "' 리뷰 작성");
 
-        return PlaceReviewResponse.from(savedReview);
+        String titleName = memberTitleRepository.findByMemberIdAndSelectedTrue(memberId)
+            .map(memberTitle -> memberTitle.getTitle().getName())
+            .orElse(null);
+
+        return PlaceReviewResponse.from(savedReview, titleName);
     }
 
     @Transactional
@@ -94,7 +100,11 @@ public class PlaceReviewService {
             }
         }
 
-        return PlaceReviewResponse.from(review);
+        String titleName = memberTitleRepository.findByMemberIdAndSelectedTrue(memberId)
+            .map(memberTitle -> memberTitle.getTitle().getName())
+            .orElse(null);
+
+        return PlaceReviewResponse.from(review, titleName);
     }
 
     @Transactional
@@ -131,7 +141,25 @@ public class PlaceReviewService {
 
         return placeReviewRepository
             .findByPlaceMasterIdOrderByCreatedAtDesc(placeId, pageable)
-            .map(PlaceReviewResponse::from);
+            .map(review -> {
+                String titleName = memberTitleRepository.findByMemberIdAndSelectedTrue(review.getMember().getId())
+                    .map(memberTitle -> memberTitle.getTitle().getName())
+                    .orElse(null);
+                return PlaceReviewResponse.from(review, titleName);
+            });
+    }
+
+    public Page<ProfileReviewResponse> getMyReviews(
+        Long memberId,
+        Pageable pageable
+    ) {
+        if (!memberRepository.existsById(memberId)) {
+            throw new BusinessException(ErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        return placeReviewRepository
+            .findAllByMemberIdOrderByCreatedAtDesc(memberId, pageable)
+            .map(ProfileReviewResponse::from);
     }
 
     public PlaceRatingSummary getRatingSummary(Long placeId) {

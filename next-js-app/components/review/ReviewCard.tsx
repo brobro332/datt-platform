@@ -131,8 +131,13 @@ export function ReviewCard({
         <article className="rounded-3xl border border-slate-200/50 bg-white/70 backdrop-blur-sm p-6 shadow-sm shadow-slate-100/50 hover:shadow-md hover:shadow-slate-200/60 transition-all duration-300">
             <div className="flex items-start justify-between gap-4">
                 <div>
-                    <p className="text-sm font-extrabold text-slate-800">
-                        {review.nickname}
+                    <p className="text-sm font-extrabold text-slate-800 flex items-center gap-1.5 flex-wrap">
+                        <span>{review.nickname}</span>
+                        {review.memberTitleName && (
+                            <span className="px-1.5 py-0.5 rounded-md bg-indigo-50 border border-indigo-100 text-[10px] font-black text-indigo-600 tracking-tight">
+                                {review.memberTitleName}
+                            </span>
+                        )}
                     </p>
 
                     <p className="mt-1 text-xs font-semibold text-slate-400">

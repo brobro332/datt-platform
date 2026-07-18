@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/apiClient";
-import type { PlaceReviewCreateRequest, PlaceReviewResponse, PlaceReviewUpdateRequest } from "@/types/review";
+import type { PlaceReviewCreateRequest, PlaceReviewResponse, PlaceReviewUpdateRequest, ProfileReviewResponse } from "@/types/review";
 import type { PageResponse, ApiResponse } from "@/types/api";
 
 export async function getPlaceReviews(
@@ -40,4 +40,17 @@ export async function deletePlaceReview(
     reviewId: number,
 ): Promise<void> {
     await apiClient.delete<ApiResponse<void>>(`/api/places/${placeId}/reviews/${reviewId}`);
+}
+
+export async function getMyReviews(
+    page: number = 0,
+    size: number = 10,
+): Promise<PageResponse<ProfileReviewResponse>> {
+    const response = await apiClient.get<
+        ApiResponse<PageResponse<ProfileReviewResponse>>
+    >(`/api/reviews/my`, {
+        params: { page, size }
+    });
+
+    return response.data.data;
 }

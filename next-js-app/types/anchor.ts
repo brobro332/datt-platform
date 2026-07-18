@@ -35,6 +35,8 @@ export type AnchorPlaceGroupResponse = {
 export type AnchorDetailResponse = {
     anchorId: number;
     memberId: number;
+    creatorNickname?: string | null;
+    creatorTitleName?: string | null;
     title: string;
 
     basePlaceName: string | null;
@@ -52,6 +54,29 @@ export type AnchorDetailResponse = {
     isLiked: boolean;
 
     placeGroups: AnchorPlaceGroupResponse[];
+
+    createdAt: string;
+};
+
+export type AnchorSummaryResponse = {
+    anchorId: number;
+    title: string;
+
+    basePlaceName: string | null;
+    baseAddress: string | null;
+
+    baseLon: number | null;
+    baseLat: number | null;
+    radiusKm: number | null;
+
+    viewCount: number;
+    placeCount: number;
+
+    likeCount: number;
+    isLike: boolean;
+
+    creatorNickname?: string | null;
+    creatorTitleName?: string | null;
 
     createdAt: string;
 };

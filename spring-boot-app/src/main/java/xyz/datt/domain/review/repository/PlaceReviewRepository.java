@@ -26,6 +26,7 @@ public interface PlaceReviewRepository extends JpaRepository<PlaceReview, Long> 
 
     long countByMemberId(Long memberId);
     List<PlaceReview> findTop3ByMemberIdOrderByCreatedAtDesc(Long memberId);
+    Page<PlaceReview> findAllByMemberIdOrderByCreatedAtDesc(Long memberId, Pageable pageable);
 
     @Query("select coalesce(avg(r.rating), 0.0) from PlaceReview r")
     double getAverageRatingOfAllReviews();

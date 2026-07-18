@@ -18,6 +18,7 @@ public class AnchorListService {
     private final AnchorRepository anchorRepository;
     private final AnchorPlaceRepository anchorPlaceRepository;
     private final AnchorLikeService anchorLikeService;
+    private final xyz.datt.domain.gamification.repository.MemberTitleRepository memberTitleRepository;
 
     public Page<AnchorSummaryResponse> getPublicAnchors(
         Long memberId,
@@ -61,11 +62,18 @@ public class AnchorListService {
         boolean isLiked = memberId != null
             && anchorLikeService.isLiked(memberId, anchor.getId());
 
+        String nickname = anchor.getMember().getNickname();
+        String titleName = memberTitleRepository.findByMemberIdAndSelectedTrue(anchor.getMember().getId())
+            .map(memberTitle -> memberTitle.getTitle().getName())
+            .orElse(null);
+
         return AnchorSummaryResponse.from(
             anchor,
             placeCount,
             likeCount,
-            isLiked
+            isLiked,
+            nickname,
+            titleName
         );
     }
 }

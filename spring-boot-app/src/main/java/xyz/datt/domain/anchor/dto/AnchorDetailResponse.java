@@ -8,6 +8,8 @@ import java.util.List;
 public record AnchorDetailResponse(
     Long anchorId,
     Long memberId,
+    String creatorNickname,
+    String creatorTitleName,
     String title,
 
     String basePlaceName,
@@ -32,11 +34,15 @@ public record AnchorDetailResponse(
         Anchor anchor,
         int likeCount,
         boolean isLiked,
-        List<AnchorPlaceGroupResponse> placeGroups
+        List<AnchorPlaceGroupResponse> placeGroups,
+        String creatorNickname,
+        String creatorTitleName
     ) {
         return new AnchorDetailResponse(
             anchor.getId(),
             anchor.getMember().getId(),
+            creatorNickname,
+            creatorTitleName,
             anchor.getTitle(),
 
             anchor.getBasePlaceName(),

@@ -107,6 +107,8 @@ export type AnchorSummaryResponse = {
   placeCount: number;
   likeCount: number;
   isLike: boolean;
+  creatorNickname?: string | null;
+  creatorTitleName?: string | null;
   createdAt: string;
 };
 

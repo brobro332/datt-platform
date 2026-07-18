@@ -25,6 +25,7 @@ public class AnchorDetailService {
     private final AnchorRepository anchorRepository;
     private final AnchorPlaceRepository anchorPlaceRepository;
     private final AnchorLikeService anchorLikeService;
+    private final xyz.datt.domain.gamification.repository.MemberTitleRepository memberTitleRepository;
 
     @Transactional
     public AnchorDetailResponse getAnchorDetail(
@@ -48,11 +49,18 @@ public class AnchorDetailService {
         boolean isLiked = memberId != null
             && anchorLikeService.isLiked(memberId, anchorId);
 
+        String nickname = anchor.getMember().getNickname();
+        String titleName = memberTitleRepository.findByMemberIdAndSelectedTrue(anchor.getMember().getId())
+            .map(memberTitle -> memberTitle.getTitle().getName())
+            .orElse(null);
+
         return AnchorDetailResponse.of(
             anchor,
             likeCount,
             isLiked,
-            placeGroups
+            placeGroups,
+            nickname,
+            titleName
         );
     }
 

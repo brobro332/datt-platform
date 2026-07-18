@@ -71,6 +71,12 @@
         * 관리자 활동 감사 로그 엔티티 `AdminActivityLog` 및 JPA 리포지토리, 저장용 비즈니스 서비스(`AdminActivityLogService`)를 `xyz.datt.domain.admin` 패키지에 신설.
         * `AdminActivityLogService` 내에 `HttpServletRequest`를 분석해 실제 클라이언트 IP 주소를 신뢰성 높게 추출(X-Forwarded-For 등 로직 포함)하는 유틸 탑재.
         * `PlaceAdminController.java` 및 `AdvertisementAdminController.java`에서 DB 조작 작업 발생 시, `@AuthenticationPrincipal`로 현재 관리자 ID를 판별하여 이메일, 닉네임, 작업 종류(CREATE_PLACE, CREATE_AD, DELETE_AD), 구체적인 행위 상세 설명 및 IP 주소를 `admin_activity_log` 테이블에 실시간 저장하도록 비즈니스 보강.
+* `5db7969` - **작성한 리뷰 전체 페이징 조회 구현 및 리뷰/피드에 칭호(Title) 노출 추가**
+    * **작업 내용**:
+        * 백엔드 `PlaceReviewRepository`에 사용자 ID별 리뷰 페이징 조회 메소드(`findAllByMemberIdOrderByCreatedAtDesc`)를 신설하고, `PlaceReviewController`에 `GET /api/reviews/my` 마이리뷰 페이징 API 구현.
+        * `PlaceReviewResponse` 및 `AnchorSummaryResponse`/`AnchorDetailResponse` DTO에 작성자 대표 칭호명(`memberTitleName`/`creatorTitleName`)과 작성자 닉네임을 추가하고, 각 서비스 레이어에서 `MemberTitleRepository`를 조회해 칭호 정보를 실어주도록 비즈니스 보강.
+        * 프론트엔드 마이리뷰 페이지(`/my/reviews/page.tsx`)에서 기존 프로필에 딸려있던 최근 3개 리뷰 임시 노출 대신, 신규 마이리뷰 페이징 API를 활용해 전체 리뷰 리스트와 페이지네이션 컨트롤러를 적용.
+        * 리뷰 카드 UI(`ReviewCard.tsx`) 및 피드 닻 카드 UI(`app/anchors/page.tsx`)에서 닉네임 옆에 작성자의 대표 장착 칭호를 뱃지 형식으로 선명하게 노출되도록 마크업 확장.
 * `0d9124a` (예정) - **저장한 장소 보관함 폴더 공유 기능 추가**
     * **작업 내용**:
         * 사용자가 스크랩한 장소들을 폴더별로 외부 공유할 수 있는 공유 시스템 구축.

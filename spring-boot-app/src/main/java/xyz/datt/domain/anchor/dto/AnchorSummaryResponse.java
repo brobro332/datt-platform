@@ -21,13 +21,18 @@ public record AnchorSummaryResponse(
     int likeCount,
     boolean isLike,
 
+    String creatorNickname,
+    String creatorTitleName,
+
     LocalDateTime createdAt
 ) {
     public static AnchorSummaryResponse from(
         Anchor anchor,
         int placeCount,
         int likeCount,
-        boolean isLike
+        boolean isLike,
+        String creatorNickname,
+        String creatorTitleName
     ) {
         return new AnchorSummaryResponse(
             anchor.getId(),
@@ -45,6 +50,9 @@ public record AnchorSummaryResponse(
 
             likeCount,
             isLike,
+
+            creatorNickname,
+            creatorTitleName,
 
             anchor.getCreatedAt()
         );

@@ -106,9 +106,21 @@ export default function AnchorsPage() {
                         <div className="h-9 w-9 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-base shadow-sm group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                           <Anchor className="w-4 h-4 text-blue-600" />
                         </div>
-                        <h2 className="font-extrabold text-sm text-slate-900 truncate max-w-[180px]">
-                          {anchor.title}
-                        </h2>
+                        <div className="space-y-0.5">
+                          <h2 className="font-extrabold text-sm text-slate-900 truncate max-w-[155px]">
+                            {anchor.title}
+                          </h2>
+                          {anchor.creatorNickname && (
+                            <p className="text-[10px] font-bold text-slate-450 flex items-center gap-1 flex-wrap">
+                              <span>by {anchor.creatorNickname}</span>
+                              {anchor.creatorTitleName && (
+                                <span className="px-1.5 py-0.2 rounded-md bg-indigo-50 border border-indigo-100 text-[8px] font-black text-indigo-600 scale-90 origin-left">
+                                  {anchor.creatorTitleName}
+                                </span>
+                              )}
+                            </p>
+                          )}
+                        </div>
                       </div>
 
                       <div className="space-y-1 text-xs">

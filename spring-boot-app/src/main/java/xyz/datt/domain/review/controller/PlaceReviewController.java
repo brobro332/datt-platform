@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import xyz.datt.domain.review.dto.PlaceReviewCreateRequest;
 import xyz.datt.domain.review.dto.PlaceReviewResponse;
 import xyz.datt.domain.review.dto.PlaceReviewUpdateRequest;
+import xyz.datt.domain.review.dto.ProfileReviewResponse;
 import xyz.datt.domain.review.service.PlaceReviewService;
 import xyz.datt.global.response.ApiResponse;
 import xyz.datt.global.security.CustomUserDetails;
@@ -75,6 +76,18 @@ public class PlaceReviewController {
             pageable
         );
 
+        return ApiResponse.success(response);
+    }
+
+    @GetMapping("/api/reviews/my")
+    public ApiResponse<Page<ProfileReviewResponse>> getMyReviews(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @org.springframework.data.web.PageableDefault(size = 10) Pageable pageable
+    ) {
+        Page<ProfileReviewResponse> response = placeReviewService.getMyReviews(
+            userDetails.getMemberId(),
+            pageable
+        );
         return ApiResponse.success(response);
     }
 }

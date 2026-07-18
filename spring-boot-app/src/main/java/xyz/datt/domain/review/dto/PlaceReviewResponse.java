@@ -9,6 +9,7 @@ public record PlaceReviewResponse(
     Long placeId,
     Long memberId,
     String nickname,
+    String memberTitleName,
     int rating,
     String content,
     String imageUrl,
@@ -16,12 +17,13 @@ public record PlaceReviewResponse(
     LocalDateTime updatedAt
 ) {
 
-    public static PlaceReviewResponse from(PlaceReview review) {
+    public static PlaceReviewResponse from(PlaceReview review, String memberTitleName) {
         return new PlaceReviewResponse(
             review.getId(),
             review.getPlaceMaster().getId(),
             review.getMember().getId(),
             review.getMember().getNickname(),
+            memberTitleName,
             review.getRating(),
             review.getContent(),
             review.getImageUrl(),
