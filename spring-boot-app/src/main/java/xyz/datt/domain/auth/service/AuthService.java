@@ -79,7 +79,8 @@ public class AuthService {
             accessToken,
             refreshToken,
             member.getId(),
-            member.getNickname()
+            member.getNickname(),
+            member.getRole().name()
         );
     }
 

@@ -5,6 +5,8 @@ import type {
   PlaceDetailResponse,
   PlaceSearchParams,
   PlaceSearchResponse,
+  GeocodingResponse,
+  PlaceCreateRequest,
 } from "@/types/place";
 
 import type {
@@ -49,6 +51,28 @@ export async function searchNearbyPlaces(
       size: params.size ?? 20,
     },
   });
+
+  return response.data.data;
+}
+
+export async function geocodeAddress(
+  address: string,
+): Promise<GeocodingResponse> {
+  const response = await apiClient.get<
+    ApiResponse<GeocodingResponse>
+  >("/api/admin/places/geocode", {
+    params: { address },
+  });
+
+  return response.data.data;
+}
+
+export async function createPlaceByAdmin(
+  placeData: PlaceCreateRequest,
+): Promise<PlaceDetailResponse> {
+  const response = await apiClient.post<
+    ApiResponse<PlaceDetailResponse>
+  >("/api/admin/places", placeData);
 
   return response.data.data;
 }

@@ -49,6 +49,7 @@ function NaverCallbackContent() {
           const member = {
             memberId: response.memberId,
             nickname: response.nickname,
+            role: response.role,
           };
           localStorage.setItem("member", JSON.stringify(member));
           setAuth(response.accessToken, response.refreshToken, member);
@@ -78,6 +79,7 @@ function NaverCallbackContent() {
         const member = {
           memberId: authData.memberId,
           nickname: nickname.trim(),
+          role: authData.role,
         };
         localStorage.setItem("member", JSON.stringify(member));
         setAuth(authData.accessToken, authData.refreshToken, member);

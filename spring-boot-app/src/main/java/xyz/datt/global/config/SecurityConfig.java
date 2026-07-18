@@ -40,6 +40,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/api/places/{placeId:[0-9]+}").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/places/{placeId:[0-9]+}/reviews").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/bookmarks/folders/{folderId}/public").permitAll()
+                    .requestMatchers("/api/admin/places/**").hasRole("ADMIN")
                     .anyRequest().authenticated()
             )
             .addFilterBefore(

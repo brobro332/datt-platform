@@ -16,6 +16,7 @@ export type LoginResponse = {
   memberId: number;
   nickname: string;
   isNewMember?: boolean;
+  role: string;
 };
 
 export type SignupResponse = {

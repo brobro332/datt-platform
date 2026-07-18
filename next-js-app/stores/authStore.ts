@@ -3,6 +3,7 @@ import { create } from "zustand";
 type AuthMember = {
   memberId: number;
   nickname: string;
+  role: string;
 };
 
 type AuthState = {
@@ -15,6 +16,7 @@ type AuthState = {
     member: {
         memberId: number;
         nickname: string;
+        role: string;
     } | null;
 
     setAuth: (
@@ -23,6 +25,7 @@ type AuthState = {
         member: {
             memberId: number;
             nickname: string;
+            role: string;
         },
     ) => void;
 

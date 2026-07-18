@@ -47,6 +47,7 @@ export default function LoginPage() {
       const member = {
         memberId: response.memberId,
         nickname: response.nickname,
+        role: response.role,
       };
 
       localStorage.setItem("accessToken", response.accessToken);

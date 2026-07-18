@@ -94,3 +94,27 @@ export type PlaceDetailResponse = {
   updatedAt: string;
   category?: string;
 };
+
+export type GeocodingResponse = {
+  addressName: string;
+  roadAddressName: string;
+  jibunAddressName: string;
+  longitude: number;
+  latitude: number;
+  ctprvnNm: string;
+  signguNm: string;
+  adongNm: string;
+};
+
+export type PlaceCreateRequest = {
+  bizesNm: string;
+  brchNm?: string;
+  category: string;
+  rdnmAdr: string;
+  lnoAdr: string;
+  lon: number;
+  lat: number;
+  ctprvnNm: string;
+  signguNm: string;
+  adongNm: string;
+};

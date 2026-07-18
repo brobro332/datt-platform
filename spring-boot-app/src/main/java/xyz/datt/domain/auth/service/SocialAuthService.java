@@ -162,7 +162,8 @@ public class SocialAuthService {
                 refreshToken,
                 member.getId(),
                 member.getNickname(),
-                isNewMember
+                isNewMember,
+                member.getRole().name()
         );
     }
 

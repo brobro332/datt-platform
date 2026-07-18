@@ -5,5 +5,6 @@ public record SocialLoginResponse(
     String refreshToken,
     Long memberId,
     String nickname,
-    Boolean isNewMember
+    Boolean isNewMember,
+    String role
 ) {}
