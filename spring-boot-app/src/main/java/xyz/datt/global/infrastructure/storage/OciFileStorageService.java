@@ -38,6 +38,9 @@ public class OciFileStorageService implements FileStorageService {
     @Value("${storage.oci.region}")
     private String region;
 
+    @Value("${storage.oci.prefix:local}")
+    private String prefix;
+
     private ObjectStorageClient client;
 
     @PostConstruct
@@ -64,7 +67,11 @@ public class OciFileStorageService implements FileStorageService {
         String extension = originalFilename != null && originalFilename.contains(".")
                 ? originalFilename.substring(originalFilename.lastIndexOf("."))
                 : "";
-        String objectName = directory + "/" + UUID.randomUUID().toString() + extension;
+
+        String objectPath = (prefix != null && !prefix.trim().isEmpty())
+                ? prefix.trim() + "/" + directory
+                : directory;
+        String objectName = objectPath + "/" + UUID.randomUUID().toString() + extension;
 
         try (InputStream inputStream = file.getInputStream()) {
             PutObjectRequest request = PutObjectRequest.builder()

@@ -6,3 +6,4 @@ storage:
     bucket-name: ${OCI_BUCKET_NAME}
     namespace: ${OCI_NAMESPACE}
     region: ${OCI_REGION}
+    prefix: ${STORAGE_OCI_PREFIX:prd}
