@@ -3,9 +3,11 @@ package xyz.datt.domain.place.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
 import xyz.datt.domain.place.dto.SubwayStationResponse;
 import xyz.datt.domain.place.entity.SubwayStation;
 import xyz.datt.domain.place.repository.SubwayStationRepository;
@@ -23,7 +25,11 @@ import java.util.stream.Collectors;
 public class SubwayStationService {
 
     private final SubwayStationRepository repository;
+    private final RestClient restClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Value("${public-data.place.service-key}")
+    private String serviceKey;
 
     public List<SubwayStationResponse> getSubwayStations(String province, String district) {
         if (province == null || district == null) {
@@ -46,22 +52,112 @@ public class SubwayStationService {
     @Transactional
     public void syncSubwayStations() {
         try {
-            ClassPathResource csvResource = new ClassPathResource("data/subway_stations.csv");
-            if (csvResource.exists()) {
-                log.info("Found subway_stations.csv. Syncing from CSV...");
-                syncFromCsv(csvResource);
-            } else {
-                ClassPathResource jsonResource = new ClassPathResource("data/subway_stations.json");
-                if (jsonResource.exists()) {
-                    log.info("Found subway_stations.json. Syncing from JSON...");
-                    syncFromJson(jsonResource);
+            log.info("Attempting to sync subway stations from Public API...");
+            syncFromApi();
+        } catch (Exception apiEx) {
+            log.warn("Failed to sync from API: {}. Falling back to local data...", apiEx.getMessage());
+            try {
+                ClassPathResource csvResource = new ClassPathResource("data/subway_stations.csv");
+                if (csvResource.exists()) {
+                    log.info("Found subway_stations.csv. Syncing from CSV...");
+                    syncFromCsv(csvResource);
                 } else {
-                    log.warn("No subway station data files found (CSV or JSON).");
+                    ClassPathResource jsonResource = new ClassPathResource("data/subway_stations.json");
+                    if (jsonResource.exists()) {
+                        log.info("Found subway_stations.json. Syncing from JSON...");
+                        syncFromJson(jsonResource);
+                    } else {
+                        log.warn("No subway station data files found (CSV or JSON).");
+                    }
+                }
+            } catch (Exception localEx) {
+                log.error("Failed to sync subway stations from fallback files:", localEx);
+                throw new RuntimeException("Subway station sync failed", localEx);
+            }
+        }
+    }
+
+    private void syncFromApi() {
+        try {
+            int pageNo = 1;
+            int numOfRows = 1000;
+            boolean hasMore = true;
+            int count = 0;
+            
+            while (hasMore) {
+                String response = restClient.get()
+                    .uri("http://api.data.go.kr/openapi/tn_pubr_public_city_subway_sttn_info_api?serviceKey=" + serviceKey + 
+                         "&type=json&pageNo=" + pageNo + "&numOfRows=" + numOfRows)
+                    .retrieve()
+                    .body(String.class);
+                
+                Map<String, Object> root = objectMapper.readValue(response, Map.class);
+                Map<String, Object> resMap = (Map<String, Object>) root.get("response");
+                if (resMap == null) {
+                    throw new RuntimeException("Invalid response structure from API");
+                }
+                
+                Map<String, Object> headerMap = (Map<String, Object>) resMap.get("header");
+                if (headerMap != null) {
+                    String resultCode = (String) headerMap.get("resultCode");
+                    if (!"00".equals(resultCode) && !"0".equals(resultCode)) {
+                        String resultMsg = (String) headerMap.get("resultMsg");
+                        throw new RuntimeException("API error (code " + resultCode + "): " + resultMsg);
+                    }
+                }
+                
+                Map<String, Object> bodyMap = (Map<String, Object>) resMap.get("body");
+                if (bodyMap == null) {
+                    throw new RuntimeException("Missing body in successful API response");
+                }
+                
+                List<Map<String, Object>> items = (List<Map<String, Object>>) bodyMap.get("items");
+                if (items == null || items.isEmpty()) {
+                    break;
+                }
+                
+                for (Map<String, Object> item : items) {
+                    String name = (String) item.get("subwaySttnNm");
+                    if (name == null || name.trim().isEmpty()) continue;
+                    name = normalizeStationName(name);
+                    
+                    String line = (String) item.get("routeNm");
+                    String address = (String) item.get("rdnmAdr");
+                    
+                    Double lat = null;
+                    Double lon = null;
+                    try {
+                        String latStr = (String) item.get("latitude");
+                        String lonStr = (String) item.get("longitude");
+                        if (latStr != null && lonStr != null) {
+                            lat = Double.parseDouble(latStr.trim());
+                            lon = Double.parseDouble(lonStr.trim());
+                        }
+                    } catch (Exception e) {
+                        // ignore parsing error
+                    }
+                    
+                    if (lat == null || lon == null) continue;
+                    
+                    String[] region = parseRegion(address);
+                    String province = region[0];
+                    String district = region[1];
+                    
+                    saveOrUpdateStation(name, line, province, district, lat, lon);
+                    count++;
+                }
+                
+                int totalCount = ((Number) bodyMap.get("totalCount")).intValue();
+                if (pageNo * numOfRows >= totalCount) {
+                    hasMore = false;
+                } else {
+                    pageNo++;
                 }
             }
+            log.info("Successfully synced {} subway stations from API to the database", count);
         } catch (Exception e) {
-            log.error("Failed to sync subway stations:", e);
-            throw new RuntimeException("Subway station sync failed", e);
+            log.error("Failed to sync from Subway station API", e);
+            throw new RuntimeException("API Sync failed: " + e.getMessage(), e);
         }
     }
 
@@ -124,9 +220,7 @@ public class SubwayStationService {
                 
                 String name = fields.get(nameIdx).trim();
                 if (name.isEmpty()) continue;
-                if (!name.endsWith("역")) {
-                    name += "역";
-                }
+                name = normalizeStationName(name);
                 
                 String lineName = fields.get(lineIdx).trim();
                 String address = fields.get(addrIdx).trim();
@@ -222,5 +316,28 @@ public class SubwayStationService {
         else if (province.equals("제주")) province = "제주특별자치도";
         
         return new String[]{province, district};
+    }
+
+    private String normalizeStationName(String name) {
+        if (name == null) return "";
+        name = name.trim();
+        
+        if (name.endsWith("역")) {
+            name = name.substring(0, name.length() - 1);
+        }
+        
+        if (name.contains("(")) {
+            int openParenIdx = name.indexOf("(");
+            String mainName = name.substring(0, openParenIdx).trim();
+            String subName = name.substring(openParenIdx).trim();
+            
+            if (mainName.endsWith("역")) {
+                mainName = mainName.substring(0, mainName.length() - 1);
+            }
+            
+            return mainName + "역" + subName;
+        } else {
+            return name + "역";
+        }
     }
 }
