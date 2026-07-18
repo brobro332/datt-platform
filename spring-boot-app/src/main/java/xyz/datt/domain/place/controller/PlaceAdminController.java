@@ -12,6 +12,10 @@ import xyz.datt.domain.place.dto.PlaceAdminDto.PlaceCreateRequest;
 import xyz.datt.domain.place.entity.PlaceMaster;
 import xyz.datt.domain.place.repository.PlaceMasterRepository;
 import xyz.datt.domain.place.service.GeocodingService;
+import xyz.datt.domain.admin.service.AdminActivityLogService;
+import xyz.datt.global.security.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import jakarta.servlet.http.HttpServletRequest;
 import xyz.datt.global.response.ApiResponse;
 
 import java.util.UUID;
@@ -21,6 +25,7 @@ import java.util.UUID;
 public class PlaceAdminController {
     private final GeocodingService geocodingService;
     private final PlaceMasterRepository placeMasterRepository;
+    private final AdminActivityLogService adminActivityLogService;
 
     @GetMapping("/api/admin/places/geocode")
     public ApiResponse<GeocodingResponse> geocode(@RequestParam String address) {
@@ -29,7 +34,11 @@ public class PlaceAdminController {
     }
 
     @PostMapping("/api/admin/places")
-    public ApiResponse<PlaceMaster> createPlace(@Valid @RequestBody PlaceCreateRequest request) {
+    public ApiResponse<PlaceMaster> createPlace(
+            @Valid @RequestBody PlaceCreateRequest request,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpServletRequest httpRequest
+    ) {
         String category = request.category().toUpperCase();
 
         String indsLclsCd = "I2";
@@ -107,6 +116,20 @@ public class PlaceAdminController {
                 .build();
 
         PlaceMaster savedPlace = placeMasterRepository.save(placeMaster);
+
+        if (userDetails != null) {
+            adminActivityLogService.logActivity(
+                    userDetails.getMemberId(),
+                    "CREATE_PLACE",
+                    String.format("매장 신규 수동 등록 - 상호명: %s, 지점명: %s, 카테고리: %s, 주소: %s",
+                            request.bizesNm(),
+                            request.brchNm() != null ? request.brchNm() : "(없음)",
+                            request.category(),
+                            request.rdnmAdr()),
+                    httpRequest
+            );
+        }
+
         return ApiResponse.success(savedPlace);
     }
 }

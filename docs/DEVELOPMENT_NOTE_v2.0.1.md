@@ -66,6 +66,11 @@
     * **작업 내용**:
         * 사용자 페이지 헤더(`GlobalHeader.tsx`) 내에 로그인한 유저의 역할이 `ADMIN`일 경우 바로가기 "관리자 페이지" 링크 버튼 렌더링.
         * 어드민 레이아웃(`layout.tsx`)의 그라데이션 타이틀 끝색을 `to-indigo-350`에서 `to-slate-200`으로 변경하여 어두운 배경에서의 텍스트 시인성 확보.
+* `14234c9` - **관리자 DB 조작 행위(매장 등록, 광고 등록/삭제)에 대한 실시간 DB 감사 로그 적재 구현**
+    * **작업 내용**:
+        * 관리자 활동 감사 로그 엔티티 `AdminActivityLog` 및 JPA 리포지토리, 저장용 비즈니스 서비스(`AdminActivityLogService`)를 `xyz.datt.domain.admin` 패키지에 신설.
+        * `AdminActivityLogService` 내에 `HttpServletRequest`를 분석해 실제 클라이언트 IP 주소를 신뢰성 높게 추출(X-Forwarded-For 등 로직 포함)하는 유틸 탑재.
+        * `PlaceAdminController.java` 및 `AdvertisementAdminController.java`에서 DB 조작 작업 발생 시, `@AuthenticationPrincipal`로 현재 관리자 ID를 판별하여 이메일, 닉네임, 작업 종류(CREATE_PLACE, CREATE_AD, DELETE_AD), 구체적인 행위 상세 설명 및 IP 주소를 `admin_activity_log` 테이블에 실시간 저장하도록 비즈니스 보강.
 * `0d9124a` (예정) - **저장한 장소 보관함 폴더 공유 기능 추가**
     * **작업 내용**:
         * 사용자가 스크랩한 장소들을 폴더별로 외부 공유할 수 있는 공유 시스템 구축.
