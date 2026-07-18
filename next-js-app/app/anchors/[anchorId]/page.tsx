@@ -299,6 +299,7 @@ export default function AnchorDetailPage() {
     const Kakao = initKakao();
     if (Kakao && Kakao.Share) {
       try {
+        const shareUrl = window.location.origin + `/anchors/${anchorId}`;
         Kakao.Share.sendDefault({
           objectType: "feed",
           content: {
@@ -306,16 +307,16 @@ export default function AnchorDetailPage() {
             description: "선원들과 함께하는 맛집/핫플레이스 탐색! 완벽한 데일리 플랜 DATT 닻을 확인해 보세요.",
             imageUrl: "https://images.unsplash.com/photo-1519501025264-65ba15a82390?w=800&auto=format&fit=crop&q=60",
             link: {
-              mobileWebUrl: window.location.href,
-              webUrl: window.location.href,
+              mobileWebUrl: shareUrl,
+              webUrl: shareUrl,
             },
           },
           buttons: [
             {
               title: "닻 탐색하기",
               link: {
-                mobileWebUrl: window.location.href,
-                webUrl: window.location.href,
+                mobileWebUrl: shareUrl,
+                webUrl: shareUrl,
               },
             },
           ],
