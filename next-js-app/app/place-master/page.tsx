@@ -262,6 +262,7 @@ export default function PlaceMasterPage() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
+    isFetching,
   } = usePlaceMasterSearch({
     province: submittedRegion?.province,
     district: submittedRegion?.district,
@@ -426,10 +427,10 @@ export default function PlaceMasterPage() {
               <div className="md:col-span-2 w-full">
                 <CustomDropdown
                   label="지하철역 선택"
-                  value={selectedSubway ? selectedSubway.name : ""}
-                  options={subwayStations.map(s => s.name)}
+                  value={selectedSubway ? `${selectedSubway.name} (${selectedSubway.line}) - ${selectedSubway.province} ${selectedSubway.district}` : ""}
+                  options={subwayStations.map(s => `${s.name} (${s.line}) - ${s.province} ${s.district}`)}
                   onChange={(val) => {
-                    const station = subwayStations.find(s => s.name === val);
+                    const station = subwayStations.find(s => `${s.name} (${s.line}) - ${s.province} ${s.district}` === val);
                     if (station) {
                       setSelectedSubway(station);
                       setCustomCenter([station.lat, station.lon]);
@@ -527,7 +528,7 @@ export default function PlaceMasterPage() {
             )}
 
             <AsyncStateView
-              isLoading={isLoading}
+              isLoading={isLoading || (isFetching && !isFetchingNextPage)}
               isError={isError}
               isEmpty={Boolean(submittedRegion && displayPlaces.length === 0)}
               loadingMessage="명소 리스트를 불러오는 중입니다..."

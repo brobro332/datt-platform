@@ -60,140 +60,28 @@ public class SubwayStationService {
     @Transactional
     public void syncSubwayStations() {
         try {
-            log.info("Attempting to sync subway stations from Public API...");
-            syncFromApi();
-        } catch (Exception apiEx) {
-            log.warn("Failed to sync from API: {}. Attempting to sync from official Excel portal (data.kric.go.kr)...", apiEx.getMessage());
+            log.info("Attempting to sync subway stations from official Excel portal (data.kric.go.kr)...");
+            syncFromOfficialExcel();
+        } catch (Exception excelEx) {
+            log.warn("Failed to sync from official Excel portal: {}. Falling back to local data...", excelEx.getMessage());
             try {
-                syncFromOfficialExcel();
-            } catch (Exception excelEx) {
-                log.warn("Failed to sync from official Excel portal: {}. Falling back to local data...", excelEx.getMessage());
-                try {
-                    ClassPathResource csvResource = new ClassPathResource("data/subway_stations.csv");
-                    if (csvResource.exists()) {
-                        log.info("Found subway_stations.csv. Syncing from CSV...");
-                        syncFromCsv(csvResource);
-                    } else {
-                        ClassPathResource jsonResource = new ClassPathResource("data/subway_stations.json");
-                        if (jsonResource.exists()) {
-                            log.info("Found subway_stations.json. Syncing from JSON...");
-                            syncFromJson(jsonResource);
-                        } else {
-                            log.warn("No subway station data files found (CSV or JSON).");
-                        }
-                    }
-                } catch (Exception localEx) {
-                    log.error("Failed to sync subway stations from fallback files:", localEx);
-                    throw new RuntimeException("Subway station sync failed", localEx);
-                }
-            }
-        }
-    }
-
-    private void syncFromApi() {
-        try {
-            int pageNo = 1;
-            int numOfRows = 1000;
-            boolean hasMore = true;
-            int count = 0;
-            
-            while (hasMore) {
-                String response = restClient.get()
-                    .uri("http://api.data.go.kr/openapi/tn_pubr_public_city_subway_sttn_info_api?serviceKey=" + serviceKey + 
-                         "&type=json&pageNo=" + pageNo + "&numOfRows=" + numOfRows)
-                    .retrieve()
-                    .body(String.class);
-                
-                if (response == null) {
-                    throw new RuntimeException("Empty response from API");
-                }
-                
-                String trimmed = response.trim();
-                if (trimmed.startsWith("<")) {
-                    String errMsg = "XML/HTML error response received";
-                    if (trimmed.contains("<returnAuthMsg>")) {
-                        int start = trimmed.indexOf("<returnAuthMsg>") + "<returnAuthMsg>".length();
-                        int end = trimmed.indexOf("</returnAuthMsg>");
-                        if (end > start) {
-                            errMsg += " (" + trimmed.substring(start, end) + ")";
-                        }
-                    } else if (trimmed.contains("<errMsg>")) {
-                        int start = trimmed.indexOf("<errMsg>") + "<errMsg>".length();
-                        int end = trimmed.indexOf("</errMsg>");
-                        if (end > start) {
-                            errMsg += " (" + trimmed.substring(start, end) + ")";
-                        }
-                    }
-                    throw new RuntimeException(errMsg);
-                }
-                
-                Map<String, Object> root = objectMapper.readValue(trimmed, Map.class);
-                Map<String, Object> resMap = (Map<String, Object>) root.get("response");
-                if (resMap == null) {
-                    throw new RuntimeException("Invalid response structure from API");
-                }
-                
-                Map<String, Object> headerMap = (Map<String, Object>) resMap.get("header");
-                if (headerMap != null) {
-                    String resultCode = (String) headerMap.get("resultCode");
-                    if (!"00".equals(resultCode) && !"0".equals(resultCode)) {
-                        String resultMsg = (String) headerMap.get("resultMsg");
-                        throw new RuntimeException("API error (code " + resultCode + "): " + resultMsg);
-                    }
-                }
-                
-                Map<String, Object> bodyMap = (Map<String, Object>) resMap.get("body");
-                if (bodyMap == null) {
-                    throw new RuntimeException("Missing body in successful API response");
-                }
-                
-                List<Map<String, Object>> items = (List<Map<String, Object>>) bodyMap.get("items");
-                if (items == null || items.isEmpty()) {
-                    break;
-                }
-                
-                for (Map<String, Object> item : items) {
-                    String name = (String) item.get("subwaySttnNm");
-                    if (name == null || name.trim().isEmpty()) continue;
-                    name = normalizeStationName(name);
-                    
-                    String line = (String) item.get("routeNm");
-                    String address = (String) item.get("rdnmAdr");
-                    
-                    Double lat = null;
-                    Double lon = null;
-                    try {
-                        String latStr = (String) item.get("latitude");
-                        String lonStr = (String) item.get("longitude");
-                        if (latStr != null && lonStr != null) {
-                            lat = Double.parseDouble(latStr.trim());
-                            lon = Double.parseDouble(lonStr.trim());
-                        }
-                    } catch (Exception e) {
-                        // ignore parsing error
-                    }
-                    
-                    if (lat == null || lon == null) continue;
-                    
-                    String[] region = parseRegion(address);
-                    String province = region[0];
-                    String district = region[1];
-                    
-                    saveOrUpdateStation(name, line, province, district, lat, lon);
-                    count++;
-                }
-                
-                int totalCount = ((Number) bodyMap.get("totalCount")).intValue();
-                if (pageNo * numOfRows >= totalCount) {
-                    hasMore = false;
+                ClassPathResource csvResource = new ClassPathResource("data/subway_stations.csv");
+                if (csvResource.exists()) {
+                    log.info("Found subway_stations.csv. Syncing from CSV...");
+                    syncFromCsv(csvResource);
                 } else {
-                    pageNo++;
+                    ClassPathResource jsonResource = new ClassPathResource("data/subway_stations.json");
+                    if (jsonResource.exists()) {
+                        log.info("Found subway_stations.json. Syncing from JSON...");
+                        syncFromJson(jsonResource);
+                    } else {
+                        log.warn("No subway station data files found (CSV or JSON).");
+                    }
                 }
+            } catch (Exception localEx) {
+                log.error("Failed to sync subway stations from fallback files:", localEx);
+                throw new RuntimeException("Subway station sync failed", localEx);
             }
-            log.info("Successfully synced {} subway stations from API to the database", count);
-        } catch (Exception e) {
-            log.warn("Failed to sync from Subway station API: {}", e.getMessage());
-            throw new RuntimeException("API Sync failed: " + e.getMessage(), e);
         }
     }
 
@@ -202,6 +90,7 @@ public class SubwayStationService {
             Map<String, Object> data = objectMapper.readValue(inputStream, Map.class);
             List<Map<String, Object>> stations = (List<Map<String, Object>>) data.get("stations");
             if (stations != null) {
+                List<SubwayStation> stationsToSave = new ArrayList<>();
                 for (Map<String, Object> stationMap : stations) {
                     String name = (String) stationMap.get("name");
                     String line = (String) stationMap.get("line");
@@ -210,9 +99,20 @@ public class SubwayStationService {
                     Double lat = ((Number) stationMap.get("lat")).doubleValue();
                     Double lon = ((Number) stationMap.get("lon")).doubleValue();
 
-                    saveOrUpdateStation(name, line, province, district, lat, lon);
+                    stationsToSave.add(SubwayStation.builder()
+                        .name(name)
+                        .line(line)
+                        .province(province)
+                        .district(district)
+                        .lat(lat)
+                        .lon(lon)
+                        .build());
                 }
-                log.info("Successfully synced {} subway stations from JSON to the database", stations.size());
+                if (!stationsToSave.isEmpty()) {
+                    repository.deleteAllInBatch();
+                    repository.saveAll(stationsToSave);
+                }
+                log.info("Successfully synced {} subway stations from JSON to the database", stationsToSave.size());
             }
         }
     }
@@ -246,7 +146,7 @@ public class SubwayStationService {
             }
             
             String line;
-            int count = 0;
+            List<SubwayStation> stationsToSave = new ArrayList<>();
             while ((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty()) continue;
                 List<String> fields = parseCsvLine(line);
@@ -274,10 +174,20 @@ public class SubwayStationService {
                 String province = region[0];
                 String district = region[1];
                 
-                saveOrUpdateStation(name, lineName, province, district, lat, lon);
-                count++;
+                stationsToSave.add(SubwayStation.builder()
+                    .name(name)
+                    .line(lineName)
+                    .province(province)
+                    .district(district)
+                    .lat(lat)
+                    .lon(lon)
+                    .build());
             }
-            log.info("Successfully synced {} subway stations from CSV to the database", count);
+            if (!stationsToSave.isEmpty()) {
+                repository.deleteAllInBatch();
+                repository.saveAll(stationsToSave);
+            }
+            log.info("Successfully synced {} subway stations from CSV to the database", stationsToSave.size());
         }
     }
 
@@ -442,7 +352,7 @@ public class SubwayStationService {
                 throw new IllegalArgumentException("Invalid Excel headers");
             }
             
-            int count = 0;
+            List<SubwayStation> stationsToSave = new ArrayList<>();
             for (Map.Entry<Integer, List<String>> rowEntry : rows.entrySet()) {
                 if (rowEntry.getKey() == minRowIdx) continue; // Skip header
                 List<String> fields = rowEntry.getValue();
@@ -477,11 +387,21 @@ public class SubwayStationService {
                 String province = region[0];
                 String district = region[1];
                 
-                saveOrUpdateStation(name, lineName, province, district, lat, lon);
-                count++;
+                stationsToSave.add(SubwayStation.builder()
+                    .name(name)
+                    .line(lineName)
+                    .province(province)
+                    .district(district)
+                    .lat(lat)
+                    .lon(lon)
+                    .build());
             }
             
-            log.info("Successfully synced {} subway stations from data.kric.go.kr Excel to database", count);
+            if (!stationsToSave.isEmpty()) {
+                repository.deleteAllInBatch();
+                repository.saveAll(stationsToSave);
+            }
+            log.info("Successfully synced {} subway stations from data.kric.go.kr Excel to database", stationsToSave.size());
             
         } catch (Exception e) {
             log.error("Failed to sync from official Excel", e);
