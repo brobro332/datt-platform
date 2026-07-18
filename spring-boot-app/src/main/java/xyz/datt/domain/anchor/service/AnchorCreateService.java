@@ -83,6 +83,23 @@ public class AnchorCreateService {
         return anchorDetailService.getAnchorDetail(memberId, savedAnchor.getId());
     }
 
+    public AnchorDetailResponse updateAnchor(
+        Long memberId,
+        Long anchorId,
+        List<Long> placeIds
+    ) {
+        Anchor anchor = anchorRepository.findById(anchorId)
+            .orElseThrow(() -> new BusinessException(ErrorCode.ANCHOR_NOT_FOUND));
+
+        if (!anchor.getMember().getId().equals(memberId)) {
+            throw new BusinessException(ErrorCode.ANCHOR_ACCESS_DENIED);
+        }
+
+        anchorPlaceCreateService.updateAnchorPlaces(anchor, placeIds);
+
+        return anchorDetailService.getAnchorDetail(memberId, anchor.getId());
+    }
+
     private AnchorBaseInfo resolveBaseInfo(AnchorCreateRequest request) {
         return new AnchorBaseInfo(
             request.basePlaceName(),

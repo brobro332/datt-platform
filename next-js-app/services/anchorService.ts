@@ -52,6 +52,17 @@ export async function deleteAnchor(
     await apiClient.delete<ApiResponse<void>>(`/api/anchors/${anchorId}`);
 }
 
+export async function updateAnchorPlaces(
+    anchorId: number,
+    placeIds: number[],
+): Promise<AnchorDetailResponse> {
+    const response = await apiClient.put<ApiResponse<AnchorDetailResponse>>(
+        `/api/anchors/${anchorId}/places`,
+        placeIds
+    );
+    return response.data.data;
+}
+
 export async function changeAnchorVisibility(
     anchorId: number,
     isPublic: boolean,

@@ -47,6 +47,20 @@ public class AnchorController {
         return ApiResponse.success(response);
     }
 
+    @PutMapping("/api/anchors/{anchorId}/places")
+    public ApiResponse<AnchorDetailResponse> updateAnchorPlaces(
+        @AuthenticationPrincipal CustomUserDetails userDetails,
+        @Valid @RequestBody List<Long> placeIds,
+        @PathVariable Long anchorId
+    ) {
+        AnchorDetailResponse response = anchorCreateService.updateAnchor(
+            userDetails.getMemberId(),
+            anchorId,
+            placeIds
+        );
+        return ApiResponse.success(response);
+    }
+
     @DeleteMapping("/api/anchors/{anchorId}")
     public ApiResponse<Void> deleteAnchor(
         @AuthenticationPrincipal CustomUserDetails userDetails,

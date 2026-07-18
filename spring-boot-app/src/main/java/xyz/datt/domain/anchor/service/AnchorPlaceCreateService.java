@@ -36,6 +36,14 @@ public class AnchorPlaceCreateService {
         );
     }
 
+    public void updateAnchorPlaces(
+        Anchor anchor,
+        List<Long> placeIds
+    ) {
+        anchorPlaceRepository.deleteByAnchorId(anchor.getId());
+        createCustomAnchorPlaces(anchor, placeIds);
+    }
+
     public void createCustomAnchorPlaces(
         Anchor anchor,
         List<Long> placeIds

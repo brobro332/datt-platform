@@ -18,7 +18,10 @@ import { PlaceThumbnail } from "@/components/common/PlaceThumbnail";
 import type { AnchorPlaceCategory, AnchorPlaceResponse, AnchorDetailResponse } from "@/types/anchor";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
-import { deleteAnchor, changeAnchorVisibility, changeAnchorTitle, likeAnchor, unlikeAnchor } from "@/services/anchorService";
+import { deleteAnchor, changeAnchorVisibility, changeAnchorTitle, likeAnchor, unlikeAnchor, updateAnchorPlaces } from "@/services/anchorService";
+import { searchPlaceMasters } from "@/services/placeMasterService";
+import type { PlaceMasterSearchResponse } from "@/types/placeMaster";
+import type { PlaceNearbyResponse } from "@/types/place";
 import { 
   Anchor, 
   Share2, 
@@ -34,7 +37,9 @@ import {
   Beer, 
   Hotel, 
   Activity,
-  ExternalLink
+  ExternalLink,
+  Search,
+  Loader2
 } from "lucide-react";
 import { CategoryBadge } from "@/components/common/CategoryBadge";
 
@@ -46,6 +51,20 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>
   STAY: Hotel,
   PLAY: Activity,
 };
+
+function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 export default function AnchorDetailPage() {
   const params = useParams();
@@ -64,6 +83,133 @@ export default function AnchorDetailPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isTogglingVisibility, setIsTogglingVisibility] = useState(false);
   const [isLoginGuideOpen, setIsLoginGuideOpen] = useState(false);
+
+  const [isEditingPlaces, setIsEditingPlaces] = useState(false);
+  const [excludedPlaceIds, setExcludedPlaceIds] = useState<number[]>([]);
+  const [replacedPlaces, setReplacedPlaces] = useState<Record<number, PlaceNearbyResponse>>({});
+  const [isSavingPlaces, setIsSavingPlaces] = useState(false);
+
+  // Modal State for search replacement
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [replacingInfo, setReplacingInfo] = useState<{ oldPlaceId: number; category: string } | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<PlaceMasterSearchResponse[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
+  // Reset edit states when exit edit mode or anchor loads
+  useEffect(() => {
+    setExcludedPlaceIds([]);
+    setReplacedPlaces({});
+  }, [isEditingPlaces, anchor]);
+
+  const parseRegionFromAddress = (address: string | null) => {
+    if (!address) return { province: "", district: "" };
+    const parts = address.split(/\s+/);
+    if (parts.length < 2) return { province: parts[0] || "", district: "" };
+    const province = parts[0];
+    let district = parts[1];
+    if (parts.length >= 3 && (district.endsWith("시") || district.endsWith("군")) && parts[2].endsWith("구")) {
+      district = `${district} ${parts[2]}`;
+    }
+    return { province, district };
+  };
+
+  const handleOpenReplace = (oldPlaceId: number, category: string) => {
+    setReplacingInfo({ oldPlaceId, category });
+    setSearchQuery("");
+    setSearchResults([]);
+    setIsModalOpen(true);
+  };
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim() || !anchor) return;
+
+    const { province, district } = parseRegionFromAddress(anchor.baseAddress);
+
+    try {
+      setIsSearching(true);
+      const res = await searchPlaceMasters(
+        searchQuery,
+        province || undefined,
+        district || undefined
+      );
+      setSearchResults(res.content || []);
+    } catch (err) {
+      console.error("Failed to search place masters for replacement", err);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const handleSelectReplacement = (selectedPlace: PlaceMasterSearchResponse) => {
+    if (!replacingInfo || !anchor) return;
+
+    const distance = calculateDistanceKm(
+      anchor.baseLat || 0,
+      anchor.baseLon || 0,
+      selectedPlace.lat,
+      selectedPlace.lon
+    );
+
+    const mappedPlace: PlaceNearbyResponse = {
+      id: selectedPlace.id,
+      bizesNm: selectedPlace.bizesNm,
+      brchNm: selectedPlace.brchNm,
+      indsMclsCd: selectedPlace.indsMclsCd,
+      indsMclsNm: selectedPlace.indsMclsNm,
+      ctprvnNm: selectedPlace.ctprvnNm,
+      signguNm: selectedPlace.signguNm,
+      adongNm: selectedPlace.adongNm,
+      rdnmAdr: selectedPlace.rdnmAdr,
+      lon: selectedPlace.lon,
+      lat: selectedPlace.lat,
+      distanceKm: distance,
+      averageRating: 0,
+      reviewCount: 0,
+      thumbnailUrl: null,
+    };
+
+    setReplacedPlaces((prev) => ({
+      ...prev,
+      [replacingInfo.oldPlaceId]: mappedPlace,
+    }));
+    setIsModalOpen(false);
+  };
+
+  const handleUpdatePlaces = async () => {
+    if (!anchor) return;
+
+    try {
+      setIsSavingPlaces(true);
+      const finalPlaceIds: number[] = [];
+      
+      const allPlacesFlat = anchor.placeGroups.reduce<AnchorPlaceResponse[]>((acc, group) => {
+        return [...acc, ...group.places];
+      }, []);
+
+      allPlacesFlat.forEach((place) => {
+        if (excludedPlaceIds.includes(place.placeId)) {
+          return;
+        }
+        if (replacedPlaces[place.placeId]) {
+          finalPlaceIds.push(replacedPlaces[place.placeId].id);
+        } else {
+          finalPlaceIds.push(place.placeId);
+        }
+      });
+
+      await updateAnchorPlaces(anchorId, finalPlaceIds);
+      setIsEditingPlaces(false);
+      refetch();
+      alert("닻 명소가 성공적으로 수정되었습니다.");
+    } catch (err) {
+      console.error("Failed to update anchor places", err);
+      alert("명소 수정에 실패했습니다. 다시 시도해 주세요.");
+    } finally {
+      setIsSavingPlaces(false);
+    }
+  };
 
   const handleDelete = async () => {
     if (!confirm("정말 이 닻을 삭제하시겠습니까?")) return;
@@ -418,8 +564,39 @@ export default function AnchorDetailPage() {
                 <Share2 className="w-3.5 h-3.5" /> 공유하기
               </button>
 
-              {/* Delete Button (Owner Only) */}
+              {/* Edit Places Button (Owner Only) */}
               {isOwner && (
+                isEditingPlaces ? (
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={handleUpdatePlaces}
+                      disabled={isSavingPlaces}
+                      className="rounded-xl bg-indigo-600 hover:bg-indigo-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm transition active:scale-95 cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+                    >
+                      {isSavingPlaces ? "저장 중..." : "저장 완료"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingPlaces(false)}
+                      className="rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-1.5 text-xs font-bold text-slate-700 shadow-sm transition active:scale-95 cursor-pointer flex items-center gap-1.5"
+                    >
+                      취소
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingPlaces(true)}
+                    className="rounded-xl border border-indigo-200 bg-indigo-50 px-3.5 py-1.5 text-xs font-bold text-indigo-700 shadow-sm hover:bg-indigo-100 transition active:scale-95 cursor-pointer flex items-center gap-1.5"
+                  >
+                    <Edit className="w-3.5 h-3.5" /> 명소 수정
+                  </button>
+                )
+              )}
+
+              {/* Delete Button (Owner Only) */}
+              {isOwner && !isEditingPlaces && (
                 <button
                   onClick={handleDelete}
                   disabled={isDeleting}
@@ -535,41 +712,92 @@ export default function AnchorDetailPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               {displayPlaces.map((place) => {
                 const cat = place.category || getCategoryFromText(place.indsMclsNm, "");
+                const isExcluded = excludedPlaceIds.includes(place.placeId);
+                const displayPlace = replacedPlaces[place.placeId] 
+                  ? {
+                      placeId: replacedPlaces[place.placeId].id,
+                      bizesNm: replacedPlaces[place.placeId].bizesNm,
+                      brchNm: replacedPlaces[place.placeId].brchNm,
+                      indsMclsNm: replacedPlaces[place.placeId].indsMclsNm,
+                      rdnmAdr: replacedPlaces[place.placeId].rdnmAdr,
+                      distanceKm: replacedPlaces[place.placeId].distanceKm,
+                      category: cat,
+                    }
+                  : place;
+
                 return (
-                  <Card key={place.placeId} className="p-5 flex items-center gap-4 hover:shadow-md transition-all duration-300 group border border-slate-200/50 bg-white/80 backdrop-blur-sm">
-                    <PlaceThumbnail placeId={place.placeId} indsMclsNm={place.indsMclsNm} category={place.category} className="h-16 w-16 rounded-2xl" />
+                  <Card 
+                    key={place.placeId} 
+                    className={`p-5 flex items-center gap-4 hover:shadow-md transition-all duration-300 group border bg-white/80 backdrop-blur-sm ${
+                      isExcluded 
+                        ? "opacity-50 border-slate-200 bg-slate-50/50" 
+                        : "border-slate-200/50"
+                    }`}
+                  >
+                    <PlaceThumbnail placeId={displayPlace.placeId} indsMclsNm={displayPlace.indsMclsNm} category={displayPlace.category} className="h-16 w-16 rounded-2xl" />
 
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <CategoryBadge category={cat as PlaceCategory} />
                         <span className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-450">
-                          {place.indsMclsNm}
+                          {displayPlace.indsMclsNm}
                         </span>
                         <span className="text-[10px] font-bold text-slate-400 flex items-center gap-0.5">
-                          <Compass className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {place.distanceKm.toFixed(2)}km 거리
+                          <Compass className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {displayPlace.distanceKm.toFixed(2)}km 거리
                         </span>
                       </div>
 
                       <h3 className="truncate text-base font-extrabold text-slate-800 group-hover:text-indigo-600 transition-colors">
-                        {place.bizesNm}
-                        {place.brchNm && (
+                        {displayPlace.bizesNm}
+                        {displayPlace.brchNm && (
                           <span className="ml-1 text-xs font-semibold text-slate-400">
-                            {place.brchNm}
+                            {displayPlace.brchNm}
                           </span>
                         )}
                       </h3>
 
                       <p className="mt-0.5 truncate text-xs font-semibold text-slate-400 flex items-center gap-0.5">
-                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {place.rdnmAdr}
+                        <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {displayPlace.rdnmAdr}
                       </p>
                     </div>
 
-                    <Link
-                      href={`/place-search/${place.placeId}`}
-                      className="shrink-0 rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-bold text-slate-600 bg-white shadow-sm transition-all duration-200 hover:border-indigo-500 hover:text-indigo-600 active:scale-95 flex items-center gap-1"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" /> 상세
-                    </Link>
+                    {isEditingPlaces ? (
+                      <div className="flex gap-1.5 shrink-0 ml-2">
+                        {isExcluded ? (
+                          <button
+                            type="button"
+                            onClick={() => setExcludedPlaceIds((prev) => prev.filter((id) => id !== place.placeId))}
+                            className="px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-650 text-xs font-bold transition cursor-pointer"
+                          >
+                            복구
+                          </button>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenReplace(place.placeId, cat)}
+                              className="px-2.5 py-1.5 rounded-xl border border-slate-200 hover:border-slate-350 bg-white text-slate-550 text-xs font-bold transition cursor-pointer"
+                            >
+                              교체
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setExcludedPlaceIds((prev) => [...prev, place.placeId])}
+                              className="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-655 text-xs font-bold transition cursor-pointer"
+                            >
+                              제외
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    ) : (
+                      <Link
+                        href={`/place-search/${displayPlace.placeId}`}
+                        className="shrink-0 rounded-xl border border-slate-200 px-3.5 py-2 text-xs font-bold text-slate-600 bg-white shadow-sm transition-all duration-200 hover:border-indigo-500 hover:text-indigo-600 active:scale-95 flex items-center gap-1"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" /> 상세
+                      </Link>
+                    )}
                   </Card>
                 );
               })}
@@ -645,6 +873,92 @@ export default function AnchorDetailPage() {
             >
               닫기
             </button>
+          </div>
+        </div>
+      )}
+      {/* Place Replacement Search Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+          <div className="w-full max-w-lg bg-white rounded-3xl border border-slate-200/50 shadow-2xl p-6 relative flex flex-col max-h-[80vh]">
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="absolute top-6 right-6 flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-400 hover:bg-slate-200 hover:text-slate-700 transition cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <h3 className="text-lg font-extrabold text-slate-900 flex items-center gap-2 pr-6">
+              🔍 추천 매장 교체하기
+            </h3>
+            {anchor && (() => {
+              const { province, district } = parseRegionFromAddress(anchor.baseAddress);
+              return (
+                <p className="text-xs font-semibold text-slate-450 mt-1">
+                  이 지역 상권({province} {district}) 내의 다른 매장을 검색하여 추천 목록의 매장과 교체할 수 있습니다.
+                </p>
+              );
+            })()}
+
+            <form onSubmit={handleSearch} className="mt-4 flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm font-bold outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 bg-white text-slate-800"
+                  placeholder="매장 이름 검색 (예: 스타벅스)"
+                  required
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={isSearching}
+                className="px-4.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs transition cursor-pointer disabled:bg-slate-300"
+              >
+                {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : "검색"}
+              </button>
+            </form>
+
+            <div className="mt-4 flex-1 overflow-y-auto space-y-2 pr-1 min-h-[200px]">
+              {isSearching ? (
+                <div className="flex flex-col items-center justify-center py-12 gap-2">
+                  <Loader2 className="w-6 h-6 text-indigo-600 animate-spin" />
+                  <span className="text-xs font-bold text-slate-400">매장을 검색 중입니다...</span>
+                </div>
+              ) : searchResults.length > 0 ? (
+                searchResults.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-between p-3.5 border border-slate-100 rounded-xl bg-slate-50/50 hover:bg-slate-50 transition"
+                  >
+                    <div className="min-w-0 flex-1 pr-4">
+                      <h4 className="text-sm font-extrabold text-slate-800 truncate">
+                        {item.bizesNm} {item.brchNm ? `(${item.brchNm})` : ""}
+                      </h4>
+                      <p className="text-[10px] font-semibold text-slate-400 mt-0.5 truncate">
+                        {item.indsMclsNm} | {item.rdnmAdr}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectReplacement(item)}
+                      className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-black transition cursor-pointer shrink-0"
+                    >
+                      교체 선택
+                    </button>
+                  </div>
+                ))
+              ) : searchQuery && !isSearching ? (
+                <div className="py-12 text-center text-xs font-bold text-slate-400">
+                  검색 결과가 없습니다.
+                </div>
+              ) : (
+                <div className="py-12 text-center text-xs font-bold text-slate-400">
+                  상호명을 입력하고 검색해 주세요.
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
