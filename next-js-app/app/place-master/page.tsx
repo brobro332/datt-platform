@@ -92,7 +92,16 @@ function CustomDropdown({
         <span className="flex items-center gap-2 truncate">
           <IconComponent className={`w-4 h-4 shrink-0 ${value ? "text-indigo-600" : "text-slate-400"}`} />
           {value ? (
-            <span className="text-slate-800 font-extrabold truncate">{value}</span>
+            <span className="text-slate-800 font-extrabold truncate">
+              {value.includes(" (") ? (
+                <>
+                  <span className="text-slate-800 font-black">{value.substring(0, value.indexOf(" ("))}</span>
+                  <span className="text-slate-400 text-xs font-bold ml-1.5">{value.substring(value.indexOf(" ("))}</span>
+                </>
+              ) : (
+                value
+              )}
+            </span>
           ) : (
             <span className="text-slate-400 font-semibold truncate">{placeholder}</span>
           )}
@@ -156,7 +165,20 @@ function CustomDropdown({
                     }`}
                   >
                     <IconComponent className="mr-2 w-4 h-4 text-indigo-500 shrink-0" />
-                    <span className="truncate">{opt}</span>
+                    <span className="truncate">
+                      {opt.includes(" (") ? (
+                        <>
+                          <span className={`${value === opt ? 'text-indigo-650 font-black' : 'text-slate-800 font-extrabold'}`}>
+                            {opt.substring(0, opt.indexOf(" ("))}
+                          </span>
+                          <span className="text-slate-450 text-xs font-semibold ml-1.5">
+                            {opt.substring(opt.indexOf(" ("))}
+                          </span>
+                        </>
+                      ) : (
+                        opt
+                      )}
+                    </span>
                   </button>
                 ))
               ) : (
@@ -194,7 +216,22 @@ export default function PlaceMasterPage() {
   );
 
   const subwayStations = subwayStationsData 
-    ? [...subwayStationsData].sort((a, b) => a.name.localeCompare(b.name))
+    ? Object.values(
+        subwayStationsData.reduce((acc, current) => {
+          const key = `${current.name}_${current.province}_${current.district}`;
+          if (!acc[key]) {
+            acc[key] = { ...current, lines: [current.line] };
+          } else {
+            if (!acc[key].lines.includes(current.line)) {
+              acc[key].lines.push(current.line);
+            }
+          }
+          return acc;
+        }, {} as Record<string, any>)
+      ).map((s: any) => ({
+        ...s,
+        line: s.lines.sort().join(", "),
+      })).sort((a, b) => a.name.localeCompare(b.name))
     : [];
 
   // Reset selected subway and custom center when region changes in region tab
