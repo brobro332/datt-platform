@@ -67,7 +67,7 @@ export default function MyLikesPage() {
           errorTitle="닻 조회 실패"
           errorMessage="목록 정보를 불러오지 못했습니다. 다시 시도해 주세요."
           emptyTitle="아직 받은 좋아요가 없습니다."
-          emptyDescription="내 닻을 공개 닻으로 전환하고 매력적인 추천 코스를 구성해 보세요!"
+          emptyDescription="내 닻을 공개로 전환하고 매력적인 추천 코스를 구성해 보세요!"
         >
           {data && (
             <div className="space-y-6">

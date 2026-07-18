@@ -528,7 +528,7 @@ export default function AnchorDetailPage() {
               {isOwner ? (
                 <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200/60 px-3.5 py-1.5 rounded-xl shadow-sm">
                   <span className="text-xs font-extrabold text-slate-600 select-none">
-                    {anchor.isPublic ? "🌐 공개 닻" : "🔒 비공개 닻"}
+                    {anchor.isPublic ? "🌐 공개" : "🔒 비공개"}
                   </span>
                   <button
                     type="button"
@@ -551,7 +551,7 @@ export default function AnchorDetailPage() {
                     ? "bg-emerald-50 border-emerald-200/50 text-emerald-700" 
                     : "bg-slate-50 border-slate-200/50 text-slate-500"
                 }`}>
-                  {anchor.isPublic ? "공개 닻" : "비공개 닻"}
+                  {anchor.isPublic ? "공개" : "비공개"}
                 </span>
               )}
 
@@ -561,7 +561,7 @@ export default function AnchorDetailPage() {
                 onClick={() => setIsShareModalOpen(true)}
                 className="rounded-xl border border-indigo-250 bg-indigo-50 px-3.5 py-1.5 text-xs font-bold text-indigo-700 shadow-sm hover:bg-indigo-100 transition active:scale-95 cursor-pointer flex items-center gap-1.5"
               >
-                <Share2 className="w-3.5 h-3.5" /> 공유하기
+                <Share2 className="w-3.5 h-3.5" /> 공유
               </button>
 
               {/* Edit Places Button (Owner Only) */}
@@ -574,7 +574,7 @@ export default function AnchorDetailPage() {
                       disabled={isSavingPlaces}
                       className="rounded-xl bg-indigo-600 hover:bg-indigo-700 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm transition active:scale-95 cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
                     >
-                      {isSavingPlaces ? "저장 중..." : "저장 완료"}
+                      {isSavingPlaces ? "저장 중..." : "저장"}
                     </button>
                     <button
                       type="button"
@@ -590,7 +590,7 @@ export default function AnchorDetailPage() {
                     onClick={() => setIsEditingPlaces(true)}
                     className="rounded-xl border border-indigo-200 bg-indigo-50 px-3.5 py-1.5 text-xs font-bold text-indigo-700 shadow-sm hover:bg-indigo-100 transition active:scale-95 cursor-pointer flex items-center gap-1.5"
                   >
-                    <Edit className="w-3.5 h-3.5" /> 명소 수정
+                    <Edit className="w-3.5 h-3.5" /> 수정
                   </button>
                 )
               )}
@@ -602,7 +602,7 @@ export default function AnchorDetailPage() {
                   disabled={isDeleting}
                   className="rounded-xl border border-rose-200 bg-rose-50 px-3.5 py-1.5 text-xs font-bold text-rose-700 shadow-sm hover:bg-rose-100 transition active:scale-95 disabled:opacity-50 cursor-pointer flex items-center gap-1.5"
                 >
-                  <Trash2 className="w-3.5 h-3.5" /> {isDeleting ? "삭제 중..." : "삭제하기"}
+                  <Trash2 className="w-3.5 h-3.5" /> {isDeleting ? "삭제 중..." : "삭제"}
                 </button>
               )}
             </div>

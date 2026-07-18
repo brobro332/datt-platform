@@ -172,14 +172,14 @@ export function ReviewCard({
                         onClick={() => setIsEditing(true)}
                         className="text-xs font-bold text-slate-400 hover:text-indigo-650 transition cursor-pointer"
                     >
-                        수정하기
+                        수정
                     </button>
                     <span className="text-slate-200 text-xs">|</span>
                     <button
                         onClick={handleDelete}
                         className="text-xs font-bold text-slate-400 hover:text-rose-600 transition cursor-pointer"
                     >
-                        삭제하기
+                        삭제
                     </button>
                 </div>
             )}
