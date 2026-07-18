@@ -217,7 +217,7 @@ export default function PlacesPage() {
             장소탐색
           </h1>
           <p className="mt-2 text-sm text-slate-500 max-w-xl font-semibold">
-            장소명, 지역, 카테고리를 탐색하여 DATT가 큐레이션한 매력적인 닻 후보지들을 편리하게 찾아보세요.
+            장소명, 지역을 탐색하여 DATT가 큐레이션한 매력적인 닻 후보지들을 편리하게 찾아보세요.
           </p>
 
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">

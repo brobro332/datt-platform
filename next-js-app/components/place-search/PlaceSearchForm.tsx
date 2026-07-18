@@ -29,7 +29,7 @@ export function PlaceSearchForm({
         <input
           id="keyword"
           type="text"
-          placeholder="장소명, 지역명, 카테고리를 입력하세요"
+          placeholder="장소명, 지역명을 입력하세요"
           className="h-12 w-full rounded-xl bg-transparent pl-11 pr-4 text-sm font-semibold text-slate-800 placeholder-slate-400 outline-none transition focus:bg-white/40"
           value={keyword}
           onChange={(event) => setKeyword(event.target.value)}

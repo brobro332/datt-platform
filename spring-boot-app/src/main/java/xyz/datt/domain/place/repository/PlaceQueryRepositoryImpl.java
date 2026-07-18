@@ -98,7 +98,7 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
                 categoryIn(condition.getCategory())
             )
             .groupBy(placeMaster.id)
-            .orderBy(orderBy(condition.getSortType(), distanceExpression))
+            .orderBy(orderBy(condition.getSortType(), distanceExpression), placeMaster.id.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
@@ -165,7 +165,7 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
                 categoryIn(condition.getCategory())
             )
             .groupBy(placeMaster.id)
-            .orderBy(orderByDistance(distanceExpression))
+            .orderBy(orderByDistance(distanceExpression), placeMaster.id.desc())
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
@@ -236,7 +236,7 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
                 placeMaster.indsMclsCd.in(indsMclsCodes)
             )
             .groupBy(placeMaster.id)
-            .orderBy(hasImage.desc(), avgRating.desc(), distanceExpression.asc())
+            .orderBy(hasImage.desc(), avgRating.desc(), distanceExpression.asc(), placeMaster.id.desc())
             .limit(limit)
             .fetch();
     }
@@ -339,7 +339,11 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
         }
 
         return placeMaster.bizesNm.containsIgnoreCase(keyword)
-                .or(placeMaster.brchNm.containsIgnoreCase(keyword));
+                .or(placeMaster.brchNm.containsIgnoreCase(keyword))
+                .or(placeMaster.ctprvnNm.containsIgnoreCase(keyword))
+                .or(placeMaster.signguNm.containsIgnoreCase(keyword))
+                .or(placeMaster.adongNm.containsIgnoreCase(keyword))
+                .or(placeMaster.rdnmAdr.containsIgnoreCase(keyword));
     }
 
     private BooleanExpression ctprvnNmEq(String ctprvnNm) {

@@ -166,6 +166,78 @@ class PlaceQueryRepositoryTest {
         assertThat(result.getContent().get(0).bizesNm()).contains("스타벅스");
     }
 
+    @Test
+    @DisplayName("시도명 키워드로 장소를 조회한다.")
+    void givenProvinceKeyword_whenSearchPlaces_thenReturnPlaces() {
+        placeMasterRepository.save(createPlaceMaster(
+            "BIZ-001",
+            "카페 A",
+            "I212",
+            "비알코올",
+            127.0276,
+            37.4979
+        ));
+
+        xyz.datt.domain.place.dto.PlaceSearchCondition condition = new xyz.datt.domain.place.dto.PlaceSearchCondition();
+        condition.setKeyword("서울");
+
+        Page<xyz.datt.domain.place.dto.PlaceSearchResponse> result = placeMasterRepository.searchPlaces(
+            condition,
+            PageRequest.of(0, 10)
+        );
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).bizesNm()).isEqualTo("카페 A");
+    }
+
+    @Test
+    @DisplayName("시군구명 키워드로 장소를 조회한다.")
+    void givenDistrictKeyword_whenSearchPlaces_thenReturnPlaces() {
+        placeMasterRepository.save(createPlaceMaster(
+            "BIZ-001",
+            "카페 A",
+            "I212",
+            "비알코올",
+            127.0276,
+            37.4979
+        ));
+
+        xyz.datt.domain.place.dto.PlaceSearchCondition condition = new xyz.datt.domain.place.dto.PlaceSearchCondition();
+        condition.setKeyword("강남");
+
+        Page<xyz.datt.domain.place.dto.PlaceSearchResponse> result = placeMasterRepository.searchPlaces(
+            condition,
+            PageRequest.of(0, 10)
+        );
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).bizesNm()).isEqualTo("카페 A");
+    }
+
+    @Test
+    @DisplayName("도로명주소 키워드로 장소를 조회한다.")
+    void givenRoadAddressKeyword_whenSearchPlaces_thenReturnPlaces() {
+        placeMasterRepository.save(createPlaceMaster(
+            "BIZ-001",
+            "카페 A",
+            "I212",
+            "비알코올",
+            127.0276,
+            37.4979
+        ));
+
+        xyz.datt.domain.place.dto.PlaceSearchCondition condition = new xyz.datt.domain.place.dto.PlaceSearchCondition();
+        condition.setKeyword("테헤란");
+
+        Page<xyz.datt.domain.place.dto.PlaceSearchResponse> result = placeMasterRepository.searchPlaces(
+            condition,
+            PageRequest.of(0, 10)
+        );
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().get(0).bizesNm()).isEqualTo("카페 A");
+    }
+
     private PlaceMaster createPlaceMaster(
         String bizesId,
         String bizesNm,
