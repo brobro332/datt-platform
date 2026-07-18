@@ -91,7 +91,30 @@ public class SubwayStationService {
                     .retrieve()
                     .body(String.class);
                 
-                Map<String, Object> root = objectMapper.readValue(response, Map.class);
+                if (response == null) {
+                    throw new RuntimeException("Empty response from API");
+                }
+                
+                String trimmed = response.trim();
+                if (trimmed.startsWith("<")) {
+                    String errMsg = "XML/HTML error response received";
+                    if (trimmed.contains("<returnAuthMsg>")) {
+                        int start = trimmed.indexOf("<returnAuthMsg>") + "<returnAuthMsg>".length();
+                        int end = trimmed.indexOf("</returnAuthMsg>");
+                        if (end > start) {
+                            errMsg += " (" + trimmed.substring(start, end) + ")";
+                        }
+                    } else if (trimmed.contains("<errMsg>")) {
+                        int start = trimmed.indexOf("<errMsg>") + "<errMsg>".length();
+                        int end = trimmed.indexOf("</errMsg>");
+                        if (end > start) {
+                            errMsg += " (" + trimmed.substring(start, end) + ")";
+                        }
+                    }
+                    throw new RuntimeException(errMsg);
+                }
+                
+                Map<String, Object> root = objectMapper.readValue(trimmed, Map.class);
                 Map<String, Object> resMap = (Map<String, Object>) root.get("response");
                 if (resMap == null) {
                     throw new RuntimeException("Invalid response structure from API");
@@ -156,7 +179,7 @@ public class SubwayStationService {
             }
             log.info("Successfully synced {} subway stations from API to the database", count);
         } catch (Exception e) {
-            log.error("Failed to sync from Subway station API", e);
+            log.warn("Failed to sync from Subway station API: {}", e.getMessage());
             throw new RuntimeException("API Sync failed: " + e.getMessage(), e);
         }
     }
