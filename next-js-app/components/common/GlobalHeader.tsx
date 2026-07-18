@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Anchor, Search, MapPin, Compass, User, LogOut } from "lucide-react";
+import { Anchor, Search, MapPin, Compass, User, LogOut, Shield } from "lucide-react";
 
 import { logout as logoutRequest } from "@/services/authService";
 import { useAuthStore } from "@/stores/authStore";
@@ -92,6 +92,16 @@ export function GlobalHeader() {
           <div className="flex items-center gap-2.5">
             {isLoggedIn ? (
               <>
+                {member?.role === "ADMIN" && (
+                  <Link
+                    href="/admin"
+                    className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-extrabold text-indigo-600 hover:bg-slate-50 transition duration-200 flex items-center gap-1.5"
+                  >
+                    <Shield className="w-4 h-4 text-indigo-500" />
+                    관리자 페이지
+                  </Link>
+                )}
+
                 <Link
                   href="/my/profile"
                   className={[

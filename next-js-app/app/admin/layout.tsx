@@ -92,7 +92,7 @@ export default function AdminLayout({
             {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
           <Link href="/admin" className="flex items-center gap-2">
-            <span className="text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-400 to-indigo-350">
+            <span className="text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-purple-300 to-slate-200">
               ⚓ DATT Admin Portal
             </span>
           </Link>
