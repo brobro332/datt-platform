@@ -12,11 +12,19 @@ import xyz.datt.domain.place.dto.SubwayStationResponse;
 import xyz.datt.domain.place.entity.SubwayStation;
 import xyz.datt.domain.place.repository.SubwayStationRepository;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamReader;
 
 @Slf4j
 @Service
@@ -55,24 +63,29 @@ public class SubwayStationService {
             log.info("Attempting to sync subway stations from Public API...");
             syncFromApi();
         } catch (Exception apiEx) {
-            log.warn("Failed to sync from API: {}. Falling back to local data...", apiEx.getMessage());
+            log.warn("Failed to sync from API: {}. Attempting to sync from official Excel portal (data.kric.go.kr)...", apiEx.getMessage());
             try {
-                ClassPathResource csvResource = new ClassPathResource("data/subway_stations.csv");
-                if (csvResource.exists()) {
-                    log.info("Found subway_stations.csv. Syncing from CSV...");
-                    syncFromCsv(csvResource);
-                } else {
-                    ClassPathResource jsonResource = new ClassPathResource("data/subway_stations.json");
-                    if (jsonResource.exists()) {
-                        log.info("Found subway_stations.json. Syncing from JSON...");
-                        syncFromJson(jsonResource);
+                syncFromOfficialExcel();
+            } catch (Exception excelEx) {
+                log.warn("Failed to sync from official Excel portal: {}. Falling back to local data...", excelEx.getMessage());
+                try {
+                    ClassPathResource csvResource = new ClassPathResource("data/subway_stations.csv");
+                    if (csvResource.exists()) {
+                        log.info("Found subway_stations.csv. Syncing from CSV...");
+                        syncFromCsv(csvResource);
                     } else {
-                        log.warn("No subway station data files found (CSV or JSON).");
+                        ClassPathResource jsonResource = new ClassPathResource("data/subway_stations.json");
+                        if (jsonResource.exists()) {
+                            log.info("Found subway_stations.json. Syncing from JSON...");
+                            syncFromJson(jsonResource);
+                        } else {
+                            log.warn("No subway station data files found (CSV or JSON).");
+                        }
                     }
+                } catch (Exception localEx) {
+                    log.error("Failed to sync subway stations from fallback files:", localEx);
+                    throw new RuntimeException("Subway station sync failed", localEx);
                 }
-            } catch (Exception localEx) {
-                log.error("Failed to sync subway stations from fallback files:", localEx);
-                throw new RuntimeException("Subway station sync failed", localEx);
             }
         }
     }
@@ -362,5 +375,255 @@ public class SubwayStationService {
         } else {
             return name + "역";
         }
+    }
+
+    private void syncFromOfficialExcel() {
+        try {
+            log.info("Downloading official subway station XLSX from data.kric.go.kr...");
+            byte[] excelBytes = restClient.get()
+                .uri("https://data.kric.go.kr/rips/dataset/download.file?type=filedata&id=32&operation=1")
+                .retrieve()
+                .body(byte[].class);
+            
+            if (excelBytes == null || excelBytes.length == 0) {
+                throw new RuntimeException("Failed to download official Excel file: empty content");
+            }
+            
+            log.info("Successfully downloaded official Excel file ({} bytes). Parsing...", excelBytes.length);
+            
+            List<String> sharedStrings = new ArrayList<>();
+            Map<Integer, List<String>> rows = new HashMap<>();
+            
+            try (ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(excelBytes))) {
+                ZipEntry entry;
+                byte[] sharedStringsBytes = null;
+                byte[] sheetBytes = null;
+                
+                while ((entry = zis.getNextEntry()) != null) {
+                    if ("xl/sharedStrings.xml".equals(entry.getName())) {
+                        sharedStringsBytes = zis.readAllBytes();
+                    } else if ("xl/worksheets/sheet1.xml".equals(entry.getName())) {
+                        sheetBytes = zis.readAllBytes();
+                    }
+                    zis.closeEntry();
+                }
+                
+                if (sharedStringsBytes != null) {
+                    sharedStrings = parseSharedStrings(sharedStringsBytes);
+                }
+                if (sheetBytes != null) {
+                    rows = parseSheet(sheetBytes, sharedStrings);
+                }
+            }
+            
+            if (rows.isEmpty()) {
+                throw new RuntimeException("No rows found in official Excel sheet");
+            }
+            
+            int minRowIdx = rows.keySet().stream().min(Integer::compareTo).orElse(0);
+            List<String> headers = rows.get(minRowIdx);
+            if (headers == null || headers.isEmpty()) {
+                throw new RuntimeException("Header row is empty");
+            }
+            
+            Map<String, Integer> headerMap = new HashMap<>();
+            for (int i = 0; i < headers.size(); i++) {
+                headerMap.put(headers.get(i).trim(), i);
+            }
+            
+            int nameIdx = headerMap.getOrDefault("역사명", headerMap.getOrDefault("역명", -1));
+            int lineIdx = headerMap.getOrDefault("노선명", -1);
+            int latIdx = headerMap.getOrDefault("역위도", headerMap.getOrDefault("위도", -1));
+            int lonIdx = headerMap.getOrDefault("역경도", headerMap.getOrDefault("경도", -1));
+            int addrIdx = headerMap.getOrDefault("역사도로명주소", headerMap.getOrDefault("도로명주소", -1));
+            
+            if (nameIdx == -1 || lineIdx == -1 || latIdx == -1 || lonIdx == -1 || addrIdx == -1) {
+                log.error("Required columns not found in Excel. Headers: {}", headers);
+                throw new IllegalArgumentException("Invalid Excel headers");
+            }
+            
+            int count = 0;
+            for (Map.Entry<Integer, List<String>> rowEntry : rows.entrySet()) {
+                if (rowEntry.getKey() == minRowIdx) continue; // Skip header
+                List<String> fields = rowEntry.getValue();
+                
+                if (fields.size() <= Math.max(Math.max(nameIdx, lineIdx), Math.max(Math.max(latIdx, lonIdx), addrIdx))) {
+                    continue;
+                }
+                
+                String name = fields.get(nameIdx).trim();
+                if (name.isEmpty()) continue;
+                name = normalizeStationName(name);
+                
+                String lineName = fields.get(lineIdx).trim();
+                String address = fields.get(addrIdx).trim();
+                
+                Double lat = null;
+                Double lon = null;
+                try {
+                    String latStr = fields.get(latIdx).trim();
+                    String lonStr = fields.get(lonIdx).trim();
+                    if (!latStr.isEmpty() && !lonStr.isEmpty()) {
+                        lat = Double.parseDouble(latStr);
+                        lon = Double.parseDouble(lonStr);
+                    }
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+                
+                if (lat == null || lon == null) continue;
+                
+                String[] region = parseRegion(address);
+                String province = region[0];
+                String district = region[1];
+                
+                saveOrUpdateStation(name, lineName, province, district, lat, lon);
+                count++;
+            }
+            
+            log.info("Successfully synced {} subway stations from data.kric.go.kr Excel to database", count);
+            
+        } catch (Exception e) {
+            log.error("Failed to sync from official Excel", e);
+            throw new RuntimeException("Official Excel sync failed: " + e.getMessage(), e);
+        }
+    }
+
+    private List<String> parseSharedStrings(byte[] xmlBytes) throws Exception {
+        List<String> list = new ArrayList<>();
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        
+        try (InputStream in = new ByteArrayInputStream(xmlBytes)) {
+            XMLStreamReader reader = factory.createXMLStreamReader(in);
+            StringBuilder siBuffer = new StringBuilder();
+            boolean insideSi = false;
+            boolean insideT = false;
+            
+            while (reader.hasNext()) {
+                int event = reader.next();
+                if (event == XMLStreamConstants.START_ELEMENT) {
+                    String localName = reader.getLocalName();
+                    if ("si".equals(localName)) {
+                        insideSi = true;
+                        siBuffer.setLength(0);
+                    } else if ("t".equals(localName) && insideSi) {
+                        insideT = true;
+                    }
+                } else if (event == XMLStreamConstants.CHARACTERS) {
+                    if (insideT) {
+                        siBuffer.append(reader.getText());
+                    }
+                } else if (event == XMLStreamConstants.END_ELEMENT) {
+                    String localName = reader.getLocalName();
+                    if ("t".equals(localName)) {
+                        insideT = false;
+                    } else if ("si".equals(localName)) {
+                        insideSi = false;
+                        list.add(siBuffer.toString());
+                    }
+                }
+            }
+        }
+        return list;
+    }
+
+    private Map<Integer, List<String>> parseSheet(byte[] xmlBytes, List<String> sharedStrings) throws Exception {
+        Map<Integer, List<String>> rows = new HashMap<>();
+        XMLInputFactory factory = XMLInputFactory.newInstance();
+        factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+        factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+        
+        try (InputStream in = new ByteArrayInputStream(xmlBytes)) {
+            XMLStreamReader reader = factory.createXMLStreamReader(in);
+            
+            int currentRowIdx = -1;
+            Map<Integer, String> currentRowData = null;
+            int currentColIdx = -1;
+            String currentType = "";
+            boolean insideV = false;
+            StringBuilder vBuffer = new StringBuilder();
+            
+            while (reader.hasNext()) {
+                int event = reader.next();
+                if (event == XMLStreamConstants.START_ELEMENT) {
+                    String localName = reader.getLocalName();
+                    if ("row".equals(localName)) {
+                        String rAttr = reader.getAttributeValue(null, "r");
+                        if (rAttr != null) {
+                            currentRowIdx = Integer.parseInt(rAttr);
+                        }
+                        currentRowData = new HashMap<>();
+                    } else if ("c".equals(localName)) {
+                        String rAttr = reader.getAttributeValue(null, "r");
+                        if (rAttr != null) {
+                            currentColIdx = getColumnIndex(rAttr);
+                        }
+                        currentType = reader.getAttributeValue(null, "t");
+                        if (currentType == null) {
+                            currentType = "";
+                        }
+                    } else if ("v".equals(localName)) {
+                        insideV = true;
+                        vBuffer.setLength(0);
+                    }
+                } else if (event == XMLStreamConstants.CHARACTERS) {
+                    if (insideV) {
+                        vBuffer.append(reader.getText());
+                    }
+                } else if (event == XMLStreamConstants.END_ELEMENT) {
+                    String localName = reader.getLocalName();
+                    if ("v".equals(localName)) {
+                        insideV = false;
+                        String val = vBuffer.toString();
+                        if ("s".equals(currentType)) {
+                            try {
+                                int idx = Integer.parseInt(val);
+                                if (idx >= 0 && idx < sharedStrings.size()) {
+                                    val = sharedStrings.get(idx);
+                                }
+                            } catch (NumberFormatException e) {
+                                // ignore
+                            }
+                        }
+                        if (currentRowData != null && currentColIdx != -1) {
+                            currentRowData.put(currentColIdx, val);
+                        }
+                    } else if ("row".equals(localName)) {
+                        if (currentRowData != null && currentRowIdx != -1) {
+                            int maxCol = currentRowData.keySet().stream().max(Integer::compareTo).orElse(-1);
+                            List<String> rowList = new ArrayList<>();
+                            for (int i = 0; i <= maxCol; i++) {
+                                rowList.add(currentRowData.getOrDefault(i, ""));
+                            }
+                            rows.put(currentRowIdx, rowList);
+                        }
+                        currentRowIdx = -1;
+                        currentRowData = null;
+                    }
+                }
+            }
+        }
+        return rows;
+    }
+
+    private int getColumnIndex(String ref) {
+        StringBuilder letters = new StringBuilder();
+        for (int i = 0; i < ref.length(); i++) {
+            char c = ref.charAt(i);
+            if (Character.isLetter(c)) {
+                letters.append(c);
+            } else {
+                break;
+            }
+        }
+        
+        String colLetter = letters.toString().toUpperCase();
+        int colIdx = 0;
+        for (int i = 0; i < colLetter.length(); i++) {
+            colIdx = colIdx * 26 + (colLetter.charAt(i) - 'A' + 1);
+        }
+        return colIdx - 1;
     }
 }
