@@ -141,9 +141,9 @@ function CustomDropdown({
                 전체보기
               </button>
               {filteredOptions && filteredOptions.length > 0 ? (
-                filteredOptions.map((opt) => (
+                filteredOptions.map((opt, idx) => (
                   <button
-                    key={opt}
+                    key={`${opt}-${idx}`}
                     type="button"
                     onClick={() => {
                       onChange(opt);
@@ -428,7 +428,7 @@ export default function PlaceMasterPage() {
                 <CustomDropdown
                   label="지하철역 선택"
                   value={selectedSubway ? `${selectedSubway.name} (${selectedSubway.line}) - ${selectedSubway.province} ${selectedSubway.district}` : ""}
-                  options={subwayStations.map(s => `${s.name} (${s.line}) - ${s.province} ${s.district}`)}
+                  options={Array.from(new Set(subwayStations.map(s => `${s.name} (${s.line}) - ${s.province} ${s.district}`)))}
                   onChange={(val) => {
                     const station = subwayStations.find(s => `${s.name} (${s.line}) - ${s.province} ${s.district}` === val);
                     if (station) {
