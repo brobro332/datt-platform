@@ -42,9 +42,11 @@ export type PlaceSearchParams = {
   ctprvnNm?: string;
   signguNm?: string;
   category?: string;
-  sortType?: "LATEST" | "NAME" | "REVIEW_COUNT" | "RATING";
+  sortType?: "LATEST" | "NAME" | "REVIEW_COUNT" | "RATING" | "DISTANCE";
   page?: number;
   size?: number;
+  lat?: number;
+  lon?: number;
 };
 
 export type NearbyPlaceSearchParams = {

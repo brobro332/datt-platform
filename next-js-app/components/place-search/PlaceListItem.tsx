@@ -2,21 +2,41 @@ import { useRouter } from "next/navigation";
 import type { PlaceSearchResponse } from "@/types/place";
 import { PlaceThumbnail } from "@/components/common/PlaceThumbnail";
 import { getCategoryFromText, type PlaceCategory } from "@/utils/category";
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin, Compass } from "lucide-react";
 import { CategoryBadge } from "@/components/common/CategoryBadge";
 
 type PlaceListItemProps = {
   place: PlaceSearchResponse;
   isSelected?: boolean;
   onClick?: (place: PlaceSearchResponse) => void;
+  userCoords?: { lat: number; lon: number } | null;
 };
+
+function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number) {
+  const R = 6371; // km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 export function PlaceListItem({
   place,
   isSelected = false,
   onClick,
+  userCoords,
 }: PlaceListItemProps) {
   const router = useRouter();
+
+  const distance = userCoords && place.lat && place.lon
+    ? calculateDistanceKm(userCoords.lat, userCoords.lon, place.lat, place.lon)
+    : null;
 
   const handleItemClick = () => {
     if (onClick) {
@@ -57,6 +77,12 @@ export function PlaceListItem({
               {place.reviewCount > 0 && (
                 <span className="text-[10px] font-black text-amber-700 bg-amber-50/60 border border-amber-100/35 px-2 py-0.5 rounded-lg flex items-center gap-0.5">
                   <Star className="w-3 h-3 fill-amber-500 text-amber-500" /> {place.averageRating.toFixed(1)} ({place.reviewCount})
+                </span>
+              )}
+
+              {distance !== null && (
+                <span className="text-[10px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-lg flex items-center gap-0.5">
+                  <Compass className="w-3 h-3 text-indigo-500 shrink-0" /> {distance.toFixed(2)}km
                 </span>
               )}
             </div>

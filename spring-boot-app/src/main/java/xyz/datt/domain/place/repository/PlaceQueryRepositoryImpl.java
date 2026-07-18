@@ -64,6 +64,11 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
         PlaceSearchCondition condition,
         Pageable pageable
     ) {
+        NumberExpression<Double> distanceExpression = null;
+        if (condition.getLat() != null && condition.getLon() != null) {
+            distanceExpression = distanceExpression(condition.getLat(), condition.getLon());
+        }
+
         List<PlaceSearchResponse> responses = queryFactory
             .select(Projections.constructor(
                 PlaceSearchResponse.class,
@@ -93,7 +98,7 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
                 categoryIn(condition.getCategory())
             )
             .groupBy(placeMaster.id)
-            .orderBy(orderBy(condition.getSortType()))
+            .orderBy(orderBy(condition.getSortType(), distanceExpression))
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
             .fetch();
@@ -381,12 +386,13 @@ public class PlaceQueryRepositoryImpl implements PlaceQueryRepository {
         }
     }
 
-    private OrderSpecifier<?> orderBy(PlaceSortType sortType) {
+    private OrderSpecifier<?> orderBy(PlaceSortType sortType, NumberExpression<Double> distanceExpression) {
         return switch (sortType) {
             case NAME -> placeMaster.bizesNm.asc();
             case LATEST -> placeMaster.createdAt.desc();
             case REVIEW_COUNT -> placeReview.count().desc();
             case RATING -> placeReview.rating.avg().coalesce(0.0).desc();
+            case DISTANCE -> distanceExpression != null ? distanceExpression.asc() : placeMaster.id.desc();
         };
     }
 

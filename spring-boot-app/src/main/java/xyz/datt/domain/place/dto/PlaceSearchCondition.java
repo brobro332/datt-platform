@@ -14,4 +14,6 @@ public class PlaceSearchCondition {
     private String indsMclsCd;
     private String category;
     private PlaceSortType sortType = PlaceSortType.LATEST;
+    private Double lat;
+    private Double lon;
 }

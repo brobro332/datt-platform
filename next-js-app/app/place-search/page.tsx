@@ -23,10 +23,9 @@ const FILTER_TO_CATEGORY: Record<string, string> = {
 };
 
 const SORT_OPTIONS = [
-  { key: "LATEST", label: "최신순" },
-  { key: "NAME", label: "이름순" },
-  { key: "REVIEW_COUNT", label: "리뷰순" },
   { key: "RATING", label: "평점순" },
+  { key: "REVIEW_COUNT", label: "리뷰순" },
+  { key: "DISTANCE", label: "거리순" },
 ] as const;
 
 interface CustomDropdownProps {
@@ -132,7 +131,8 @@ export default function PlacesPage() {
   const [districts, setDistricts] = useState<string[]>([]);
 
   // Sort Filter
-  const [sortType, setSortType] = useState<"LATEST" | "NAME" | "REVIEW_COUNT" | "RATING">("LATEST");
+  const [sortType, setSortType] = useState<"LATEST" | "NAME" | "REVIEW_COUNT" | "RATING" | "DISTANCE">("RATING");
+  const [userCoords, setUserCoords] = useState<{ lat: number; lon: number } | null>(null);
 
   useEffect(() => {
     getProvinces().then(setProvinces).catch(console.error);
@@ -154,9 +154,37 @@ export default function PlacesPage() {
     signguNm: selectedDistrict || undefined,
     category: selectedFilter !== "전체" ? FILTER_TO_CATEGORY[selectedFilter] : undefined,
     sortType,
+    lat: sortType === "DISTANCE" ? userCoords?.lat : undefined,
+    lon: sortType === "DISTANCE" ? userCoords?.lon : undefined,
     page,
     size: PAGE_SIZE,
   });
+
+  const handleSortChange = (newSort: "LATEST" | "NAME" | "REVIEW_COUNT" | "RATING" | "DISTANCE") => {
+    if (newSort === "DISTANCE") {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            setUserCoords({
+              lat: position.coords.latitude,
+              lon: position.coords.longitude,
+            });
+            setSortType("DISTANCE");
+            setPage(0);
+          },
+          (error) => {
+            console.error("Error getting location: ", error);
+            alert("거리순으로 정렬하려면 위치 정보 제공 권한이 필요합니다.");
+          }
+        );
+      } else {
+        alert("이 브라우저에서는 위치 정보(Geolocation)를 지원하지 않습니다.");
+      }
+    } else {
+      setSortType(newSort);
+      setPage(0);
+    }
+  };
 
   function handleSearch(nextKeyword: string) {
     setKeyword(nextKeyword.trim());
@@ -243,10 +271,7 @@ export default function PlacesPage() {
                   <button
                     key={opt.key}
                     type="button"
-                    onClick={() => {
-                      setSortType(opt.key);
-                      setPage(0);
-                    }}
+                    onClick={() => handleSortChange(opt.key)}
                     className={`flex-1 h-full rounded-xl text-xs font-bold transition-all duration-300 cursor-pointer ${
                       sortType === opt.key
                         ? "bg-white text-indigo-650 shadow-md shadow-slate-200"
@@ -304,31 +329,60 @@ export default function PlacesPage() {
                 ) : (
                   <ul className="overflow-hidden rounded-[2rem] border border-slate-200/50 bg-white divide-y divide-slate-100">
                     {displayPlaces.map((place) => (
-                      <PlaceListItem key={place.id} place={place} />
+                      <PlaceListItem key={place.id} place={place} userCoords={userCoords} />
                     ))}
                   </ul>
                 )}
 
-                <div className="mt-5 flex items-center justify-between">
+                <div className="mt-8 flex flex-col sm:flex-row items-center justify-between gap-4">
                   <p className="text-xs font-extrabold text-slate-450">
-                    {data.number + 1} / {data.totalPages} 페이지
+                    총 {data.totalElements.toLocaleString()}개 중 {(data.number * PAGE_SIZE) + 1} - {Math.min((data.number + 1) * PAGE_SIZE, data.totalElements)}개 표시 (총 {data.totalPages} 페이지)
                   </p>
 
-                  <div className="flex gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <button
                       type="button"
                       onClick={handlePreviousPage}
                       disabled={data.first}
-                      className="px-5 h-10 rounded-xl text-xs font-black border border-slate-200 bg-white/80 text-slate-700 shadow-sm transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none hover:bg-slate-50 cursor-pointer"
+                      className="px-3.5 h-10 rounded-xl text-xs font-black border border-slate-200 bg-white/80 text-slate-700 shadow-sm transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none hover:bg-slate-50 cursor-pointer"
                     >
                       이전
                     </button>
+
+                    {(() => {
+                      const current = data.number;
+                      const total = data.totalPages;
+                      const size = 5;
+                      let start = Math.max(0, current - Math.floor(size / 2));
+                      let end = Math.min(total - 1, start + size - 1);
+                      if (end - start + 1 < size) {
+                        start = Math.max(0, end - size + 1);
+                      }
+                      const pages = [];
+                      for (let i = start; i <= end; i++) {
+                        pages.push(i);
+                      }
+                      return pages.map((p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => setPage(p)}
+                          className={`w-10 h-10 rounded-xl text-xs font-extrabold transition active:scale-95 cursor-pointer flex items-center justify-center ${
+                            p === current
+                              ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/20 font-black border border-indigo-600"
+                              : "border border-slate-200 bg-white hover:bg-slate-550/10 text-slate-700"
+                          }`}
+                        >
+                          {p + 1}
+                        </button>
+                      ));
+                    })()}
 
                     <button
                       type="button"
                       onClick={handleNextPage}
                       disabled={data.last}
-                      className="px-5 h-10 rounded-xl text-xs font-black border border-slate-200 bg-white/80 text-slate-700 shadow-sm transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none hover:bg-slate-50 cursor-pointer"
+                      className="px-3.5 h-10 rounded-xl text-xs font-black border border-slate-200 bg-white/80 text-slate-700 shadow-sm transition active:scale-95 disabled:opacity-40 disabled:pointer-events-none hover:bg-slate-50 cursor-pointer"
                     >
                       다음
                     </button>
