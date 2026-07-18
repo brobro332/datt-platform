@@ -13,15 +13,19 @@ export function DevNoteModal({ isOpen, onClose }: DevNoteModalProps) {
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
+  const [selectedVersion, setSelectedVersion] = useState<string>("v2.0.1");
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      setSelectedVersion("v2.0.1");
+      return;
+    }
 
     async function fetchDevNote() {
       try {
         setLoading(true);
         setError("");
-        const res = await fetch("/next-api/dev-note");
+        const res = await fetch(`/next-api/dev-note?version=${selectedVersion}`);
         if (!res.ok) {
           throw new Error("개발자 노트를 불러오는 데 실패했습니다.");
         }
@@ -36,7 +40,7 @@ export function DevNoteModal({ isOpen, onClose }: DevNoteModalProps) {
     }
 
     fetchDevNote();
-  }, [isOpen]);
+  }, [isOpen, selectedVersion]);
 
   if (!isOpen) return null;
 
@@ -54,25 +58,45 @@ export function DevNoteModal({ isOpen, onClose }: DevNoteModalProps) {
         <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-blue-500/5 blur-3xl pointer-events-none" />
 
         {/* Header - Fixed */}
-        <div className="p-6 md:p-8 border-b border-slate-100 flex items-start justify-between shrink-0">
-          <div>
-            <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full uppercase tracking-wider">
-              DATT History
-            </span>
-            <h3 className="text-2xl font-black text-slate-900 tracking-tight mt-3 flex items-center gap-2">
-              ⚓ DATT 개발자 노트
-            </h3>
-            <p className="text-xs font-semibold text-slate-450 mt-1.5 leading-relaxed">
-              더 나은 서비스를 만들기 위해, DATT 크루가 차곡차곡 쌓아 올린 릴리즈 히스토리입니다.
-            </p>
+        <div className="p-6 md:p-8 border-b border-slate-100 flex flex-col gap-5 shrink-0">
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="text-[10px] font-black text-indigo-600 bg-indigo-50 border border-indigo-100 px-3 py-1 rounded-full uppercase tracking-wider">
+                DATT History
+              </span>
+              <h3 className="text-2xl font-black text-slate-900 tracking-tight mt-3 flex items-center gap-2">
+                ⚓ DATT 개발자 노트
+              </h3>
+              <p className="text-xs font-semibold text-slate-450 mt-1.5 leading-relaxed">
+                더 나은 서비스를 만들기 위해, DATT 크루가 차곡차곡 쌓아 올린 릴리즈 히스토리입니다.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-slate-400 hover:text-slate-650 transition cursor-pointer p-1.5 rounded-xl hover:bg-slate-100/60"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-650 transition cursor-pointer p-1.5 rounded-xl hover:bg-slate-100/60"
-          >
-            <X className="w-5 h-5" />
-          </button>
+
+          {/* Version Selector Tabs */}
+          <div className="flex gap-2 border-t border-slate-50 pt-4">
+            {["v2.0.1", "v2.0.0", "v1.0.0"].map((version) => (
+              <button
+                key={version}
+                type="button"
+                onClick={() => setSelectedVersion(version)}
+                className={`px-5 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer ${
+                  selectedVersion === version
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/10 hover:bg-indigo-700"
+                    : "text-slate-500 hover:bg-indigo-50/50 hover:text-indigo-600 border border-transparent hover:border-indigo-100"
+                }`}
+              >
+                {version} {version === "v2.0.1" ? "(Latest)" : ""}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Scrollable Content */}
