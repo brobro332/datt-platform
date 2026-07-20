@@ -230,20 +230,20 @@ export default function MapPage() {
 
   return (
     <MainLayout requireAuth>
-      <section className="relative flex flex-col lg:flex-row gap-6 h-auto lg:h-[calc(100vh-170px)] min-h-0 lg:overflow-hidden w-full">
+      <section className="relative flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-170px)] min-h-[500px] lg:min-h-0 lg:overflow-hidden w-full">
         {/* Left Sidebar List */}
-        <section className={`transition-all duration-300 ease-in-out h-[400px] lg:h-full min-h-0 shrink-0 ${isSidebarOpen ? "w-full lg:w-[420px] opacity-100" : "w-0 lg:w-0 overflow-hidden opacity-0 pointer-events-none"}`}>
+        <section className={`transition-all duration-300 ease-in-out h-full min-h-0 shrink-0 ${isSidebarOpen ? "w-full lg:w-[420px] opacity-100" : "w-0 lg:w-0 overflow-hidden opacity-0 pointer-events-none"}`}>
           <div className="rounded-[2rem] border border-white/85 bg-white/60 backdrop-blur-xl p-6 shadow-[0_30px_100px_rgba(59,130,246,0.06)] flex flex-col gap-4 h-full min-h-0">
             <div>
-              <p className="text-xs font-black text-blue-600 uppercase tracking-widest flex items-center gap-1">
-                <MapPin className="w-3.5 h-3.5 text-blue-500" /> Location Search
+              <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-1">
+                <MapPin className="w-3 h-3 text-blue-500" /> Location Search
               </p>
 
-              <h1 className="mt-1 text-2xl sm:text-3xl font-black tracking-tight text-slate-900">
+              <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900">
                 위치탐색
               </h1>
               
-              <p className="mt-1.5 text-sm text-slate-500 font-semibold leading-relaxed">
+              <p className="mt-1.5 text-xs text-slate-500 font-semibold leading-relaxed">
                 현재 내 위치 주변의 트렌디한 핫플레이스를 실시간 지도로 탐색하세요. 마커를 누르면 상세 페이지로 연결됩니다.
               </p>
             </div>
@@ -255,11 +255,11 @@ export default function MapPage() {
                 placeholder="주소, 동명 또는 지하철역 검색..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 h-12 px-4 rounded-2xl border border-slate-200 bg-white/80 focus:bg-white text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition shadow-inner"
+                className="flex-1 h-11 px-4 rounded-2xl border border-slate-200 bg-white/80 focus:bg-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition shadow-inner"
               />
               <button
                 type="submit"
-                className="h-12 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-sm font-bold text-white shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer flex items-center justify-center shrink-0"
+                className="h-11 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer flex items-center justify-center shrink-0"
               >
                 검색
               </button>
@@ -269,16 +269,16 @@ export default function MapPage() {
               <button
                 type="button"
                 onClick={handleGoToMyLocation}
-                className="h-11 rounded-2xl border border-blue-200 bg-blue-50/70 px-4 text-sm font-bold text-blue-700 shadow-sm hover:bg-blue-100 transition active:scale-95 cursor-pointer flex items-center gap-1.5 shrink-0"
+                className="h-11 rounded-2xl border border-blue-200 bg-blue-50/70 px-4 text-xs font-bold text-blue-700 shadow-sm hover:bg-blue-100 transition active:scale-95 cursor-pointer flex items-center gap-1.5 shrink-0"
               >
-                <Navigation className="w-4 h-4 fill-blue-700 text-blue-700" /> 내 위치로
+                <Navigation className="w-3.5 h-3.5 fill-blue-700 text-blue-700" /> 내 위치로
               </button>
 
               <div className="flex h-11 items-center rounded-2xl bg-slate-100/60 p-1 border border-slate-200/50 backdrop-blur-sm shadow-inner shrink-0">
                 <button
                   type="button"
                   onClick={() => setSortBy("distance")}
-                  className={`rounded-xl px-3.5 h-full text-sm font-extrabold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
+                  className={`rounded-xl px-4 h-full text-xs font-bold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
                     sortBy === "distance"
                       ? "bg-white text-blue-600 shadow-md shadow-slate-200"
                       : "text-slate-500 hover:text-slate-800"
@@ -290,7 +290,7 @@ export default function MapPage() {
                 <button
                   type="button"
                   onClick={() => setSortBy("rating")}
-                  className={`rounded-xl px-3.5 h-full text-sm font-extrabold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
+                  className={`rounded-xl px-4 h-full text-xs font-bold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
                     sortBy === "rating"
                       ? "bg-white text-blue-600 shadow-md shadow-slate-200"
                       : "text-slate-500 hover:text-slate-800"
@@ -302,7 +302,7 @@ export default function MapPage() {
                 <button
                   type="button"
                   onClick={() => setSortBy("name")}
-                  className={`rounded-xl px-3.5 h-full text-sm font-extrabold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
+                  className={`rounded-xl px-4 h-full text-xs font-bold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
                     sortBy === "name"
                       ? "bg-white text-blue-600 shadow-md shadow-slate-200"
                       : "text-slate-500 hover:text-slate-800"
@@ -359,7 +359,7 @@ export default function MapPage() {
         </section>
 
         {/* Right Sticky Map */}
-        <section className="flex-1 h-[400px] sm:h-[450px] lg:h-full overflow-hidden rounded-[2rem] border border-white/85 shadow-[0_30px_80px_rgba(0,0,0,0.03)] relative min-w-0 shrink-0 lg:shrink">
+        <section className="flex-1 h-[450px] lg:h-full overflow-hidden rounded-[2rem] border border-white/85 shadow-[0_30px_80px_rgba(0,0,0,0.03)] relative min-w-0">
           <MapContainer
             places={places}
             selectedPlace={selectedPlace}
@@ -400,22 +400,22 @@ export default function MapPage() {
                 </button>
               </div>
 
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm font-semibold text-slate-500">
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-semibold text-slate-500">
                 <div className="space-y-1 bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">도로명주소</p>
-                  <p className="text-slate-800 font-black text-sm leading-normal truncate">{selectedPlace.rdnmAdr || "-"}</p>
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">도로명주소</p>
+                  <p className="text-slate-800 font-bold leading-normal truncate">{selectedPlace.rdnmAdr || "-"}</p>
                 </div>
 
                 <div className="space-y-1 bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">지번주소</p>
-                  <p className="text-slate-800 font-black text-sm leading-normal truncate">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">지번주소</p>
+                  <p className="text-slate-800 font-bold leading-normal truncate">
                     {selectedPlace.ctprvnNm} {selectedPlace.signguNm} {selectedPlace.adongNm}
                   </p>
                 </div>
 
                 <div className="space-y-1 bg-slate-50/50 p-3 rounded-xl border border-slate-100/50">
-                  <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">남은 거리</p>
-                  <p className="text-blue-600 font-black text-base">
+                  <p className="text-[10px] text-slate-400 uppercase tracking-wider">남은 거리</p>
+                  <p className="text-blue-600 font-black text-sm">
                     {formatDistance(
                       getDistanceMeter(
                         currentLat,
