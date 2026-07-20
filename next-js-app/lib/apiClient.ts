@@ -4,6 +4,7 @@ import axios, {
 } from "axios";
 
 import { env } from "@/lib/env";
+import { useAuthStore } from "@/stores/authStore";
 
 type CustomAxiosRequestConfig =
     InternalAxiosRequestConfig & {
@@ -36,9 +37,12 @@ const authClient = axios.create({
 
 let isRefreshing = false;
 
-let pendingRequests: Array<
-    (token: string) => void
-> = [];
+type PendingRequestCallback = {
+    resolve: (token: string) => void;
+    reject: (error: any) => void;
+};
+
+let pendingRequests: PendingRequestCallback[] = [];
 
 apiClient.interceptors.request.use((config) => {
     if (typeof window === "undefined") {
@@ -65,9 +69,12 @@ apiClient.interceptors.response.use(
                 | CustomAxiosRequestConfig
                 | undefined;
 
+        const status = error.response?.status;
+
+        // 401 Unauthorized 또는 403 Forbidden인 경우 토큰 재발급/초기화 대상
         if (
             !originalRequest ||
-            error.response?.status !== 401
+            (status !== 401 && status !== 403)
         ) {
             return Promise.reject(error);
         }
@@ -81,17 +88,17 @@ apiClient.interceptors.response.use(
         originalRequest._retry = true;
 
         if (isRefreshing) {
-            return new Promise((resolve) => {
-                pendingRequests.push(
-                    (token: string) => {
+            return new Promise((resolve, reject) => {
+                pendingRequests.push({
+                    resolve: (token: string) => {
                         originalRequest.headers.Authorization =
                             `Bearer ${token}`;
-
-                        resolve(
-                            apiClient(originalRequest),
-                        );
+                        resolve(apiClient(originalRequest));
                     },
-                );
+                    reject: (err: any) => {
+                        reject(err);
+                    },
+                });
             });
         }
 
@@ -104,6 +111,7 @@ apiClient.interceptors.response.use(
                 );
 
             if (!refreshToken) {
+                rejectPendingRequests(error);
                 clearAuthAndRedirect();
 
                 return Promise.reject(error);
@@ -124,11 +132,10 @@ apiClient.interceptors.response.use(
                 newAccessToken,
             );
 
-            pendingRequests.forEach(
-                (callback) =>
-                    callback(newAccessToken),
+            // 대기 중인 모든 요청 성공 처리
+            pendingRequests.forEach((cb) =>
+                cb.resolve(newAccessToken),
             );
-
             pendingRequests = [];
 
             originalRequest.headers.Authorization =
@@ -136,6 +143,7 @@ apiClient.interceptors.response.use(
 
             return apiClient(originalRequest);
         } catch (reissueError) {
+            rejectPendingRequests(reissueError);
             clearAuthAndRedirect();
 
             return Promise.reject(reissueError);
@@ -145,6 +153,11 @@ apiClient.interceptors.response.use(
     },
 );
 
+function rejectPendingRequests(error: any) {
+    pendingRequests.forEach((cb) => cb.reject(error));
+    pendingRequests = [];
+}
+
 function clearAuthAndRedirect() {
     if (typeof window === "undefined") {
         return;
@@ -153,6 +166,12 @@ function clearAuthAndRedirect() {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("member");
+
+    try {
+        useAuthStore.getState().logout();
+    } catch {
+        // ignore if store not initialized
+    }
 
     window.location.href = "/login";
 }

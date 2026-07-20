@@ -230,9 +230,9 @@ export default function MapPage() {
 
   return (
     <MainLayout requireAuth>
-      <section className="relative flex flex-col lg:flex-row gap-6 lg:h-[calc(100vh-170px)] min-h-[500px] lg:min-h-0 overflow-hidden w-full">
+      <section className="relative flex flex-col lg:flex-row gap-6 h-auto lg:h-[calc(100vh-170px)] min-h-0 lg:overflow-hidden w-full">
         {/* Left Sidebar List */}
-        <section className={`transition-all duration-300 ease-in-out h-full min-h-0 shrink-0 ${isSidebarOpen ? "w-full lg:w-[420px] opacity-100" : "w-0 lg:w-0 overflow-hidden opacity-0 pointer-events-none"}`}>
+        <section className={`transition-all duration-300 ease-in-out h-[400px] lg:h-full min-h-0 shrink-0 ${isSidebarOpen ? "w-full lg:w-[420px] opacity-100" : "w-0 lg:w-0 overflow-hidden opacity-0 pointer-events-none"}`}>
           <div className="rounded-[2rem] border border-white/85 bg-white/60 backdrop-blur-xl p-6 shadow-[0_30px_100px_rgba(59,130,246,0.06)] flex flex-col gap-4 h-full min-h-0">
             <div>
               <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-1">
@@ -359,7 +359,7 @@ export default function MapPage() {
         </section>
 
         {/* Right Sticky Map */}
-        <section className="flex-1 h-[450px] lg:h-full overflow-hidden rounded-[2rem] border border-white/85 shadow-[0_30px_80px_rgba(0,0,0,0.03)] relative min-w-0">
+        <section className="flex-1 h-[400px] sm:h-[450px] lg:h-full overflow-hidden rounded-[2rem] border border-white/85 shadow-[0_30px_80px_rgba(0,0,0,0.03)] relative min-w-0 shrink-0 lg:shrink">
           <MapContainer
             places={places}
             selectedPlace={selectedPlace}

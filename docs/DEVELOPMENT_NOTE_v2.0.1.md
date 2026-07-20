@@ -77,12 +77,18 @@
         * `PlaceReviewResponse` 및 `AnchorSummaryResponse`/`AnchorDetailResponse` DTO에 작성자 대표 칭호명(`memberTitleName`/`creatorTitleName`)과 작성자 닉네임을 추가하고, 각 서비스 레이어에서 `MemberTitleRepository`를 조회해 칭호 정보를 실어주도록 비즈니스 보강.
         * 프론트엔드 마이리뷰 페이지(`/my/reviews/page.tsx`)에서 기존 프로필에 딸려있던 최근 3개 리뷰 임시 노출 대신, 신규 마이리뷰 페이징 API를 활용해 전체 리뷰 리스트와 페이지네이션 컨트롤러를 적용.
         * 리뷰 카드 UI(`ReviewCard.tsx`) 및 피드 닻 카드 UI(`app/anchors/page.tsx`)에서 닉네임 옆에 작성자의 대표 장착 칭호를 뱃지 형식으로 선명하게 노출되도록 마크업 확장.
-* `0d9124a` (예정) - **저장한 장소 보관함 폴더 공유 기능 추가**
+* `0d9124a` - **저장한 장소 보관함 폴더 공유 기능 추가**
     * **작업 내용**:
         * 사용자가 스크랩한 장소들을 폴더별로 외부 공유할 수 있는 공유 시스템 구축.
         * 백엔드(BookmarkFolderController, BookmarkFolderService, PlaceBookmarkRepository, PublicBookmarkFolderResponse)에 비로그인 사용자도 조회할 수 있는 폴더 및 북마크 조회 공개 API(GET `/api/bookmarks/folders/{folderId}/public`) 설계 및 Security Config 접근 권한 허용(permitAll) 적용.
         * 프론트엔드에 공유된 폴더의 북마크 리스트를 비로그인 상태로 볼 수 있는 공유 전용 페이지(`/bookmarks/[folderId]/page.tsx`)를 신설.
         * 내 보관함 페이지(`/my/bookmarks/page.tsx`)에서 특정 폴더 선택 시 작동하는 "공유" 액션 모달을 탑재하여 카카오톡 공유하기 및 공유용 링크 복사 기능 구현.
+* `2ce396f` - **무효 토큰 프론트엔드 에러 핸들링 보강, 위치탐색 모바일 레이아웃 및 광고 높이 최적화**
+    * **작업 내용**:
+        * 프론트엔드 `apiClient.ts`의 Axios response interceptor를 개편하여 401/403 무효 토큰 발생 시 토큰 재발급(Reissue) 실패 대기 큐(`pendingRequests`)의 콜백을 `reject` 처리하도록 보완하여 API 무한 대기(pending) 현상을 차단.
+        * Reissue 실패 시 `useAuthStore.getState().logout()`을 호출하여 Zustand 메모리 전역 상태와 LocalStorage 토큰을 완전히 동기화 초기화하고 로그인 페이지로 안전하게 유도.
+        * 위치탐색 화면(`/map`)의 모바일 반응형 레이아웃을 수정하여(`h-auto lg:h-[calc(100vh-170px)]`, 사이드바/지도 높이 개별 부여) 모바일 화면에서 지도가 아래로 밀려 짤리는 현상 해결.
+        * 광고 사이드바 컴포넌트(`AdBannerCard.tsx`, `MainLayout.tsx`)의 고정 높이를 `500px`에서 `540px`로 소폭 상향 조정.
 
 ## 🔍 핵심 챌린지 해결 사례 (Troubleshooting)
 
