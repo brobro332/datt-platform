@@ -17,7 +17,7 @@ import { PlaceListItem } from "@/components/place-search/PlaceListItem";
 
 import { useNearbyPlaces } from "@/hooks/useNearbyPlaces";
 import { PlaceFilterChips } from "@/components/place-search/PlaceFilterChips";
-import { Navigation, X, MapPin } from "lucide-react";
+import { Navigation, X, MapPin, List, Map as MapIcon } from "lucide-react";
 
 import type {
   PlaceSearchResponse,
@@ -44,6 +44,7 @@ export default function MapPage() {
   const [sortBy, setSortBy] = useState<"distance" | "rating" | "name">("distance");
   const [selectedFilter, setSelectedFilter] = useState<string>("전체");
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [mobileTab, setMobileTab] = useState<"map" | "list">("map");
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -230,136 +231,179 @@ export default function MapPage() {
 
   return (
     <MainLayout requireAuth>
-      <section className="relative flex flex-col lg:flex-row gap-6 h-auto lg:h-[calc(100vh-170px)] min-h-0 lg:overflow-hidden w-full">
-        {/* Left Sidebar List */}
-        <section className={`transition-all duration-300 ease-in-out h-[400px] lg:h-full min-h-0 shrink-0 ${isSidebarOpen ? "w-full lg:w-[420px] opacity-100" : "w-0 lg:w-0 overflow-hidden opacity-0 pointer-events-none"}`}>
-          <div className="rounded-[2rem] border border-white/85 bg-white/60 backdrop-blur-xl p-6 shadow-[0_30px_100px_rgba(59,130,246,0.06)] flex flex-col gap-4 h-full min-h-0">
-            <div>
-              <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-1">
-                <MapPin className="w-3 h-3 text-blue-500" /> Location Search
-              </p>
+      <div className="flex flex-col gap-3 w-full">
+        {/* Mobile View Switcher Tab (Visible only on mobile screens < lg) */}
+        <div className="flex lg:hidden items-center justify-between bg-white/80 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/60 shadow-sm w-full">
+          <button
+            type="button"
+            onClick={() => setMobileTab("map")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-black transition-all duration-300 cursor-pointer ${
+              mobileTab === "map"
+                ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            <MapIcon className="w-4 h-4" />
+            지도로 보기
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileTab("list")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-black transition-all duration-300 cursor-pointer ${
+              mobileTab === "list"
+                ? "bg-blue-600 text-white shadow-md shadow-blue-500/20"
+                : "text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            <List className="w-4 h-4" />
+            목록으로 보기 ({places.length})
+          </button>
+        </div>
 
-              <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900">
-                위치탐색
-              </h1>
-              
-              <p className="mt-1.5 text-xs text-slate-500 font-semibold leading-relaxed">
-                현재 내 위치 주변의 트렌디한 핫플레이스를 실시간 지도로 탐색하세요. 마커를 누르면 상세 페이지로 연결됩니다.
-              </p>
-            </div>
+        <section className="relative flex flex-col lg:flex-row gap-6 h-auto lg:h-[calc(100vh-170px)] min-h-0 lg:overflow-hidden w-full">
+          {/* Left Sidebar List */}
+          <section
+            className={`transition-all duration-300 ease-in-out min-h-0 shrink-0 ${
+              isSidebarOpen ? "w-full lg:w-[420px] opacity-100" : "w-0 lg:w-0 overflow-hidden opacity-0 pointer-events-none"
+            } ${
+              mobileTab === "list"
+                ? "block h-[calc(100vh-230px)] min-h-[480px]"
+                : "hidden lg:block lg:h-full"
+            }`}
+          >
+            <div className="rounded-[2rem] border border-white/85 bg-white/60 backdrop-blur-xl p-6 shadow-[0_30px_100px_rgba(59,130,246,0.06)] flex flex-col gap-4 h-full min-h-0">
+              <div>
+                <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-1">
+                  <MapPin className="w-3 h-3 text-blue-500" /> Location Search
+                </p>
 
-            {/* Search Input Form */}
-            <form onSubmit={handleSearch} className="relative flex gap-2 pt-2 border-t border-slate-100/70">
-              <input
-                type="text"
-                placeholder="주소, 동명 또는 지하철역 검색..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 h-11 px-4 rounded-2xl border border-slate-200 bg-white/80 focus:bg-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition shadow-inner"
-              />
-              <button
-                type="submit"
-                className="h-11 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer flex items-center justify-center shrink-0"
-              >
-                검색
-              </button>
-            </form>
-
-            <div className="flex items-center justify-between gap-2 border-t border-slate-100/70 pt-3">
-              <button
-                type="button"
-                onClick={handleGoToMyLocation}
-                className="h-11 rounded-2xl border border-blue-200 bg-blue-50/70 px-4 text-xs font-bold text-blue-700 shadow-sm hover:bg-blue-100 transition active:scale-95 cursor-pointer flex items-center gap-1.5 shrink-0"
-              >
-                <Navigation className="w-3.5 h-3.5 fill-blue-700 text-blue-700" /> 내 위치로
-              </button>
-
-              <div className="flex h-11 items-center rounded-2xl bg-slate-100/60 p-1 border border-slate-200/50 backdrop-blur-sm shadow-inner shrink-0">
-                <button
-                  type="button"
-                  onClick={() => setSortBy("distance")}
-                  className={`rounded-xl px-4 h-full text-xs font-bold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
-                    sortBy === "distance"
-                      ? "bg-white text-blue-600 shadow-md shadow-slate-200"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  거리순
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSortBy("rating")}
-                  className={`rounded-xl px-4 h-full text-xs font-bold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
-                    sortBy === "rating"
-                      ? "bg-white text-blue-600 shadow-md shadow-slate-200"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  평점순
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSortBy("name")}
-                  className={`rounded-xl px-4 h-full text-xs font-bold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
-                    sortBy === "name"
-                      ? "bg-white text-blue-600 shadow-md shadow-slate-200"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  이름순
-                </button>
+                <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900">
+                  위치탐색
+                </h1>
+                
+                <p className="mt-1.5 text-xs text-slate-500 font-semibold leading-relaxed">
+                  현재 내 위치 주변의 트렌디한 핫플레이스를 실시간 지도로 탐색하세요. 마커를 누르면 상세 페이지로 연결됩니다.
+                </p>
               </div>
-            </div>
 
-            <div className="mt-1 shrink-0">
-              <PlaceFilterChips
-                selectedFilter={selectedFilter}
-                onSelectFilter={setSelectedFilter}
-              />
-            </div>
+              {/* Search Input Form */}
+              <form onSubmit={handleSearch} className="relative flex gap-2 pt-2 border-t border-slate-100/70">
+                <input
+                  type="text"
+                  placeholder="주소, 동명 또는 지하철역 검색..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 h-11 px-4 rounded-2xl border border-slate-200 bg-white/80 focus:bg-white text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition shadow-inner"
+                />
+                <button
+                  type="submit"
+                  className="h-11 px-5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-xs font-bold text-white shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 cursor-pointer flex items-center justify-center shrink-0"
+                >
+                  검색
+                </button>
+              </form>
 
-            {isLoading && (
-              <LoadingState message="주변 장소를 불러오는 중입니다..." />
-            )}
+              <div className="flex items-center justify-between gap-2 border-t border-slate-100/70 pt-3">
+                <button
+                  type="button"
+                  onClick={handleGoToMyLocation}
+                  className="h-11 rounded-2xl border border-blue-200 bg-blue-50/70 px-4 text-xs font-bold text-blue-700 shadow-sm hover:bg-blue-100 transition active:scale-95 cursor-pointer flex items-center gap-1.5 shrink-0"
+                >
+                  <Navigation className="w-3.5 h-3.5 fill-blue-700 text-blue-700" /> 내 위치로
+                </button>
 
-            {isError && (
-              <ErrorState
-                title="주변 장소 조회 실패"
-                message="주변 장소 정보를 불러오지 못했습니다."
-              />
-            )}
+                <div className="flex h-11 items-center rounded-2xl bg-slate-100/60 p-1 border border-slate-200/50 backdrop-blur-sm shadow-inner shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setSortBy("distance")}
+                    className={`rounded-xl px-4 h-full text-xs font-bold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
+                      sortBy === "distance"
+                        ? "bg-white text-blue-600 shadow-md shadow-slate-200"
+                        : "text-slate-500 hover:text-slate-800"
+                    }`}
+                  >
+                    거리순
+                  </button>
 
-            {!isLoading &&
-              !isError &&
-              places.length === 0 && (
-                <div className="rounded-[2rem] border border-slate-200/50 bg-white p-8 text-center shadow-sm">
-                  <p className="text-sm font-semibold text-slate-500">
-                    주변 장소가 없습니다.
-                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setSortBy("rating")}
+                    className={`rounded-xl px-4 h-full text-xs font-bold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
+                      sortBy === "rating"
+                        ? "bg-white text-blue-600 shadow-md shadow-slate-200"
+                        : "text-slate-500 hover:text-slate-800"
+                    }`}
+                  >
+                    평점순
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setSortBy("name")}
+                    className={`rounded-xl px-4 h-full text-xs font-bold transition-all duration-300 cursor-pointer active:scale-95 flex items-center justify-center ${
+                      sortBy === "name"
+                        ? "bg-white text-blue-600 shadow-md shadow-slate-200"
+                        : "text-slate-500 hover:text-slate-800"
+                    }`}
+                  >
+                    이름순
+                  </button>
                 </div>
+              </div>
+
+              <div className="mt-1 shrink-0">
+                <PlaceFilterChips
+                  selectedFilter={selectedFilter}
+                  onSelectFilter={setSelectedFilter}
+                />
+              </div>
+
+              {isLoading && (
+                <LoadingState message="주변 장소를 불러오는 중입니다..." />
               )}
 
-            {!isLoading &&
-              !isError &&
-              places.length > 0 && (
-                <ul className="flex-1 overflow-y-auto overflow-x-hidden rounded-[2rem] p-1.5 space-y-3 pr-1">
-                  {places.map((place) => (
-                    <PlaceListItem
-                      key={place.id}
-                      place={place}
-                      isSelected={selectedPlace?.id === place.id}
-                      onClick={() => setSelectedPlace(place)}
-                    />
-                  ))}
-                </ul>
+              {isError && (
+                <ErrorState
+                  title="주변 장소 조회 실패"
+                  message="주변 장소 정보를 불러오지 못했습니다."
+                />
               )}
-          </div>
-        </section>
 
-        {/* Right Sticky Map */}
-        <section className="flex-1 h-[400px] sm:h-[450px] lg:h-full overflow-hidden rounded-[2rem] border border-white/85 shadow-[0_30px_80px_rgba(0,0,0,0.03)] relative min-w-0 shrink-0 lg:shrink">
+              {!isLoading &&
+                !isError &&
+                places.length === 0 && (
+                  <div className="rounded-[2rem] border border-slate-200/50 bg-white p-8 text-center shadow-sm">
+                    <p className="text-sm font-semibold text-slate-500">
+                      주변 장소가 없습니다.
+                    </p>
+                  </div>
+                )}
+
+              {!isLoading &&
+                !isError &&
+                places.length > 0 && (
+                  <ul className="flex-1 overflow-y-auto overflow-x-hidden rounded-[2rem] p-1.5 space-y-3 pr-1">
+                    {places.map((place) => (
+                      <PlaceListItem
+                        key={place.id}
+                        place={place}
+                        isSelected={selectedPlace?.id === place.id}
+                        onClick={() => setSelectedPlace(place)}
+                      />
+                    ))}
+                  </ul>
+                )}
+            </div>
+          </section>
+
+          {/* Right Sticky Map */}
+          <section
+            className={`flex-1 overflow-hidden rounded-[2rem] border border-white/85 shadow-[0_30px_80px_rgba(0,0,0,0.03)] relative min-w-0 ${
+              mobileTab === "map"
+                ? "block h-[calc(100vh-230px)] min-h-[480px] w-full"
+                : "hidden lg:block lg:h-full"
+            }`}
+          >
           <MapContainer
             places={places}
             selectedPlace={selectedPlace}
@@ -431,6 +475,7 @@ export default function MapPage() {
           )}
         </section>
       </section>
+    </div>
     </MainLayout>
   );
 }
