@@ -66,23 +66,23 @@ export function PlaceListItem({
                 const cat = place.category || getCategoryFromText(place.indsMclsNm, "");
                 return <CategoryBadge category={cat as PlaceCategory} />;
               })()}
-              <span className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-455">
+              <span className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-0.5 text-xs font-bold text-slate-500">
                 {place.indsMclsNm}
               </span>
 
-              <span className="text-xs font-semibold text-slate-400">
+              <span className="text-sm font-semibold text-slate-500">
                 {place.ctprvnNm} {place.signguNm} {place.adongNm}
               </span>
 
               {place.reviewCount > 0 && (
-                <span className="text-[10px] font-black text-amber-700 bg-amber-50/60 border border-amber-100/35 px-2 py-0.5 rounded-lg flex items-center gap-0.5">
-                  <Star className="w-3 h-3 fill-amber-500 text-amber-500" /> {place.averageRating.toFixed(1)} ({place.reviewCount})
+                <span className="text-xs font-black text-amber-700 bg-amber-50/60 border border-amber-100/35 px-2 py-0.5 rounded-lg flex items-center gap-0.5">
+                  <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" /> {place.averageRating.toFixed(1)} ({place.reviewCount})
                 </span>
               )}
 
               {distance !== null && (
-                <span className="text-[10px] font-black text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-lg flex items-center gap-0.5">
-                  <Compass className="w-3 h-3 text-indigo-500 shrink-0" /> {distance.toFixed(2)}km
+                <span className="text-xs font-black text-indigo-700 bg-indigo-50 border border-indigo-100 px-2 py-0.5 rounded-lg flex items-center gap-0.5">
+                  <Compass className="w-3.5 h-3.5 text-indigo-500 shrink-0" /> {distance.toFixed(2)}km
                 </span>
               )}
             </div>
@@ -90,14 +90,14 @@ export function PlaceListItem({
             <h3 className="truncate text-lg font-black text-slate-900 leading-tight">
               {place.bizesNm}
               {place.brchNm && (
-                <span className="ml-1.5 text-xs font-semibold text-slate-455">
+                <span className="ml-1.5 text-sm font-semibold text-slate-500">
                   {place.brchNm}
                 </span>
               )}
             </h3>
 
-            <p className="mt-1.5 truncate text-xs font-semibold text-slate-450 flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-slate-400 shrink-0" /> {place.rdnmAdr || "주소 정보 없음"}
+            <p className="mt-1.5 truncate text-sm font-semibold text-slate-500 flex items-center gap-1">
+              <MapPin className="w-4 h-4 text-slate-400 shrink-0" /> {place.rdnmAdr || "주소 정보 없음"}
             </p>
           </div>
         </div>
