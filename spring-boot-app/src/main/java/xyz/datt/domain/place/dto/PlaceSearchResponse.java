@@ -76,4 +76,23 @@ public record PlaceSearchResponse(
             null
         );
     }
+
+    public static PlaceSearchResponse from(xyz.datt.domain.place.entity.PlaceDocument doc) {
+        return new PlaceSearchResponse(
+            Long.valueOf(doc.getId()),
+            doc.getBizesNm(),
+            null,
+            null,
+            doc.getIndsMclsNm(),
+            doc.getCtprvnNm(),
+            doc.getSignguNm(),
+            null,
+            doc.getRdnmAdr(),
+            doc.getLon(),
+            doc.getLat(),
+            0.0,
+            0L,
+            null
+        );
+    }
 }

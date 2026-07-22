@@ -5,15 +5,11 @@ import path from "path";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const version = searchParams.get("version") || "v2.0.1";
+    const version = searchParams.get("version") || "v2.0.2";
     
-    let fileName = "DEVELOPMENT_NOTE_v2.0.1.md";
-    if (version === "v1.0.0") {
-      fileName = "DEVELOPMENT_NOTE_v1.0.0.md";
-    } else if (version === "v2.0.0") {
-      fileName = "DEVELOPMENT_NOTE_v2.0.0.md";
-    } else if (version === "v2.0.1") {
-      fileName = "DEVELOPMENT_NOTE_v2.0.1.md";
+    const fileName = `DEVELOPMENT_NOTE_${version}.md`;
+    if (!/^[a-zA-Z0-9_.-]+$/.test(fileName)) {
+      return NextResponse.json({ error: "Invalid version format" }, { status: 400 });
     }
     
     let filePath = `/docs/${fileName}`;

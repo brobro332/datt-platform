@@ -37,6 +37,8 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'
 	implementation 'org.springframework.boot:spring-boot-starter-batch'
     implementation 'io.github.openfeign.querydsl:querydsl-jpa:7.0'
+	implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+	implementation 'org.springframework.boot:spring-boot-starter-kafka'
 
 	// OCI SDK
 	implementation 'com.oracle.oci.sdk:oci-java-sdk-objectstorage:3.32.0'

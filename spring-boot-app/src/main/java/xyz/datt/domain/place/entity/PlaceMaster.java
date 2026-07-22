@@ -2,6 +2,7 @@ package xyz.datt.domain.place.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,6 +25,7 @@ import xyz.datt.global.entity.BaseEntity;
         @Index(name = "idx_place_master_category", columnList = "inds_lcls_nm")
     }
 )
+@EntityListeners(PlaceMasterEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PlaceMaster extends BaseEntity {
     @Id

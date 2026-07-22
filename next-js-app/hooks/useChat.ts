@@ -62,17 +62,6 @@ export function useChat({ roomId, userId, senderNickname }: UseChatProps) {
                         return [...prev, receivedMessage];
                     });
                 });
-
-                // 입장 메시지 전송
-                client.publish({
-                    destination: "/pub/chat/message",
-                    body: JSON.stringify({
-                        roomId,
-                        sender: senderNickname,
-                        type: "ENTER",
-                        message: `${senderNickname}님이 입장하셨습니다.`,
-                    }),
-                });
             },
             onDisconnect: () => {
                 setIsConnected(false);
@@ -89,18 +78,6 @@ export function useChat({ roomId, userId, senderNickname }: UseChatProps) {
 
         return () => {
             if (clientRef.current) {
-                // 퇴장 메시지 전송 시도 후 비활성화
-                if (clientRef.current.connected) {
-                    clientRef.current.publish({
-                        destination: "/pub/chat/message",
-                        body: JSON.stringify({
-                            roomId,
-                            sender: senderNickname,
-                            type: "LEAVE",
-                            message: `${senderNickname}님이 퇴장하셨습니다.`,
-                        }),
-                    });
-                }
                 clientRef.current.deactivate();
                 console.log("STOMP Deactivated");
             }

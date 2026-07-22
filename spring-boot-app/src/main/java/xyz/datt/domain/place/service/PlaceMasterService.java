@@ -16,6 +16,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class PlaceMasterService {
     private final PlaceMasterRepository placeMasterRepository;
+    private final PlaceSearchService placeSearchService;
 
     public Slice<PlaceMasterSearchResponse> searchPlaceMasters(
         String province,
@@ -29,6 +30,11 @@ public class PlaceMasterService {
         condition.setSignguNm(district != null && !district.isBlank() ? district : null);
         condition.setKeyword(keyword != null && !keyword.isBlank() ? keyword : null);
         condition.setCategory(category != null && !category.isBlank() ? category : null);
+
+        if (condition.getKeyword() != null && !condition.getKeyword().isBlank()) {
+            return placeSearchService.searchPlaces(condition, pageable)
+                .map(PlaceMasterSearchResponse::fromSearchResponse);
+        }
 
         return placeMasterRepository.searchPlaceMasters(condition, pageable)
             .map(PlaceMasterSearchResponse::from);

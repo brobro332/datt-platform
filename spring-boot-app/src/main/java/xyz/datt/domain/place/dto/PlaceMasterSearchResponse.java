@@ -40,4 +40,23 @@ public record PlaceMasterSearchResponse(
                 : "OTHER"
         );
     }
+
+    public static PlaceMasterSearchResponse fromSearchResponse(PlaceSearchResponse res) {
+        return new PlaceMasterSearchResponse(
+            res.id(),
+            null,
+            res.bizesNm(),
+            res.brchNm(),
+            null,
+            res.indsMclsNm(),
+            null,
+            res.ctprvnNm(),
+            res.signguNm(),
+            res.rdnmAdr(),
+            null,
+            res.lon(),
+            res.lat(),
+            res.category()
+        );
+    }
 }

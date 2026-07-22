@@ -1,0 +1,28 @@
+{
+  "index": {
+    "analysis": {
+      "analyzer": {
+        "korean_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer",
+          "decompound_mode": "mixed"
+        },
+        "ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "ngram_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "ngram_tokenizer": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 3,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      }
+    }
+  }
+}

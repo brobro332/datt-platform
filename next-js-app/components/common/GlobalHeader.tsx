@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import { Anchor, Search, MapPin, Compass, User, LogOut, Shield } from "lucide-react";
+import { Anchor, Search, MapPin, Compass, User, LogOut, Shield, Layout } from "lucide-react";
 
 import { logout as logoutRequest } from "@/services/authService";
 import { useAuthStore } from "@/stores/authStore";
@@ -27,6 +27,11 @@ const navigationItems = [
     href: "/anchors",
     label: "피드",
     icon: Compass,
+  },
+  {
+    href: "/workspaces",
+    label: "워크스페이스",
+    icon: Layout,
   },
 ];
 

@@ -13,11 +13,11 @@ export function DevNoteModal({ isOpen, onClose }: DevNoteModalProps) {
   const [content, setContent] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
-  const [selectedVersion, setSelectedVersion] = useState<string>("v2.0.1");
+  const [selectedVersion, setSelectedVersion] = useState<string>("v2.0.2");
 
   useEffect(() => {
     if (!isOpen) {
-      setSelectedVersion("v2.0.1");
+      setSelectedVersion("v2.0.2");
       return;
     }
 
@@ -82,7 +82,7 @@ export function DevNoteModal({ isOpen, onClose }: DevNoteModalProps) {
 
           {/* Version Selector Tabs */}
           <div className="flex gap-2 border-t border-slate-50 pt-4">
-            {["v2.0.1", "v2.0.0", "v1.0.0"].map((version) => (
+            {["v2.0.2", "v2.0.1", "v2.0.0", "v1.0.0"].map((version) => (
               <button
                 key={version}
                 type="button"
@@ -93,7 +93,7 @@ export function DevNoteModal({ isOpen, onClose }: DevNoteModalProps) {
                     : "text-slate-500 hover:bg-indigo-50/50 hover:text-indigo-600 border border-transparent hover:border-indigo-100"
                 }`}
               >
-                {version} {version === "v2.0.1" ? "(Latest)" : ""}
+                {version} {version === "v2.0.2" ? "(Latest)" : ""}
               </button>
             ))}
           </div>
