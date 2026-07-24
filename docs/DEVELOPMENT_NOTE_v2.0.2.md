@@ -5,12 +5,12 @@
 `main` 브랜치에 누적된 v2.0.2 개발 역사는 **워크스페이스 개념 도입 및 친구 초대 기반 실시간 채팅 시스템 구축**을 통해 사용자 간의 그룹 협업 및 실시간 소통 기능을 플랫폼에 확보하는 마일스톤을 다룹니다.
 
 ### 📅 2026-07-22: 워크스페이스(Workspace) 개설, 초대 코드 기반 참가 및 Slack 스타일 다중 사이드바 대시보드 UI 개발
-* `1c190b6` - **실시간 채팅 및 워크스페이스 통합 인프라 구성 및 Nginx 프록시 라우팅 추가**
+* `caa45c7` - **실시간 채팅 및 워크스페이스 통합 인프라 구성 및 Nginx 프록시 라우팅 추가**
     * **작업 내용**: 
         * `datt-platform`의 `docker-compose.yml`에 실시간 메시징을 위한 `wave-redis`, `wave-kafka` 및 `wave-messaging-service`(Arm64 OCI VM용 호환 이미지 `eclipse-temurin:17-jre`로 구성) 컨테이너 선언 추가.
         * Nginx 설정(`default.conf`)에 `/api/chat/*` 및 WebSocket 프로토콜 업그레이드를 지원하는 `/ws-stomp` 리버스 프록시 포워딩 경로 추가. (301 리다이렉션으로 인한 웹소켓 핸드셰이크 실패 오류를 막기 위해 `/ws-stomp` 트레일링 슬래시도 함께 제거)
         * **[추가 수정]** Nginx `/api/workspaces` 블록에 리라이트(`rewrite`) 규칙을 내장하여, 브라우저가 캐싱한 이전 301 트레일링 슬래시(`/`) 요청을 백엔드 진입 전 제거함으로써 404 매칭 실패 문제 완전 해결.
-* `1c190b6` - **Next.js 프론트엔드 워크스페이스 대시보드 UI 개발 및 DATT 디자인 시스템 테마 통합**
+* `caa45c7` - **Next.js 프론트엔드 워크스페이스 대시보드 UI 개발 및 DATT 디자인 시스템 테마 통합**
     * **작업 내용**:
         * `@stomp/stompjs` 패키지를 도입하고, STOMP 프로토콜을 사용해 실시간 메시지 발신 및 수신(구독)을 통합 관리하는 커스텀 훅 `useChat.ts` 구현.
         * `chatService.ts`를 신설 및 업데이트하여 워크스페이스 개설, 조회, 초대코드 가입, 채팅방 생성, 참가, 읽음 처리, 목록 조회, 과거 메시지 복원 REST API 연동 기능 탑재.
@@ -36,6 +36,8 @@
         * **[개발자 노트 UI 버전 드롭다운 v2.0.2 추가 및 API 동적 라우팅]** Next.js의 개발자 노트 모달(`DevNoteModal.tsx`)에 `v2.0.2` 선택 버튼 및 Latest 표식을 추가하고, `/next-api/dev-note/route.ts` API 분기문을 하드코딩이 아닌 동적 파일 리딩 방식으로 교체하여 신규 개발자 노트가 UI상에 무중단으로 정상 렌더링되도록 구현.
         * **[JPA 페이징 기법을 통한 Elasticsearch OOM 방지 마이그레이션]** 백엔드 기동 완료 시점에 대량의 매장 데이터를 메모리에 한 번에 올리다(`findAll()`) 마이그레이션이 실패하며 `places` 인덱스 자체가 개설되지 못하던 오류를 교정하고자, 1,000건 단위 분할 마이그레이션(PageRequest.of(i, 1000))을 도입해 메모리 안전성 및 무손실 동기화 기동 체계를 완성.
         * **[Elasticsearch 자바 설정 커스텀 헤더 바인딩을 통한 Accept Header 충돌 해결]** 최신 Java Client 9.2.5 라이브러리와 Elasticsearch 8.x 서버 간의 Accept Header compatible-with=9 미디어 타입 미인식 충돌로 인한 `media_type_header_exception` 에러를 완벽히 소멸시키고자, `MyElasticsearchConfig.java` 클래스를 두 백엔드에 각각 신설하여 호환성 헤더 전송을 비활성화하고 `application/json` 고정 헤더를 주입해 통신 정합성을 원천 해결함.
+        * **[settings.json 분석기 설정 오류 교정]** CustomAnalyzer 하위에 잘못 정의되어 `JsonpMappingException (Unknown field 'decompound_mode')`을 유발하던 `decompound_mode` 설정을 `custom_nori_tokenizer` 토크나이저 정의 하위로 올바르게 재배치하여, 기동 시 places 인덱스가 정상 개설되지 못하던 기동 실패 문제를 완벽 교정함.
+
 
 
 
