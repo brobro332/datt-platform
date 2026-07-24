@@ -25,4 +25,12 @@ public class PlaceSearchController {
 
         return ApiResponse.success(response);
     }
+
+    @org.springframework.web.bind.annotation.PostMapping("/api/places/migrate")
+    public ApiResponse<String> migratePlaces(
+        @org.springframework.web.bind.annotation.RequestParam(name = "limit", defaultValue = "20000") int limit
+    ) {
+        long count = placeSearchService.migratePlaces(limit);
+        return ApiResponse.success("Successfully migrated " + count + " places to Elasticsearch.");
+    }
 }

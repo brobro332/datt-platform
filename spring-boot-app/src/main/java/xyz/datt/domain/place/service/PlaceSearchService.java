@@ -23,6 +23,7 @@ import java.util.List;
 public class PlaceSearchService {
     private final PlaceMasterRepository placeMasterRepository;
     private final ElasticsearchOperations elasticsearchOperations;
+    private final xyz.datt.domain.place.repository.PlaceElasticsearchRepository placeElasticsearchRepository;
 
     private List<String> expandKeywords(String keyword) {
         List<String> keywords = new java.util.ArrayList<>();
@@ -70,11 +71,11 @@ public class PlaceSearchService {
 
                 Criteria criteria = null;
                 for (String term : searchTerms) {
-                    Criteria termCriteria = new Criteria("bizesNm").is(term)
-                            .or(new Criteria("bizesNm.ngram").is(term))
-                            .or(new Criteria("indsSclsNm").is(term))
-                            .or(new Criteria("indsSclsNm.ngram").is(term))
-                            .or(new Criteria("rdnmAdr").is(term));
+                    Criteria termCriteria = new Criteria("bizesNm").is(term).boost(10.0f)
+                            .or(new Criteria("bizesNm.ngram").is(term).boost(0.1f))
+                            .or(new Criteria("indsSclsNm").is(term).boost(5.0f))
+                            .or(new Criteria("indsSclsNm.ngram").is(term).boost(0.05f))
+                            .or(new Criteria("rdnmAdr").is(term).boost(1.0f));
                     
                     if (criteria == null) {
                         criteria = termCriteria;
@@ -106,5 +107,28 @@ public class PlaceSearchService {
         log.info("Searching places using PostgreSQL RDBMS: keyword={}, ctprvn={}, signgu={}",
                 condition.getKeyword(), condition.getCtprvnNm(), condition.getSignguNm());
         return placeMasterRepository.searchPlaces(condition, pageable);
+     }
+
+    public long migratePlaces(int limit) {
+        log.info("Starting manual place migration up to limit={}", limit);
+        long totalCount = placeMasterRepository.count();
+        int pageSize = 1000;
+        int targetCount = Math.min(limit, (int) totalCount);
+        int totalPages = (int) Math.ceil((double) targetCount / pageSize);
+
+        long migratedCount = 0;
+        for (int i = 0; i < totalPages; i++) {
+            List<xyz.datt.domain.place.entity.PlaceMaster> chunk = placeMasterRepository.findAll(org.springframework.data.domain.PageRequest.of(i, pageSize)).getContent();
+            if (!chunk.isEmpty()) {
+                List<PlaceDocument> docs = chunk.stream()
+                        .map(PlaceDocument::from)
+                        .toList();
+                placeElasticsearchRepository.saveAll(docs);
+                migratedCount += docs.size();
+                log.info("Manual migration: page {}/{} ({} docs accumulated)", i + 1, totalPages, migratedCount);
+            }
+        }
+        log.info("Finished manual migration. Total migrated count={}", migratedCount);
+        return migratedCount;
     }
 }

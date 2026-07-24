@@ -39,28 +39,10 @@ public class ElasticsearchIndexInitializer {
             log.info("Creating Elasticsearch 'places' index with custom settings (Ngram & Nori)...");
             indexOps.create();
             indexOps.putMapping(indexOps.createMapping(PlaceDocument.class));
-            log.info("Successfully created new 'places' index.");
-
-            log.info("Starting Place database to Elasticsearch chunked migration...");
-            long totalCount = placeMasterRepository.count();
-            int pageSize = 1000;
-            int totalPages = (int) Math.ceil((double) totalCount / pageSize);
-            log.info("Total places to migrate: {}. Total pages: {}", totalCount, totalPages);
-
-            for (int i = 0; i < totalPages; i++) {
-                List<PlaceMaster> chunk = placeMasterRepository.findAll(PageRequest.of(i, pageSize)).getContent();
-                if (!chunk.isEmpty()) {
-                    List<PlaceDocument> docs = chunk.stream()
-                            .map(PlaceDocument::from)
-                            .toList();
-                    placeElasticsearchRepository.saveAll(docs);
-                    log.info("Migrated page {}/{} ({} docs)", i + 1, totalPages, docs.size());
-                }
-            }
-            log.info("Successfully migrated all places to Elasticsearch.");
+            log.info("Successfully created new 'places' index. Ready for manual migration.");
 
         } catch (Exception e) {
-            log.error("Failed to initialize and migrate Elasticsearch 'places' index", e);
+            log.error("Failed to initialize Elasticsearch 'places' index", e);
         }
     }
 }
