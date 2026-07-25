@@ -67,7 +67,11 @@
     * **작업 내용**:
         * Spring Boot 4.0.3의 `ElasticsearchClientConfigurations`가 존재하지 않는 `Jackson3JsonpMapper`를 찾으려다 유발하는 런타임 크래시(`Error processing condition`) 원천 차단.
         * `datt-platform`의 안전한 설정 방식과 완전히 동일하게 `WaveMessagingApplication` 시작점에 `@SpringBootApplication(exclude = {ElasticsearchClientAutoConfiguration.class})`를 추가하여 프레임워크 개입 완벽 배제.
-* `b5bd179` - **[wave-messaging-service] ObjectMapper 의존성 자동 주입 실패(UnsatisfiedDependencyException) 크래시 완벽 회피**
+* `b5bd179` - **[wave-messaging-service] ChatMessageKafkaConsumer ObjectMapper 의존성 자동 주입 실패 크래시 회피**
     * **작업 내용**:
         * `datt-platform`의 `PlaceKafkaConsumer`에서 겪었던 이슈와 동일하게, 기동 시점 빈 순서 꼬임으로 `ObjectMapper` 자동 주입이 실패하던 고질적 에러 타파.
-        * `ChatMessageKafkaConsumer` 생성자에서 `ObjectMapper` 주입을 전면 제거하고 내부에서 `new ObjectMapper().findAndRegisterModules()`로 수동 생성하여 `JavaTimeModule`(시간 직렬화) 모듈까지 안전하게 스캔되도록 런타임 결함 교정 완료.
+        * `ChatMessageKafkaConsumer` 생성자에서 `ObjectMapper` 주입을 전면 제거하고 내부에서 `new ObjectMapper().findAndRegisterModules()`로 수동 생성하여 런타임 결함 교정 완료.
+* `24d6943` - **[wave-messaging-service] RedisSubscriber 등 프로젝트 전역 ObjectMapper 수동 인스턴스화 일괄 적용**
+    * **작업 내용**:
+        * 단건 픽스(Greedy) 방식이 아닌, `datt-platform`의 전체 설정 기조에 발맞추어 프로젝트 내 `ObjectMapper`를 사용하는 모든 서비스 클래스(`RedisSubscriber` 포함)를 전수 조사.
+        * `RedisSubscriber` 역시 `@RequiredArgsConstructor`를 제거하고 수동 생성자 체제로 전환하여 `new ObjectMapper().findAndRegisterModules()`를 직접 할당함으로써, 추후 발생할 수 있는 동일한 `UnsatisfiedDependencyException`을 프로젝트 레벨에서 원천 차단함.
