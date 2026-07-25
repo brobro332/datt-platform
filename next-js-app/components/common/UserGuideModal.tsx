@@ -1,6 +1,6 @@
 "use client";
 
-import { X, Anchor, MapPin, MessageSquare, FolderHeart } from "lucide-react";
+import { X, Anchor, MapPin, MessageSquare, FolderHeart, Users, Search } from "lucide-react";
 import { Button } from "@/components/common/Button";
 
 interface UserGuideModalProps {
@@ -23,13 +23,23 @@ export function UserGuideModal({ isOpen, onClose }: UserGuideModalProps) {
       desc: "정박한 구역을 기준으로 주변의 맛집, 카페, 숙소, 놀거리 등을 종합 분석하여 엄선된 핫플레이스를 테마별 코스로 즉시 큐레이션해 줍니다.",
     },
     {
+      icon: <Search className="w-5 h-5 text-emerald-500" />,
+      title: "3. 고성능 하이브리드 장소 탐색",
+      desc: "Elasticsearch Nori 형태소 분석을 통해 더욱 빠르고 똑똑하게 원하는 장소와 상권을 찰떡같이 검색하고 탐색할 수 있습니다.",
+    },
+    {
+      icon: <Users className="w-5 h-5 text-purple-500" />,
+      title: "4. 워크스페이스 & 실시간 채팅",
+      desc: "초대 코드로 친구나 팀원과 워크스페이스를 만들고, 실시간 채팅방에서 약속 장소나 코스 계획을 함께 논의해 보세요.",
+    },
+    {
       icon: <MessageSquare className="w-5 h-5 text-amber-500" />,
-      title: "3. 선원들과 경험 공유 (리뷰)",
+      title: "5. 선원들과 경험 공유 (리뷰)",
       desc: "장소별 방문 후기를 '리뷰 작성하기'로 남겨 소통해 보세요. 비로그인 유저도 다른 사람들이 남긴 생생한 리뷰 정보를 리다이렉트 없이 먼저 구경할 수 있습니다.",
     },
     {
       icon: <FolderHeart className="w-5 h-5 text-rose-500" />,
-      title: "4. 나의 닻 & 북마크 보관함",
+      title: "6. 나의 닻 & 북마크 보관함",
       desc: "만족스러운 추천지나 닻 코스는 언제든 폴더별로 북마크할 수 있습니다. 마이페이지 탭 컴포넌트에서 생성한 닻과 폴더를 한눈에 관리해 보세요.",
     },
   ];

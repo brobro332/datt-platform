@@ -37,6 +37,9 @@
 
         * **[settings.json 분석기 설정 오류 교정]** CustomAnalyzer 하위에 잘못 정의되어 `JsonpMappingException (Unknown field 'decompound_mode')`을 유발하던 `decompound_mode` 설정을 `custom_nori_tokenizer` 토크나이저 정의 하위로 올바르게 재배치하여, 기동 시 places 인덱스가 정상 개설되지 못하던 기동 실패 문제를 완벽 교정함.
         * **[검색 가중치(Criteria.boost) 차등 조율을 통한 검색 정합성 복원]** Ngram 낱글자 조각 일치 매칭이 너무 광범위하게 적용되어 검색 결과 상단이 엉뚱한 매장들로 어질러지던 문제를 해소하고자, 형태소 정형 매치 필드인 bizesNm(10.0f)과 indsSclsNm(5.0f)에 가산점을 높게 부여하고 Ngram 필드(0.1f) 점수 가중치를 바닥으로 깎아 정확한 매장이 최상단에 우선 정렬되도록 검색 품질 튜닝 완료.
+* `2bad8d4` - **Next.js 프론트엔드 UI 사용 가이드 모달 최신화**
+    * **작업 내용**: 
+        * UI 상단에 노출되는 '사용 가이드'(`UserGuideModal.tsx`)에 기존 4개 항목 외에 최근 추가된 '고성능 하이브리드 장소 탐색'과 '워크스페이스 & 실시간 채팅' 기능 소개 항목을 신규 2건 추가하여 총 6개의 가이드로 갱신함.
 
 ### 📅 2026-07-25: 스프링 부트 4.0.3 유지 및 네이티브 ElasticsearchClient 직접 구동을 통한 ES 호환성 최종 타파 패치
 * `e4f72ce` - **스프링 부트 4.0.3 유지 및 네이티브 ElasticsearchClient 직접 구동을 통한 ES 호환성 최종 타파 패치**
