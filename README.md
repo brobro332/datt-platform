@@ -23,6 +23,22 @@ DATT(닻)는 사용자가 대표 구역(상권 또는 지하철역 주변)을 �
 
 ---
 
+## 🌟 주요 기능 (Key Features)
+
+1. **실시간 워크스페이스 및 다대다 채팅 (Real-time Workspace & Chat)**
+   - 초대 코드를 통한 워크스페이스 생성 및 참가
+   - STOMP/WebSocket 프로토콜 기반 실시간 양방향 채팅
+   - Redis(Pub/Sub)와 Kafka를 연동한 분산 메시징 및 검색 동기화 파이프라인
+2. **고성능 하이브리드 장소 탐색 (Hybrid Place Search)**
+   - Elasticsearch Nori 형태소 분석기 및 Ngram 부분 일치를 결합한 하이브리드 검색엔진 탑재
+   - 상권, 시도/시군구 필터링 및 MatchQuery 가중치(Boost) 튜닝을 통한 검색 품질 최적화
+3. **대규모 데이터 마이그레이션 안전망 (Safe Data Migration)**
+   - 270만 건 이상의 장소 마스터 데이터를 OOM 없이 Elasticsearch로 적재하는 Keyset Pagination 기반 무손실 동기화 내장
+4. **모바일 반응형 대시보드 (Responsive Dashboard UI)**
+   - Slack 스타일의 다중 사이드바 UI 및 모바일 해상도를 위한 슬라이드 Drawer UI 적용
+
+---
+
 ## 📂 프로젝트 구조 (Project Structure)
 
 ```text
