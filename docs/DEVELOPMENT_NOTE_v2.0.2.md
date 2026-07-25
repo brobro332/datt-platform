@@ -54,3 +54,16 @@
     * **작업 내용**:
         * 네이티브 `ElasticsearchClient` 전환 이후, 기존 Spring Data Elasticsearch 가 색인 시점에 주입해 둔 `_class` 메타데이터 필드를 Jackson ObjectMapper가 역직렬화할 때 인식하지 못하여 터지는 `UnrecognizedPropertyException: Unrecognized field "_class"` 에러를 원천 차단함.
         * `xyz.datt.domain.place.entity.PlaceDocument` 클래스에 `@JsonIgnoreProperties(ignoreUnknown = true)` 어노테이션을 부착하여 `_class` 등 매핑되지 않은 임의의 필드(Unknown property)가 포함된 응답을 받더라도 역직렬화가 무사 통과되도록 엔티티 설정을 보강.
+* `c70d8c5` - **[wave-messaging-service] 스프링 부트 4.0.3 및 Elasticsearch 8.17.0 네이티브 클라이언트로 전면 전환**
+    * **작업 내용**:
+        * DATT 플랫폼과 동일하게 런타임 호환성 확보를 위해 스프링 부트 4.0.3 및 네이티브 ES 클라이언트(8.17.0) 아키텍처로 통일.
+        * `build.gradle` 래퍼 버전 업그레이드(8.14) 및 `WebConfig`의 스프링 7.x 삭제 API(`setUseTrailingSlashMatch`) 제거를 통한 빌드 사이드 이펙트 교정.
+        * 기존 `ChatMessageElasticsearchRepository`를 전면 폐기하고, `ChatMessageKafkaConsumer` 및 `ElasticsearchIndexInitializer`에서 네이티브 `ElasticsearchClient`를 직접 주입받아 메시지를 색인하도록 변경.
+* `44cc2d6` - **[wave-messaging-service] Spring Data ES 의존성 제거 및 네이티브 ElasticsearchClient 빈 직접 생성**
+    * **작업 내용**:
+        * `MyElasticsearchConfig`가 `ElasticsearchConfiguration`을 상속받으면서 발생하는 구버전 의존성 충돌(`NoClassDefFoundError: Rest5ClientOptions`) 크래시 해결.
+        * 상속을 없애고 `RestClientTransport`와 `JacksonJsonpMapper`를 이용한 수동 순수 `@Bean` 등록으로 리팩토링하여 안정화.
+* `49b738d` - **[wave-messaging-service] 스프링 부트 4.0.3 ES 자동 설정 빈 스캔 충돌 완벽 차단**
+    * **작업 내용**:
+        * Spring Boot 4.0.3의 `ElasticsearchClientConfigurations`가 존재하지 않는 `Jackson3JsonpMapper`를 찾으려다 유발하는 런타임 크래시(`Error processing condition`) 원천 차단.
+        * `datt-platform`의 안전한 설정 방식과 완전히 동일하게 `WaveMessagingApplication` 시작점에 `@SpringBootApplication(exclude = {ElasticsearchClientAutoConfiguration.class})`를 추가하여 프레임워크 개입 완벽 배제.
