@@ -93,3 +93,6 @@
         * spring-boot-app의 uild.gradle에 springdoc-openapi-starter-webmvc-ui 의존성 추가 및 pplication.yml에 Swagger 경로 설정.
         * 추후 API 분석기를 위한 21개 Controller 클래스 비즈니스 로직(Call Graph) 상세 Javadoc 작성 완료.
         * Next.js 프론트엔드 UserGuideModal.tsx의 각 기능 블록 테두리(border) 제거하여 UI 개선.
+
+* $(git rev-parse --short HEAD) - **Swagger(springdoc) TypeInformation 런타임 에러 핫픽스**
+    * **작업 내용**: Spring Boot 최신 버전에서 삭제된 TypeInformation 클래스를 springdoc이 QueryDSL 통합 과정에서 참조하여 앱 기동이 실패하는 문제 해결을 위해, 임시 더미 인터페이스를 추가하여 클래스 로딩 에러(NoClassDefFoundError)를 우회함.
