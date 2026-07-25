@@ -67,3 +67,7 @@
     * **작업 내용**:
         * Spring Boot 4.0.3의 `ElasticsearchClientConfigurations`가 존재하지 않는 `Jackson3JsonpMapper`를 찾으려다 유발하는 런타임 크래시(`Error processing condition`) 원천 차단.
         * `datt-platform`의 안전한 설정 방식과 완전히 동일하게 `WaveMessagingApplication` 시작점에 `@SpringBootApplication(exclude = {ElasticsearchClientAutoConfiguration.class})`를 추가하여 프레임워크 개입 완벽 배제.
+* `b5bd179` - **[wave-messaging-service] ObjectMapper 의존성 자동 주입 실패(UnsatisfiedDependencyException) 크래시 완벽 회피**
+    * **작업 내용**:
+        * `datt-platform`의 `PlaceKafkaConsumer`에서 겪었던 이슈와 동일하게, 기동 시점 빈 순서 꼬임으로 `ObjectMapper` 자동 주입이 실패하던 고질적 에러 타파.
+        * `ChatMessageKafkaConsumer` 생성자에서 `ObjectMapper` 주입을 전면 제거하고 내부에서 `new ObjectMapper().findAndRegisterModules()`로 수동 생성하여 `JavaTimeModule`(시간 직렬화) 모듈까지 안전하게 스캔되도록 런타임 결함 교정 완료.
