@@ -19,6 +19,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 카카오 로컬 API를 활용하여 텍스트 기반의 주소(도로명, 지번 등)를 지리적 좌표(위도/경도) 및
+ * 행정구역 정보로 변환(Geocoding)해주는 서비스 클래스입니다.
+ */
 @Slf4j
 @Service
 public class GeocodingService {
@@ -27,6 +31,13 @@ public class GeocodingService {
     @Value("${app.kakao.client-id:}")
     private String kakaoApiKey;
 
+    /**
+     * 주어진 주소 문자열을 카카오 주소 검색 API에 요청하여 상세 주소 정보 및 좌표 데이터를 추출합니다.
+     *
+     * @param address 변환할 주소 문자열
+     * @return 주소 이름, 지번, 도로명 주소, 위경도 좌표 및 행정구역 정보가 포함된 GeocodingResponse 객체
+     * @throws BusinessException 필수 입력값이 없거나 API 호출 및 결과 처리 중 오류가 발생한 경우
+     */
     @SuppressWarnings("unchecked")
     public GeocodingResponse geocode(String address) {
         if (address == null || address.isBlank()) {

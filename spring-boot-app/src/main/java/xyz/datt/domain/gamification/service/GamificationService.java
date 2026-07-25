@@ -24,6 +24,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+/**
+ * 플랫폼 내의 게임화(Gamification) 요소인 경험치(EXP), 칭호(Title), 업적(Achievement) 및
+ * 사용자 활동 로그(Activity Log)를 관리하는 서비스 클래스입니다.
+ * 
+ * 사용자 활동에 따른 경험치 부여, 조건 충족 시 칭호 및 업적 잠금 해제 등 
+ * 플랫폼의 사용자 참여도를 높이기 위한 핵심 비즈니스 로직을 처리합니다.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -41,11 +48,26 @@ public class GamificationService {
     private final AnchorRepository anchorRepository;
     private final AnchorLikeRepository anchorLikeRepository;
 
+    /**
+     * 특정 회원의 활동 로그 내역을 페이징하여 조회합니다.
+     * 최신 활동순으로 정렬되어 반환됩니다.
+     *
+     * @param memberId 조회할 회원의 고유 식별자
+     * @param pageable 페이징 정보 (페이지 번호, 크기 등)
+     * @return 활동 로그 응답 DTO를 포함한 페이지(Page) 객체
+     */
     public Page<MemberActivityLogResponse> getMyActivityLogs(Long memberId, Pageable pageable) {
         return memberActivityLogRepository.findByMemberIdOrderByCreatedAtDesc(memberId, pageable)
             .map(MemberActivityLogResponse::from);
     }
 
+    /**
+     * 특정 회원이 보유한 칭호 목록을 전체 조회합니다.
+     * 최초 조회 시 기본 칭호(초보 탐험가)가 없는 경우, 이를 자동으로 잠금 해제하여 부여합니다.
+     *
+     * @param memberId 조회할 회원의 고유 식별자
+     * @return 회원이 보유한 칭호 응답 DTO 리스트
+     */
     @Transactional
     public List<MemberTitleResponse> getMyTitles(Long memberId) {
         // Automatically unlock beginner explorer if they don't have it yet
@@ -60,6 +82,12 @@ public class GamificationService {
             .toList();
     }
 
+    /**
+     * 시스템 내의 전체 업적 목록과 함께 특정 회원의 업적 달성 여부를 조회합니다.
+     *
+     * @param memberId 조회할 회원의 고유 식별자
+     * @return 회원의 달성 상태가 포함된 전체 업적 응답 DTO 리스트
+     */
     public List<MemberAchievementResponse> getMyAchievements(Long memberId) {
         List<Achievement> allAchievements = achievementRepository.findAll();
         List<MemberAchievement> unlocked = memberAchievementRepository.findByMemberId(memberId);
@@ -72,6 +100,15 @@ public class GamificationService {
             .toList();
     }
 
+    /**
+     * 회원이 사용할 대표 칭호를 선택(변경)합니다.
+     * 기존에 선택된 칭호는 해제되고, 새로 지정한 칭호만 선택 상태로 활성화됩니다.
+     *
+     * @param memberId 칭호를 변경할 회원의 고유 식별자
+     * @param titleId 선택할 칭호의 고유 식별자
+     * @return 변경된 대표 칭호 응답 DTO
+     * @throws BusinessException 회원이 보유하지 않은 칭호를 선택하려고 할 경우 발생
+     */
     @Transactional
     public MemberTitleResponse selectMyTitle(Long memberId, Long titleId) {
         List<MemberTitle> titles = memberTitleRepository.findByMemberId(memberId);
@@ -93,6 +130,15 @@ public class GamificationService {
         return MemberTitleResponse.from(targetTitle);
     }
 
+    /**
+     * 회원의 특정 활동을 기록하고, 해당 활동에 따른 경험치를 부여합니다.
+     * 이후 해당 활동으로 인해 새롭게 달성 가능한 업적 및 칭호가 있는지 검사하여 잠금 해제 로직을 수행합니다.
+     *
+     * @param memberId 활동을 수행한 회원의 고유 식별자
+     * @param type 수행한 활동의 종류(ActivityType)
+     * @param description 활동에 대한 상세 설명 및 로그 메시지
+     * @throws BusinessException 회원을 찾을 수 없는 경우 발생
+     */
     @Transactional
     public void logActivity(Long memberId, ActivityType type, String description) {
         Member member = memberRepository.findById(memberId)

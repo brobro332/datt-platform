@@ -26,6 +26,11 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamReader;
 
+/**
+ * 지하철역 정보의 동기화 및 조회를 담당하는 비즈니스 로직 서비스입니다.
+ * KRIC(철도산업정보센터)의 공식 API(엑셀 다운로드)를 통해 지하철역 위치 및 주소 데이터를 실시간/배치 동기화하며,
+ * 네트워크 오류 등 외부 연동 실패 시 프로젝트 내부에 포함된 CSV 또는 JSON 파일 데이터를 활용하는 Fallback 메커니즘을 제공합니다.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,6 +44,14 @@ public class SubwayStationService {
     @Value("${public-data.place.service-key}")
     private String serviceKey;
 
+    /**
+     * 시/도 및 시/군/구 조건에 일치하는 지하철역 목록을 데이터베이스에서 조회합니다.
+     * 지역 조건이 주어지지 않은 경우 등록된 전체 지하철역을 반환합니다.
+     *
+     * @param province 조회할 시/도 명칭 (예: 서울특별시)
+     * @param district 조회할 시/군/구 명칭 (예: 강남구)
+     * @return 지역 조건에 부합하는 지하철역 응답 DTO 리스트
+     */
     public List<SubwayStationResponse> getSubwayStations(String province, String district) {
         if (province == null || district == null) {
             return repository.findAll().stream()
@@ -50,6 +63,10 @@ public class SubwayStationService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * 스프링 부트 애플리케이션 시작 완료 이벤트(ApplicationReadyEvent) 발생 시
+     * 자동으로 호출되어 지하철역 마스터 데이터를 최신 상태로 초기화/동기화합니다.
+     */
     @org.springframework.context.event.EventListener(org.springframework.boot.context.event.ApplicationReadyEvent.class)
     @Transactional
     public void initSubwayStations() {
@@ -57,6 +74,13 @@ public class SubwayStationService {
         syncSubwayStations();
     }
 
+    /**
+     * 지하철역 데이터를 외부 기관으로부터 가져와 데이터베이스를 동기화합니다.
+     * 1순위: KRIC 공식 엑셀 파일 다운로드 및 파싱
+     * 2순위: (실패 시) 로컬 classpath에 저장된 subway_stations.csv 파싱
+     * 3순위: (실패 시) 로컬 classpath에 저장된 subway_stations.json 파싱
+     * 동기화 중 발생한 예외는 무시하지 않고 폴백 체인을 타게 설계되어 있습니다.
+     */
     @Transactional
     public void syncSubwayStations() {
         try {

@@ -21,6 +21,13 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * 카카오, 네이버 등 소셜 로그인 기반의 회원 인증 비즈니스 로직을 처리하는 서비스입니다.
+ * <p>
+ * 외부 OAuth2 제공자와 통신하여 액세스 토큰을 획득하고 유저 정보를 가져와서,
+ * 우리 플랫폼의 Member 엔티티와 연동 및 자체 JWT 발급을 수행합니다.
+ * </p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,6 +40,19 @@ public class SocialAuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private static final SecureRandom secureRandom = new SecureRandom();
 
+    /**
+     * 카카오 소셜 로그인을 처리합니다.
+     * <p>
+     * 1. 클라이언트가 전달한 인가 코드(code)를 이용해 카카오 서버로부터 액세스 토큰을 받아옵니다.<br>
+     * 2. 획득한 액세스 토큰으로 카카오 사용자 정보를 조회합니다.<br>
+     * 3. 사용자 정보에서 이메일과 닉네임을 추출합니다. 이메일이 없는 경우 임의의 이메일을 생성합니다.<br>
+     * 4. 기존 회원 여부를 확인하고, 없으면 신규 소셜 회원으로 가입 처리합니다.<br>
+     * 5. 자체 JWT(Access/Refresh Token)를 발급하여 반환합니다.
+     * </p>
+     *
+     * @param code 카카오 인가 코드
+     * @return 발급된 JWT 토큰 및 회원 정보가 포함된 소셜 로그인 응답 DTO
+     */
     @Transactional
     public SocialLoginResponse loginKakao(String code) {
         String accessToken = kakaoClient.getAccessToken(code);
@@ -80,6 +100,19 @@ public class SocialAuthService {
         return generateSocialTokens(member, isNewMember);
     }
 
+    /**
+     * 네이버 소셜 로그인을 처리합니다.
+     * <p>
+     * 1. 클라이언트가 전달한 인가 코드(code)를 이용해 네이버 서버로부터 액세스 토큰을 받아옵니다.<br>
+     * 2. 획득한 액세스 토큰으로 네이버 사용자 정보를 조회합니다.<br>
+     * 3. 응답 객체(response)에서 이메일과 닉네임을 추출합니다. 이메일 부재 시 임시 이메일을 생성합니다.<br>
+     * 4. 기존 회원인지 확인 후, 비회원이면 새로운 소셜 계정을 자동 생성합니다.<br>
+     * 5. 애플리케이션 자체 규격의 JWT 토큰을 발급하여 응답합니다.
+     * </p>
+     *
+     * @param code 네이버 인가 코드
+     * @return 자체 발급 JWT 토큰과 유저 식별 정보를 포함한 DTO
+     */
     @Transactional
     public SocialLoginResponse loginNaver(String code) {
         String accessToken = naverClient.getAccessToken(code);
@@ -118,6 +151,18 @@ public class SocialAuthService {
         return generateSocialTokens(member, isNewMember);
     }
 
+    /**
+     * 소셜 로그인 사용자의 이메일을 기반으로 기존 회원을 조회하거나, 
+     * 새로운 회원을 자동 가입(DB 저장) 처리합니다.
+     * <p>
+     * 닉네임 중복 시 난수와 해시값을 이용해 유일한 닉네임으로 자동 조정하며,
+     * 비밀번호는 시스템에서 생성한 임의의 UUID를 암호화하여 저장합니다.
+     * </p>
+     *
+     * @param email 소셜에서 제공받은(또는 생성된) 사용자 이메일
+     * @param nickname 소셜 프로필 기반 닉네임
+     * @return 조회 또는 신규 생성된 Member 엔티티
+     */
     private Member getOrCreateSocialMember(String email, String nickname) {
         return memberRepository.findByEmail(email)
                 .orElseGet(() -> {
@@ -141,6 +186,13 @@ public class SocialAuthService {
                 });
     }
 
+    /**
+     * 회원 엔티티를 바탕으로 Access Token 및 Refresh Token을 생성하고 반환합니다.
+     * 
+     * @param member 인증이 완료된 사용자 엔티티
+     * @param isNewMember 신규 가입 여부 플래그
+     * @return 소셜 로그인 결과 응답 DTO
+     */
     private SocialLoginResponse generateSocialTokens(Member member, boolean isNewMember) {
         String accessToken = jwtProvider.createAccessToken(
                 member.getId(),
@@ -167,6 +219,13 @@ public class SocialAuthService {
         );
     }
 
+    /**
+     * 발급된 Refresh Token을 DB에 저장하거나 이미 존재하는 경우 갱신합니다.
+     *
+     * @param memberId 회원 ID
+     * @param token 리프레시 토큰 값
+     * @param expiredAt 토큰 만료 시간
+     */
     private void saveOrUpdateRefreshToken(Long memberId, String token, LocalDateTime expiredAt) {
         refreshTokenRepository.findByMemberId(memberId)
                 .ifPresentOrElse(

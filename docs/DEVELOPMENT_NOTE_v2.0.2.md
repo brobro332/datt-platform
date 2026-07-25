@@ -1,82 +1,89 @@
-# ⚓ DATT 플랫폼 히스토리 백과 (v2.0.2 개발자 노트)
+﻿# ??DATT ?뚮옯???덉뒪?좊━ 諛깃낵 (v2.0.2 媛쒕컻???명듃)
 
-## 🚀 DATT v2.0.2 상세 타임라인 개발 역사
+## ?? DATT v2.0.2 ?곸꽭 ??꾨씪??媛쒕컻 ??궗
 
-`main` 브랜치에 누적된 v2.0.2 개발 역사는 **워크스페이스 개념 도입 및 친구 초대 기반 실시간 채팅 시스템 구축**을 통해 사용자 간의 그룹 협업 및 실시간 소통 기능을 플랫폼에 확보하는 마일스톤을 다룹니다.
+`main` 釉뚮옖移섏뿉 ?꾩쟻??v2.0.2 媛쒕컻 ??궗??**?뚰겕?ㅽ럹?댁뒪 媛쒕뀗 ?꾩엯 諛?移쒓뎄 珥덈? 湲곕컲 ?ㅼ떆媛?梨꾪똿 ?쒖뒪??援ъ텞**???듯빐 ?ъ슜??媛꾩쓽 洹몃９ ?묒뾽 諛??ㅼ떆媛??뚰넻 湲곕뒫???뚮옯?쇱뿉 ?뺣낫?섎뒗 留덉씪?ㅽ넠???ㅻ９?덈떎.
 
-### 📅 2026-07-22: 워크스페이스(Workspace) 개설, 초대 코드 기반 참가 및 Slack 스타일 다중 사이드바 대시보드 UI 개발
-* `ab4a7f9` - **실시간 채팅 및 워크스페이스 통합 인프라 구성 및 Nginx 프록시 라우팅 추가**
-    * **작업 내용**: 
-        * `datt-platform`의 `docker-compose.yml`에 실시간 메시징을 위한 `wave-redis`, `wave-kafka` 및 `wave-messaging-service`(Arm64 OCI VM용 호환 이미지 `eclipse-temurin:17-jre`로 구성) 컨테이너 선언 추가.
-        * Nginx 설정(`default.conf`)에 `/api/chat/*` 및 WebSocket 프로토콜 업그레이드를 지원하는 `/ws-stomp` 리버스 프록시 포워딩 경로 추가. (301 리다이렉션으로 인한 웹소켓 핸드셰이크 실패 오류를 막기 위해 `/ws-stomp` 트레일링 슬래시도 함께 제거)
-        * **[추가 수정]** Nginx `/api/workspaces` 블록에 리라이트(`rewrite`) 규칙을 내장하여, 브라우저가 캐싱한 이전 301 트레일링 슬래시(`/`) 요청을 백엔드 진입 전 제거함으로써 404 매칭 실패 문제 완전 해결.
-* `ab4a7f9` - **Next.js 프론트엔드 워크스페이스 대시보드 UI 개발 및 DATT 디자인 시스템 테마 통합**
-    * **작업 내용**:
-        * `@stomp/stompjs` 패키지를 도입하고, STOMP 프로토콜을 사용해 실시간 메시지 발신 및 수신(구독)을 통합 관리하는 커스텀 훅 `useChat.ts` 구현.
-        * `chatService.ts`를 신설 및 업데이트하여 워크스페이스 개설, 조회, 초대코드 가입, 채팅방 생성, 참가, 읽음 처리, 목록 조회, 과거 메시지 복원 REST API 연동 기능 탑재.
-        * **[디자인 통합]** DATT 고유 디자인 시스템(`MainLayout`) 및 밝은 연청색/화이트 테마 기반으로 전체 워크스페이스 대시보드 UI를 대대적으로 리팩토링하여 타 메뉴(장소탐색 등)와 일관성 부여.
-        * **[GNB 연동]** 공통 헤더(`GlobalHeader.tsx`)에 '워크스페이스' 메뉴 항목을 공식 추가하여 진입 장벽 완화.
-        * **[채팅 튜닝]** 톡방 입장/퇴장 시마다 클라이언트가 자동으로 `ENTER/LEAVE` 메시지를 데이터베이스에 강제 발행하여 피드를 오염시키던 문제 해결을 위해 자동 입장/퇴장 알림 발신부 영구 제거.
-        * **[단일 채팅방 전환]** 워크스페이스당 단 1개의 고유 채팅방만 개설 및 매핑되도록 축소하고, 진입과 동시에 채팅창이 곧바로 활성화되도록 로직 일원화.
-        * **[닉네임 표기 수정]** 멤버 가입 시 닉네임이 아닌 회원 고유 번호(숫자 2)가 노출되던 바인딩 버그를 `member.nickname` 전송 방식으로 교체하여 해결.
-        * **[모바일 반응형 튜닝]** 모바일 해상도에서 화면 폭이 찌그러지던 문제를 해결하기 위해 좌측 사이드바를 숨기고 메뉴 클릭 시 흘러나오는 슬라이드 Drawer UI 구조 연동.
-        * **[인덱스 파일 보완]** `docs/DEVELOPMENT_NOTE.md` 메인 인덱스 문서에 v2.0.2 버전 릴리즈 바로가기 링크 갱신 등록.
-        * **[ES/Kafka 매장 검색 연동]** JPA Entity Lifecycle Listener를 이용하여 매장 정보 CUD 시 Kafka `place-events` 토픽으로 변경 이벤트를 비동기 발행하고, 이를 Consumer가 수신하여 Elasticsearch `places` 인덱스에 색인(Sync)하는 파이프라인 구축.
-        * **[ES/Kafka 채팅 검색 연동]** Redis Subscriber DB 저장 직후 Kafka `chat-messages` 토픽을 발행하여 Elasticsearch `chat_messages` 인덱스에 색인하는 Consumer 연동. 대화방 우측 상단 돋보기 아이콘을 배치해 실시간 키워드 검색 모달 뷰어 UI 탑재.
-        * **[메모리 리밋 강제 튜닝]** 4OCPU, 램 24GB OCI 실서버에 맞추어 모든 도커 컨테이너(DB, ES, Kafka, Redis, 백엔드 2개, 프론트엔드, Nginx)에 최대 Resource Limits (`memory`)를 지정하고, Java/Node 컨테이너 힙 튜닝(JAVA_OPTS/NODE_OPTIONS)을 완료하여 OOM 강제 킬(kill) 안전장치 확보.
-        * **[ES 헬스체크 및 역직렬화 안정화]** ES 초기 기동 지연(Nori 플러그인 기동 다운로드 등)으로 인한 스프링 기동 실패 오류를 차단하기 위해 `docker-compose.yml` 에 ES Healthcheck 지정 후 depends_on 대기를 걸었으며, Kafka 수신 시 ClassCastException 역직렬화 오류를 막기 위해 파라미터 타입을 `String`으로 수신하여 ObjectMapper로 명시적 매핑하도록 개편.
-        * **[ES indices.exists 클라이언트 버그 회피]** Elasticsearch Java Client의 HEAD indices.exists 버그로 인해 기동 시 발생하던 `TransportException: Expecting a response body, but none was sent` 400 Bad Request 에러를 해결하기 위해, `@Document(createIndex = false)` 설정을 추가 적용하여 애플리케이션 시작 시점의 존재 여부 검증 단계를 안전하게 건너뛰도록 연동 완료.
-        * **[ObjectMapper 빈 주입 및 Kafka 브로커 부팅 대기 체인 완료]** 백엔드(`spring-boot-app`) 기동 시 `ObjectMapper` 빈이 자동 주입되지 않아 구동에 실패하는 에러를 `PlaceKafkaConsumer` 내부에서 직접 수동 생성하여 주입을 제거함으로써 해결. 또한 Kafka 브로커(`wave-kafka`)의 부팅 지연으로 인해 백엔드가 구동 중 리스너 생성에 실패하는 문제를 막고자 `docker-compose.yml` 에 Kafka `healthcheck`를 주입하고 백엔드 2개의 `depends_on` 에 `wave-kafka`의 헬시 상태 대기를 강제 부여하여 견고한 부팅 체인 완비.
-        * **[ARM64 아키텍처 호환성 Kafka 이미지 교체]** 실서버 OCI VM의 ARM64(Aarch64) 아키텍처 환경에서 x86용 `bashj79/kafka-kraft` 이미지가 ELF 실행 불가로 `exec format error` 오류를 야기하던 문제를 해결하기 위해, ARM64를 공식 지원하고 멀티 아키텍처 대응이 검증된 `apache/kafka:latest` 이미지로 전격 교체 및 KRaft 환경변수(Node ID, Quorum Voters 등) 세부 튜닝 적용.
-        * **[KafkaAutoConfiguration 활성화를 위한 의존성 튜닝]** `spring-boot-app` 의 `build.gradle`에 단순 `spring-kafka` 가 임포트되어 있어 스프링 부트의 카프카 자동구성(`KafkaAutoConfiguration`)이 스킵되고 `KafkaTemplate` 빈이 누락되던 버그를, 정식 스타터 패키지인 `spring-boot-starter-kafka` 로 전격 업그레이드 교체하여 해결.
-        * **[Nori 형태소 분석기 맵핑 강제 주입 초기화 구현]** `createIndex = false` 설정으로 인해 인덱스가 동적 자동 개설될 때 `nori` 분석기 맵핑이 적용되지 않고 `standard` 맵핑으로 우회되던 문제를 해결하고자, 백엔드 기동 완료 시점에 네이티브 `ElasticsearchClient`를 사용해 Nori 맵핑 정보를 명시적으로 꽂아주는 `ElasticsearchIndexInitializer` 초기화 컴포넌트 추가 및 튜닝 적용.
-        * **[MatchQuery 빌더를 통한 Nori 형태소 매칭 실현]** 단순 문자열 패턴 매칭으로 형태소 검색이 무용지물화되던 오동작을 수정하고자, 네이티브 클라이언트의 MatchQuery를 명시적으로 빌드하여 입력 검색어 및 DB 데이터 모두 Nori 분석을 거쳐 "순댓국"에서 "순대"가 완벽 매칭되도록 교정 완료.
-        * **[Ngram 하이브리드 멀티필드 한글 부분 검색 완성]** 복합 단어 형태소 경계와 관계없이 한글 부분 일치 검색율을 보장하고자, 2~3글자씩 분해하는 `ngram_analyzer`를 settings.json에 정의하고 엔티티 필드에 `.ngram` 멀티필드로 연동하여, 검색 쿼리에서 Nori 형태소와 Ngram 부분 일치를 모두 탐색하는 하이브리드 검색 쿼리 완성. 기동 시 기존 인덱스 강제 갱신(drop) 후 PostgreSQL DB의 모든 장소 마스터 데이터를 ES로 무손실 동기화(Migration) 마친 뒤 런타임에 진입하도록 초기화 구현 완비.
-        * **[장소 탐색 API의 Elasticsearch 검색 라우팅 누락 복구]** `/api/place-masters` (장소 탐색) 메뉴 검색 시 비즈니스 레이어(`PlaceMasterService.java`)에서 고성능 Elasticsearch 전용 검색 빈인 `PlaceSearchService`를 주입받아 사용하지 않고, 기존의 RDBMS Repository 검색으로 우회하여 호출하던 연동 누락을 찾아내어 교정. 이제 장소 탐색 검색에서도 키워드가 주어졌을 때 Elasticsearch 인덱스를 완벽하게 라우팅하여 Ngram/Nori의 혜택을 온전히 누리도록 정밀 연계 완료.
-        * **[개발자 노트 UI 버전 드롭다운 v2.0.2 추가 및 API 동적 라우팅]** Next.js의 개발자 노트 모달(`DevNoteModal.tsx`)에 `v2.0.2` 선택 버튼 및 Latest 표식을 추가하고, `/next-api/dev-note/route.ts` API 분기문을 하드코딩이 아닌 동적 파일 리딩 방식으로 교체하여 신규 개발자 노트가 UI상에 무중단으로 정상 렌더링되도록 구현.
+### ?뱟 2026-07-22: ?뚰겕?ㅽ럹?댁뒪(Workspace) 媛쒖꽕, 珥덈? 肄붾뱶 湲곕컲 李멸? 諛?Slack ?ㅽ????ㅼ쨷 ?ъ씠?쒕컮 ??쒕낫??UI 媛쒕컻
+* `ab4a7f9` - **?ㅼ떆媛?梨꾪똿 諛??뚰겕?ㅽ럹?댁뒪 ?듯빀 ?명봽??援ъ꽦 諛?Nginx ?꾨줉???쇱슦??異붽?**
+    * **?묒뾽 ?댁슜**: 
+        * `datt-platform`??`docker-compose.yml`???ㅼ떆媛?硫붿떆吏뺤쓣 ?꾪븳 `wave-redis`, `wave-kafka` 諛?`wave-messaging-service`(Arm64 OCI VM???명솚 ?대?吏 `eclipse-temurin:17-jre`濡?援ъ꽦) 而⑦뀒?대꼫 ?좎뼵 異붽?.
+        * Nginx ?ㅼ젙(`default.conf`)??`/api/chat/*` 諛?WebSocket ?꾨줈?좎퐳 ?낃렇?덉씠?쒕? 吏?먰븯??`/ws-stomp` 由щ쾭???꾨줉???ъ썙??寃쎈줈 異붽?. (301 由щ떎?대젆?섏쑝濡??명븳 ?뱀냼耳??몃뱶?곗씠???ㅽ뙣 ?ㅻ쪟瑜?留됯린 ?꾪빐 `/ws-stomp` ?몃젅?쇰쭅 ?щ옒?쒕룄 ?④퍡 ?쒓굅)
+        * **[異붽? ?섏젙]** Nginx `/api/workspaces` 釉붾줉??由щ씪?댄듃(`rewrite`) 洹쒖튃???댁옣?섏뿬, 釉뚮씪?곗?媛 罹먯떛???댁쟾 301 ?몃젅?쇰쭅 ?щ옒??`/`) ?붿껌??諛깆뿏??吏꾩엯 ???쒓굅?⑥쑝濡쒖뜥 404 留ㅼ묶 ?ㅽ뙣 臾몄젣 ?꾩쟾 ?닿껐.
+* `ab4a7f9` - **Next.js ?꾨줎?몄뿏???뚰겕?ㅽ럹?댁뒪 ??쒕낫??UI 媛쒕컻 諛?DATT ?붿옄???쒖뒪???뚮쭏 ?듯빀**
+    * **?묒뾽 ?댁슜**:
+        * `@stomp/stompjs` ?⑦궎吏瑜??꾩엯?섍퀬, STOMP ?꾨줈?좎퐳???ъ슜???ㅼ떆媛?硫붿떆吏 諛쒖떊 諛??섏떊(援щ룆)???듯빀 愿由ы븯??而ㅼ뒪? ??`useChat.ts` 援ы쁽.
+        * `chatService.ts`瑜??좎꽕 諛??낅뜲?댄듃?섏뿬 ?뚰겕?ㅽ럹?댁뒪 媛쒖꽕, 議고쉶, 珥덈?肄붾뱶 媛?? 梨꾪똿諛??앹꽦, 李멸?, ?쎌쓬 泥섎━, 紐⑸줉 議고쉶, 怨쇨굅 硫붿떆吏 蹂듭썝 REST API ?곕룞 湲곕뒫 ?묒옱.
+        * **[?붿옄???듯빀]** DATT 怨좎쑀 ?붿옄???쒖뒪??`MainLayout`) 諛?諛앹? ?곗껌???붿씠???뚮쭏 湲곕컲?쇰줈 ?꾩껜 ?뚰겕?ㅽ럹?댁뒪 ??쒕낫??UI瑜????곸쑝濡?由ы뙥?좊쭅?섏뿬 ? 硫붾돱(?μ냼?먯깋 ??? ?쇨???遺??
+        * **[GNB ?곕룞]** 怨듯넻 ?ㅻ뜑(`GlobalHeader.tsx`)??'?뚰겕?ㅽ럹?댁뒪' 硫붾돱 ??ぉ??怨듭떇 異붽??섏뿬 吏꾩엯 ?λ꼍 ?꾪솕.
+        * **[梨꾪똿 ?쒕떇]** ?〓갑 ?낆옣/?댁옣 ?쒕쭏???대씪?댁뼵?멸? ?먮룞?쇰줈 `ENTER/LEAVE` 硫붿떆吏瑜??곗씠?곕쿋?댁뒪??媛뺤젣 諛쒗뻾?섏뿬 ?쇰뱶瑜??ㅼ뿼?쒗궎??臾몄젣 ?닿껐???꾪빐 ?먮룞 ?낆옣/?댁옣 ?뚮┝ 諛쒖떊遺 ?곴뎄 ?쒓굅.
+        * **[?⑥씪 梨꾪똿諛??꾪솚]** ?뚰겕?ㅽ럹?댁뒪????1媛쒖쓽 怨좎쑀 梨꾪똿諛⑸쭔 媛쒖꽕 諛?留ㅽ븨?섎룄濡?異뺤냼?섍퀬, 吏꾩엯怨??숈떆??梨꾪똿李쎌씠 怨㏓컮濡??쒖꽦?붾릺?꾨줉 濡쒖쭅 ?쇱썝??
+        * **[?됰꽕???쒓린 ?섏젙]** 硫ㅻ쾭 媛?????됰꽕?꾩씠 ?꾨땶 ?뚯썝 怨좎쑀 踰덊샇(?レ옄 2)媛 ?몄텧?섎뜕 諛붿씤??踰꾧렇瑜?`member.nickname` ?꾩넚 諛⑹떇?쇰줈 援먯껜?섏뿬 ?닿껐.
+        * **[紐⑤컮??諛섏쓳???쒕떇]** 紐⑤컮???댁긽?꾩뿉???붾㈃ ??씠 李뚭렇?ъ???臾몄젣瑜??닿껐?섍린 ?꾪빐 醫뚯륫 ?ъ씠?쒕컮瑜??④린怨?硫붾돱 ?대┃ ???섎윭?섏삤???щ씪?대뱶 Drawer UI 援ъ“ ?곕룞.
+        * **[?몃뜳???뚯씪 蹂댁셿]** `docs/DEVELOPMENT_NOTE.md` 硫붿씤 ?몃뜳??臾몄꽌??v2.0.2 踰꾩쟾 由대━利?諛붾줈媛湲?留곹겕 媛깆떊 ?깅줉.
+        * **[ES/Kafka 留ㅼ옣 寃???곕룞]** JPA Entity Lifecycle Listener瑜??댁슜?섏뿬 留ㅼ옣 ?뺣낫 CUD ??Kafka `place-events` ?좏뵿?쇰줈 蹂寃??대깽?몃? 鍮꾨룞湲?諛쒗뻾?섍퀬, ?대? Consumer媛 ?섏떊?섏뿬 Elasticsearch `places` ?몃뜳?ㅼ뿉 ?됱씤(Sync)?섎뒗 ?뚯씠?꾨씪??援ъ텞.
+        * **[ES/Kafka 梨꾪똿 寃???곕룞]** Redis Subscriber DB ???吏곹썑 Kafka `chat-messages` ?좏뵿??諛쒗뻾?섏뿬 Elasticsearch `chat_messages` ?몃뜳?ㅼ뿉 ?됱씤?섎뒗 Consumer ?곕룞. ??붾갑 ?곗륫 ?곷떒 ?뗫낫湲??꾩씠肄섏쓣 諛곗튂???ㅼ떆媛??ㅼ썙??寃??紐⑤떖 酉곗뼱 UI ?묒옱.
+        * **[硫붾え由?由щ컠 媛뺤젣 ?쒕떇]** 4OCPU, ??24GB OCI ?ㅼ꽌踰꾩뿉 留욎텛??紐⑤뱺 ?꾩빱 而⑦뀒?대꼫(DB, ES, Kafka, Redis, 諛깆뿏??2媛? ?꾨줎?몄뿏?? Nginx)??理쒕? Resource Limits (`memory`)瑜?吏?뺥븯怨? Java/Node 而⑦뀒?대꼫 ???쒕떇(JAVA_OPTS/NODE_OPTIONS)???꾨즺?섏뿬 OOM 媛뺤젣 ??kill) ?덉쟾?μ튂 ?뺣낫.
+        * **[ES ?ъ뒪泥댄겕 諛???쭅?ы솕 ?덉젙??** ES 珥덇린 湲곕룞 吏??Nori ?뚮윭洹몄씤 湲곕룞 ?ㅼ슫濡쒕뱶 ???쇰줈 ?명븳 ?ㅽ봽留?湲곕룞 ?ㅽ뙣 ?ㅻ쪟瑜?李⑤떒?섍린 ?꾪빐 `docker-compose.yml` ??ES Healthcheck 吏????depends_on ?湲곕? 嫄몄뿀?쇰ŉ, Kafka ?섏떊 ??ClassCastException ??쭅?ы솕 ?ㅻ쪟瑜?留됯린 ?꾪빐 ?뚮씪誘명꽣 ??낆쓣 `String`?쇰줈 ?섏떊?섏뿬 ObjectMapper濡?紐낆떆??留ㅽ븨?섎룄濡?媛쒗렪.
+        * **[ES indices.exists ?대씪?댁뼵??踰꾧렇 ?뚰뵾]** Elasticsearch Java Client??HEAD indices.exists 踰꾧렇濡??명빐 湲곕룞 ??諛쒖깮?섎뜕 `TransportException: Expecting a response body, but none was sent` 400 Bad Request ?먮윭瑜??닿껐?섍린 ?꾪빐, `@Document(createIndex = false)` ?ㅼ젙??異붽? ?곸슜?섏뿬 ?좏뵆由ъ??댁뀡 ?쒖옉 ?쒖젏??議댁옱 ?щ? 寃利??④퀎瑜??덉쟾?섍쾶 嫄대꼫?곕룄濡??곕룞 ?꾨즺.
+        * **[ObjectMapper 鍮?二쇱엯 諛?Kafka 釉뚮줈而?遺???湲?泥댁씤 ?꾨즺]** 諛깆뿏??`spring-boot-app`) 湲곕룞 ??`ObjectMapper` 鍮덉씠 ?먮룞 二쇱엯?섏? ?딆븘 援щ룞???ㅽ뙣?섎뒗 ?먮윭瑜?`PlaceKafkaConsumer` ?대??먯꽌 吏곸젒 ?섎룞 ?앹꽦?섏뿬 二쇱엯???쒓굅?⑥쑝濡쒖뜥 ?닿껐. ?먰븳 Kafka 釉뚮줈而?`wave-kafka`)??遺??吏?곗쑝濡??명빐 諛깆뿏?쒓? 援щ룞 以?由ъ뒪???앹꽦???ㅽ뙣?섎뒗 臾몄젣瑜?留됯퀬??`docker-compose.yml` ??Kafka `healthcheck`瑜?二쇱엯?섍퀬 諛깆뿏??2媛쒖쓽 `depends_on` ??`wave-kafka`???ъ떆 ?곹깭 ?湲곕? 媛뺤젣 遺?ы븯??寃ш퀬??遺??泥댁씤 ?꾨퉬.
+        * **[ARM64 ?꾪궎?띿쿂 ?명솚??Kafka ?대?吏 援먯껜]** ?ㅼ꽌踰?OCI VM??ARM64(Aarch64) ?꾪궎?띿쿂 ?섍꼍?먯꽌 x86??`bashj79/kafka-kraft` ?대?吏媛 ELF ?ㅽ뻾 遺덇?濡?`exec format error` ?ㅻ쪟瑜??쇨린?섎뜕 臾몄젣瑜??닿껐?섍린 ?꾪빐, ARM64瑜?怨듭떇 吏?먰븯怨?硫???꾪궎?띿쿂 ??묒씠 寃利앸맂 `apache/kafka:latest` ?대?吏濡??꾧꺽 援먯껜 諛?KRaft ?섍꼍蹂??Node ID, Quorum Voters ?? ?몃? ?쒕떇 ?곸슜.
+        * **[KafkaAutoConfiguration ?쒖꽦?붾? ?꾪븳 ?섏〈???쒕떇]** `spring-boot-app` ??`build.gradle`???⑥닚 `spring-kafka` 媛 ?꾪룷?몃릺???덉뼱 ?ㅽ봽留?遺?몄쓽 移댄봽移??먮룞援ъ꽦(`KafkaAutoConfiguration`)???ㅽ궢?섍퀬 `KafkaTemplate` 鍮덉씠 ?꾨씫?섎뜕 踰꾧렇瑜? ?뺤떇 ?ㅽ????⑦궎吏??`spring-boot-starter-kafka` 濡??꾧꺽 ?낃렇?덉씠??援먯껜?섏뿬 ?닿껐.
+        * **[Nori ?뺥깭??遺꾩꽍湲?留듯븨 媛뺤젣 二쇱엯 珥덇린??援ы쁽]** `createIndex = false` ?ㅼ젙?쇰줈 ?명빐 ?몃뜳?ㅺ? ?숈쟻 ?먮룞 媛쒖꽕????`nori` 遺꾩꽍湲?留듯븨???곸슜?섏? ?딄퀬 `standard` 留듯븨?쇰줈 ?고쉶?섎뜕 臾몄젣瑜??닿껐?섍퀬?? 諛깆뿏??湲곕룞 ?꾨즺 ?쒖젏???ㅼ씠?곕툕 `ElasticsearchClient`瑜??ъ슜??Nori 留듯븨 ?뺣낫瑜?紐낆떆?곸쑝濡?苑귥븘二쇰뒗 `ElasticsearchIndexInitializer` 珥덇린??而댄룷?뚰듃 異붽? 諛??쒕떇 ?곸슜.
+        * **[MatchQuery 鍮뚮뜑瑜??듯븳 Nori ?뺥깭??留ㅼ묶 ?ㅽ쁽]** ?⑥닚 臾몄옄???⑦꽩 留ㅼ묶?쇰줈 ?뺥깭??寃?됱씠 臾댁슜吏臾쇳솕?섎뜕 ?ㅻ룞?묒쓣 ?섏젙?섍퀬?? ?ㅼ씠?곕툕 ?대씪?댁뼵?몄쓽 MatchQuery瑜?紐낆떆?곸쑝濡?鍮뚮뱶?섏뿬 ?낅젰 寃?됱뼱 諛?DB ?곗씠??紐⑤몢 Nori 遺꾩꽍??嫄곗퀜 "?쒕뙎援??먯꽌 "?쒕?"媛 ?꾨꼍 留ㅼ묶?섎룄濡?援먯젙 ?꾨즺.
+        * **[Ngram ?섏씠釉뚮━??硫?고븘???쒓? 遺遺?寃???꾩꽦]** 蹂듯빀 ?⑥뼱 ?뺥깭??寃쎄퀎? 愿怨꾩뾾???쒓? 遺遺??쇱튂 寃?됱쑉??蹂댁옣?섍퀬?? 2~3湲?먯뵫 遺꾪빐?섎뒗 `ngram_analyzer`瑜?settings.json???뺤쓽?섍퀬 ?뷀떚???꾨뱶??`.ngram` 硫?고븘?쒕줈 ?곕룞?섏뿬, 寃??荑쇰━?먯꽌 Nori ?뺥깭?뚯? Ngram 遺遺??쇱튂瑜?紐⑤몢 ?먯깋?섎뒗 ?섏씠釉뚮━??寃??荑쇰━ ?꾩꽦. 湲곕룞 ??湲곗〈 ?몃뜳??媛뺤젣 媛깆떊(drop) ??PostgreSQL DB??紐⑤뱺 ?μ냼 留덉뒪???곗씠?곕? ES濡?臾댁넀???숆린??Migration) 留덉튇 ???고??꾩뿉 吏꾩엯?섎룄濡?珥덇린??援ы쁽 ?꾨퉬.
+        * **[?μ냼 ?먯깋 API??Elasticsearch 寃???쇱슦???꾨씫 蹂듦뎄]** `/api/place-masters` (?μ냼 ?먯깋) 硫붾돱 寃????鍮꾩쫰?덉뒪 ?덉씠??`PlaceMasterService.java`)?먯꽌 怨좎꽦??Elasticsearch ?꾩슜 寃??鍮덉씤 `PlaceSearchService`瑜?二쇱엯諛쏆븘 ?ъ슜?섏? ?딄퀬, 湲곗〈??RDBMS Repository 寃?됱쑝濡??고쉶?섏뿬 ?몄텧?섎뜕 ?곕룞 ?꾨씫??李얠븘?댁뼱 援먯젙. ?댁젣 ?μ냼 ?먯깋 寃?됱뿉?쒕룄 ?ㅼ썙?쒓? 二쇱뼱議뚯쓣 ??Elasticsearch ?몃뜳?ㅻ? ?꾨꼍?섍쾶 ?쇱슦?낇븯??Ngram/Nori???쒗깮???⑥쟾???꾨━?꾨줉 ?뺣? ?곌퀎 ?꾨즺.
+        * **[媛쒕컻???명듃 UI 踰꾩쟾 ?쒕∼?ㅼ슫 v2.0.2 異붽? 諛?API ?숈쟻 ?쇱슦??** Next.js??媛쒕컻???명듃 紐⑤떖(`DevNoteModal.tsx`)??`v2.0.2` ?좏깮 踰꾪듉 諛?Latest ?쒖떇??異붽??섍퀬, `/next-api/dev-note/route.ts` API 遺꾧린臾몄쓣 ?섎뱶肄붾뵫???꾨땶 ?숈쟻 ?뚯씪 由щ뵫 諛⑹떇?쇰줈 援먯껜?섏뿬 ?좉퇋 媛쒕컻???명듃媛 UI?곸뿉 臾댁쨷?⑥쑝濡??뺤긽 ?뚮뜑留곷릺?꾨줉 援ы쁽.
 
-        * **[settings.json 분석기 설정 오류 교정]** CustomAnalyzer 하위에 잘못 정의되어 `JsonpMappingException (Unknown field 'decompound_mode')`을 유발하던 `decompound_mode` 설정을 `custom_nori_tokenizer` 토크나이저 정의 하위로 올바르게 재배치하여, 기동 시 places 인덱스가 정상 개설되지 못하던 기동 실패 문제를 완벽 교정함.
-        * **[검색 가중치(Criteria.boost) 차등 조율을 통한 검색 정합성 복원]** Ngram 낱글자 조각 일치 매칭이 너무 광범위하게 적용되어 검색 결과 상단이 엉뚱한 매장들로 어질러지던 문제를 해소하고자, 형태소 정형 매치 필드인 bizesNm(10.0f)과 indsSclsNm(5.0f)에 가산점을 높게 부여하고 Ngram 필드(0.1f) 점수 가중치를 바닥으로 깎아 정확한 매장이 최상단에 우선 정렬되도록 검색 품질 튜닝 완료.
-* `2bad8d4` - **Next.js 프론트엔드 UI 사용 가이드 모달 최신화**
-    * **작업 내용**: 
-        * UI 상단에 노출되는 '사용 가이드'(`UserGuideModal.tsx`)에 기존 4개 항목 외에 최근 추가된 '고성능 하이브리드 장소 탐색'과 '워크스페이스 & 실시간 채팅' 기능 소개 항목을 신규 2건 추가하여 총 6개의 가이드로 갱신함.
+        * **[settings.json 遺꾩꽍湲??ㅼ젙 ?ㅻ쪟 援먯젙]** CustomAnalyzer ?섏쐞???섎せ ?뺤쓽?섏뼱 `JsonpMappingException (Unknown field 'decompound_mode')`???좊컻?섎뜕 `decompound_mode` ?ㅼ젙??`custom_nori_tokenizer` ?좏겕?섏씠? ?뺤쓽 ?섏쐞濡??щ컮瑜닿쾶 ?щ같移섑븯?? 湲곕룞 ??places ?몃뜳?ㅺ? ?뺤긽 媛쒖꽕?섏? 紐삵븯??湲곕룞 ?ㅽ뙣 臾몄젣瑜??꾨꼍 援먯젙??
+        * **[寃??媛以묒튂(Criteria.boost) 李⑤벑 議곗쑉???듯븳 寃???뺥빀??蹂듭썝]** Ngram ?깃???議곌컖 ?쇱튂 留ㅼ묶???덈Т 愿묐쾾?꾪븯寃??곸슜?섏뼱 寃??寃곌낵 ?곷떒???됰슧??留ㅼ옣?ㅻ줈 ?댁쭏?ъ???臾몄젣瑜??댁냼?섍퀬?? ?뺥깭???뺥삎 留ㅼ튂 ?꾨뱶??bizesNm(10.0f)怨?indsSclsNm(5.0f)??媛?곗젏???믨쾶 遺?ы븯怨?Ngram ?꾨뱶(0.1f) ?먯닔 媛以묒튂瑜?諛붾떏?쇰줈 源롮븘 ?뺥솗??留ㅼ옣??理쒖긽?⑥뿉 ?곗꽑 ?뺣젹?섎룄濡?寃???덉쭏 ?쒕떇 ?꾨즺.
+* `2bad8d4` - **Next.js ?꾨줎?몄뿏??UI ?ъ슜 媛?대뱶 紐⑤떖 理쒖떊??*
+    * **?묒뾽 ?댁슜**: 
+        * UI ?곷떒???몄텧?섎뒗 '?ъ슜 媛?대뱶'(`UserGuideModal.tsx`)??湲곗〈 4媛???ぉ ?몄뿉 理쒓렐 異붽???'怨좎꽦???섏씠釉뚮━???μ냼 ?먯깋'怨?'?뚰겕?ㅽ럹?댁뒪 & ?ㅼ떆媛?梨꾪똿' 湲곕뒫 ?뚭컻 ??ぉ???좉퇋 2嫄?異붽??섏뿬 珥?6媛쒖쓽 媛?대뱶濡?媛깆떊??
 
-### 📅 2026-07-25: 스프링 부트 4.0.3 유지 및 네이티브 ElasticsearchClient 직접 구동을 통한 ES 호환성 최종 타파 패치
-* `e4f72ce` - **스프링 부트 4.0.3 유지 및 네이티브 ElasticsearchClient 직접 구동을 통한 ES 호환성 최종 타파 패치**
-    * **작업 내용**:
-        * 스프링 부트 4.0.3 버전을 유지하되, 8.x 클라이언트 하향 시 검색 쿼리 매핑 도중 `Hit.matchedQueries()` 누락으로 발생하던 `NoSuchMethodError`와 9.x 클라이언트가 강제 탑재하던 `compatible-with=9` 규격 문제를 원천 차단하기 위해 아키텍처 개편.
-        * `build.gradle`에서 클라이언트 및 런타임 라이브러리 버전을 **`8.17.0`**으로 다운그레이드하여 8.17.0 서버와 헤더 충돌 리스크를 완전 제거.
-        * 스프링 데이터 Elasticsearch의 추상화 래퍼(`ElasticsearchOperations` 및 `Repository` 프록시)를 거칠 때 터지는 런타임 형 변환 예외를 우회하고자, `PlaceSearchService.java`, `ElasticsearchIndexInitializer.java`, `PlaceKafkaConsumer.java` 전체 영역에서 리포지토리를 배제하고 네이티브 **`ElasticsearchClient`**를 직접 주입받아 벌크(`bulk`), 검색(`search`), 색인(`index`), 삭제(`delete`)를 수행하도록 전면 리팩토링.
-        * 스프링 부트의 내장 자동구성 클래스가 백그라운드에서 임의로 생성하는 `elasticsearchRestClient` 빈과 수동 등록 빈 간의 중복 충돌을 원천 차단하고자, `DattApplication.java`의 `@SpringBootApplication` 선언부에 `ElasticsearchClientAutoConfiguration.class` 자동구성 제외(exclude) 옵션을 적용하여 기동 안정성 완벽 확보.
-        * 272만 건 전체 데이터 수동 동기화 시 JPA 1차 캐시 누적으로 인한 JVM 힙 OOM과 오프셋 페이징 지연(성능 OOM)을 방지하고자, `PlaceMasterRepository.java`에 `findByIdGreaterThanOrderByIdAsc` 쿼리를 추가하여 인덱스 스캔 기반 Keyset 페이징(id > lastId)을 도입하고, `PlaceSearchService.java`에서 매 청크 처리 후 `entityManager.clear()`를 명시적으로 실행하도록 최종 설계 개편.
-        * `SecurityConfig.java`의 `permitAll()` 접근 제어 경로에 `/api/places/migrate`를 등록하여 외부 curl 요청 시 시큐리티 필터 체인에 의한 `403 Forbidden` 차단 문제 완벽 차단.
-* `3b78962` - **PlaceDocument Jackson 역직렬화 오류 수정 (@JsonIgnoreProperties 추가)**
-    * **작업 내용**:
-        * 네이티브 `ElasticsearchClient` 전환 이후, 기존 Spring Data Elasticsearch 가 색인 시점에 주입해 둔 `_class` 메타데이터 필드를 Jackson ObjectMapper가 역직렬화할 때 인식하지 못하여 터지는 `UnrecognizedPropertyException: Unrecognized field "_class"` 에러를 원천 차단함.
-        * `xyz.datt.domain.place.entity.PlaceDocument` 클래스에 `@JsonIgnoreProperties(ignoreUnknown = true)` 어노테이션을 부착하여 `_class` 등 매핑되지 않은 임의의 필드(Unknown property)가 포함된 응답을 받더라도 역직렬화가 무사 통과되도록 엔티티 설정을 보강.
-* `c70d8c5` - **[wave-messaging-service] 스프링 부트 4.0.3 및 Elasticsearch 8.17.0 네이티브 클라이언트로 전면 전환**
-    * **작업 내용**:
-        * DATT 플랫폼과 동일하게 런타임 호환성 확보를 위해 스프링 부트 4.0.3 및 네이티브 ES 클라이언트(8.17.0) 아키텍처로 통일.
-        * `build.gradle` 래퍼 버전 업그레이드(8.14) 및 `WebConfig`의 스프링 7.x 삭제 API(`setUseTrailingSlashMatch`) 제거를 통한 빌드 사이드 이펙트 교정.
-        * 기존 `ChatMessageElasticsearchRepository`를 전면 폐기하고, `ChatMessageKafkaConsumer` 및 `ElasticsearchIndexInitializer`에서 네이티브 `ElasticsearchClient`를 직접 주입받아 메시지를 색인하도록 변경.
-* `44cc2d6` - **[wave-messaging-service] Spring Data ES 의존성 제거 및 네이티브 ElasticsearchClient 빈 직접 생성**
-    * **작업 내용**:
-        * `MyElasticsearchConfig`가 `ElasticsearchConfiguration`을 상속받으면서 발생하는 구버전 의존성 충돌(`NoClassDefFoundError: Rest5ClientOptions`) 크래시 해결.
-        * 상속을 없애고 `RestClientTransport`와 `JacksonJsonpMapper`를 이용한 수동 순수 `@Bean` 등록으로 리팩토링하여 안정화.
-* `49b738d` - **[wave-messaging-service] 스프링 부트 4.0.3 ES 자동 설정 빈 스캔 충돌 완벽 차단**
-    * **작업 내용**:
-        * Spring Boot 4.0.3의 `ElasticsearchClientConfigurations`가 존재하지 않는 `Jackson3JsonpMapper`를 찾으려다 유발하는 런타임 크래시(`Error processing condition`) 원천 차단.
-        * `datt-platform`의 안전한 설정 방식과 완전히 동일하게 `WaveMessagingApplication` 시작점에 `@SpringBootApplication(exclude = {ElasticsearchClientAutoConfiguration.class})`를 추가하여 프레임워크 개입 완벽 배제.
-* `b5bd179` - **[wave-messaging-service] ChatMessageKafkaConsumer ObjectMapper 의존성 자동 주입 실패 크래시 회피**
-    * **작업 내용**:
-        * `datt-platform`의 `PlaceKafkaConsumer`에서 겪었던 이슈와 동일하게, 기동 시점 빈 순서 꼬임으로 `ObjectMapper` 자동 주입이 실패하던 고질적 에러 타파.
-        * `ChatMessageKafkaConsumer` 생성자에서 `ObjectMapper` 주입을 전면 제거하고 내부에서 `new ObjectMapper().findAndRegisterModules()`로 수동 생성하여 런타임 결함 교정 완료.
-* `24d6943` - **[wave-messaging-service] RedisSubscriber 등 프로젝트 전역 ObjectMapper 수동 인스턴스화 일괄 적용**
-    * **작업 내용**:
-        * 단건 픽스(Greedy) 방식이 아닌, `datt-platform`의 전체 설정 기조에 발맞추어 프로젝트 내 `ObjectMapper`를 사용하는 모든 서비스 클래스(`RedisSubscriber` 포함)를 전수 조사.
-        * `RedisSubscriber` 역시 `@RequiredArgsConstructor`를 제거하고 수동 생성자 체제로 전환하여 `new ObjectMapper().findAndRegisterModules()`를 직접 할당함으로써, 추후 발생할 수 있는 동일한 `UnsatisfiedDependencyException`을 프로젝트 레벨에서 원천 차단함.
-*   3 f 9 9 b 4 c   -   * * E l a s t i c s e a r c h   ��,��ƴ�  )���  (�X�  ( �Ӹ�  �x�)�  �\�) * * 
-         *   * * ����  ����* * :   
-                 *   xƀ�  ������ �  O C I   V M X�  |����  I P |�  ��t�  �Ӹ�  9 2 0 0 ��  4��  ���X���  ��x�  p�t�0�|�  ��P�  ���X��  T�8�T���|�  ��l�XՔ�  ��,��ƴ�  ����( M e o w   a t t a c k   �) D�  �Ɯ�  (��h�. 
-                 *   \ d o c k e r - c o m p o s e . y m l \ ���  E S   ��L�t��X�  �Ӹ�  �Q�D�  \ 9 2 0 0 : 9 2 0 0 \ ���  \ 1 2 7 . 0 . 0 . 1 : 9 2 0 0 : 9 2 0 0 \ <�\�  ����X���  $���  \���8֤¸�  �  �@�  ĳ��  $�����l�  ����( S p r i n g   B o o t ,   M e s s a g i n g   S e r v i c e   �) ���̹  ���   ���X�ĳ]�  �%�\�  $�����l�  ����|�  ȩ�h�.  
+### ?뱟 2026-07-25: ?ㅽ봽留?遺??4.0.3 ?좎? 諛??ㅼ씠?곕툕 ElasticsearchClient 吏곸젒 援щ룞???듯븳 ES ?명솚??理쒖쥌 ????⑥튂
+* `e4f72ce` - **?ㅽ봽留?遺??4.0.3 ?좎? 諛??ㅼ씠?곕툕 ElasticsearchClient 吏곸젒 援щ룞???듯븳 ES ?명솚??理쒖쥌 ????⑥튂**
+    * **?묒뾽 ?댁슜**:
+        * ?ㅽ봽留?遺??4.0.3 踰꾩쟾???좎??섎릺, 8.x ?대씪?댁뼵???섑뼢 ??寃??荑쇰━ 留ㅽ븨 ?꾩쨷 `Hit.matchedQueries()` ?꾨씫?쇰줈 諛쒖깮?섎뜕 `NoSuchMethodError`? 9.x ?대씪?댁뼵?멸? 媛뺤젣 ?묒옱?섎뜕 `compatible-with=9` 洹쒓꺽 臾몄젣瑜??먯쿇 李⑤떒?섍린 ?꾪빐 ?꾪궎?띿쿂 媛쒗렪.
+        * `build.gradle`?먯꽌 ?대씪?댁뼵??諛??고????쇱씠釉뚮윭由?踰꾩쟾??**`8.17.0`**?쇰줈 ?ㅼ슫洹몃젅?대뱶?섏뿬 8.17.0 ?쒕쾭? ?ㅻ뜑 異⑸룎 由ъ뒪?щ? ?꾩쟾 ?쒓굅.
+        * ?ㅽ봽留??곗씠??Elasticsearch??異붿긽???섑띁(`ElasticsearchOperations` 諛?`Repository` ?꾨줉??瑜?嫄곗튌 ???곗????고?????蹂???덉쇅瑜??고쉶?섍퀬?? `PlaceSearchService.java`, `ElasticsearchIndexInitializer.java`, `PlaceKafkaConsumer.java` ?꾩껜 ?곸뿭?먯꽌 由ы룷吏?좊━瑜?諛곗젣?섍퀬 ?ㅼ씠?곕툕 **`ElasticsearchClient`**瑜?吏곸젒 二쇱엯諛쏆븘 踰뚰겕(`bulk`), 寃??`search`), ?됱씤(`index`), ??젣(`delete`)瑜??섑뻾?섎룄濡??꾨㈃ 由ы뙥?좊쭅.
+        * ?ㅽ봽留?遺?몄쓽 ?댁옣 ?먮룞援ъ꽦 ?대옒?ㅺ? 諛깃렇?쇱슫?쒖뿉???꾩쓽濡??앹꽦?섎뒗 `elasticsearchRestClient` 鍮덇낵 ?섎룞 ?깅줉 鍮?媛꾩쓽 以묐났 異⑸룎???먯쿇 李⑤떒?섍퀬?? `DattApplication.java`??`@SpringBootApplication` ?좎뼵遺??`ElasticsearchClientAutoConfiguration.class` ?먮룞援ъ꽦 ?쒖쇅(exclude) ?듭뀡???곸슜?섏뿬 湲곕룞 ?덉젙???꾨꼍 ?뺣낫.
+        * 272留?嫄??꾩껜 ?곗씠???섎룞 ?숆린????JPA 1李?罹먯떆 ?꾩쟻?쇰줈 ?명븳 JVM ??OOM怨??ㅽ봽???섏씠吏?吏???깅뒫 OOM)??諛⑹??섍퀬?? `PlaceMasterRepository.java`??`findByIdGreaterThanOrderByIdAsc` 荑쇰━瑜?異붽??섏뿬 ?몃뜳???ㅼ틪 湲곕컲 Keyset ?섏씠吏?id > lastId)???꾩엯?섍퀬, `PlaceSearchService.java`?먯꽌 留?泥?겕 泥섎━ ??`entityManager.clear()`瑜?紐낆떆?곸쑝濡??ㅽ뻾?섎룄濡?理쒖쥌 ?ㅺ퀎 媛쒗렪.
+        * `SecurityConfig.java`??`permitAll()` ?묎렐 ?쒖뼱 寃쎈줈??`/api/places/migrate`瑜??깅줉?섏뿬 ?몃? curl ?붿껌 ???쒗걧由ы떚 ?꾪꽣 泥댁씤???섑븳 `403 Forbidden` 李⑤떒 臾몄젣 ?꾨꼍 李⑤떒.
+* `3b78962` - **PlaceDocument Jackson ??쭅?ы솕 ?ㅻ쪟 ?섏젙 (@JsonIgnoreProperties 異붽?)**
+    * **?묒뾽 ?댁슜**:
+        * ?ㅼ씠?곕툕 `ElasticsearchClient` ?꾪솚 ?댄썑, 湲곗〈 Spring Data Elasticsearch 媛 ?됱씤 ?쒖젏??二쇱엯????`_class` 硫뷀??곗씠???꾨뱶瑜?Jackson ObjectMapper媛 ??쭅?ы솕?????몄떇?섏? 紐삵븯???곗???`UnrecognizedPropertyException: Unrecognized field "_class"` ?먮윭瑜??먯쿇 李⑤떒??
+        * `xyz.datt.domain.place.entity.PlaceDocument` ?대옒?ㅼ뿉 `@JsonIgnoreProperties(ignoreUnknown = true)` ?대끂?뚯씠?섏쓣 遺李⑺븯??`_class` ??留ㅽ븨?섏? ?딆? ?꾩쓽???꾨뱶(Unknown property)媛 ?ы븿???묐떟??諛쏅뜑?쇰룄 ??쭅?ы솕媛 臾댁궗 ?듦낵?섎룄濡??뷀떚???ㅼ젙??蹂닿컯.
+* `c70d8c5` - **[wave-messaging-service] ?ㅽ봽留?遺??4.0.3 諛?Elasticsearch 8.17.0 ?ㅼ씠?곕툕 ?대씪?댁뼵?몃줈 ?꾨㈃ ?꾪솚**
+    * **?묒뾽 ?댁슜**:
+        * DATT ?뚮옯?쇨낵 ?숈씪?섍쾶 ?고????명솚???뺣낫瑜??꾪빐 ?ㅽ봽留?遺??4.0.3 諛??ㅼ씠?곕툕 ES ?대씪?댁뼵??8.17.0) ?꾪궎?띿쿂濡??듭씪.
+        * `build.gradle` ?섑띁 踰꾩쟾 ?낃렇?덉씠??8.14) 諛?`WebConfig`???ㅽ봽留?7.x ??젣 API(`setUseTrailingSlashMatch`) ?쒓굅瑜??듯븳 鍮뚮뱶 ?ъ씠???댄럺??援먯젙.
+        * 湲곗〈 `ChatMessageElasticsearchRepository`瑜??꾨㈃ ?먭린?섍퀬, `ChatMessageKafkaConsumer` 諛?`ElasticsearchIndexInitializer`?먯꽌 ?ㅼ씠?곕툕 `ElasticsearchClient`瑜?吏곸젒 二쇱엯諛쏆븘 硫붿떆吏瑜??됱씤?섎룄濡?蹂寃?
+* `44cc2d6` - **[wave-messaging-service] Spring Data ES ?섏〈???쒓굅 諛??ㅼ씠?곕툕 ElasticsearchClient 鍮?吏곸젒 ?앹꽦**
+    * **?묒뾽 ?댁슜**:
+        * `MyElasticsearchConfig`媛 `ElasticsearchConfiguration`???곸냽諛쏆쑝硫댁꽌 諛쒖깮?섎뒗 援щ쾭???섏〈??異⑸룎(`NoClassDefFoundError: Rest5ClientOptions`) ?щ옒???닿껐.
+        * ?곸냽???놁븷怨?`RestClientTransport`? `JacksonJsonpMapper`瑜??댁슜???섎룞 ?쒖닔 `@Bean` ?깅줉?쇰줈 由ы뙥?좊쭅?섏뿬 ?덉젙??
+* `49b738d` - **[wave-messaging-service] ?ㅽ봽留?遺??4.0.3 ES ?먮룞 ?ㅼ젙 鍮??ㅼ틪 異⑸룎 ?꾨꼍 李⑤떒**
+    * **?묒뾽 ?댁슜**:
+        * Spring Boot 4.0.3??`ElasticsearchClientConfigurations`媛 議댁옱?섏? ?딅뒗 `Jackson3JsonpMapper`瑜?李얠쑝?ㅻ떎 ?좊컻?섎뒗 ?고????щ옒??`Error processing condition`) ?먯쿇 李⑤떒.
+        * `datt-platform`???덉쟾???ㅼ젙 諛⑹떇怨??꾩쟾???숈씪?섍쾶 `WaveMessagingApplication` ?쒖옉?먯뿉 `@SpringBootApplication(exclude = {ElasticsearchClientAutoConfiguration.class})`瑜?異붽??섏뿬 ?꾨젅?꾩썙??媛쒖엯 ?꾨꼍 諛곗젣.
+* `b5bd179` - **[wave-messaging-service] ChatMessageKafkaConsumer ObjectMapper ?섏〈???먮룞 二쇱엯 ?ㅽ뙣 ?щ옒???뚰뵾**
+    * **?묒뾽 ?댁슜**:
+        * `datt-platform`??`PlaceKafkaConsumer`?먯꽌 寃れ뿀???댁뒋? ?숈씪?섍쾶, 湲곕룞 ?쒖젏 鍮??쒖꽌 瑗ъ엫?쇰줈 `ObjectMapper` ?먮룞 二쇱엯???ㅽ뙣?섎뜕 怨좎쭏???먮윭 ???
+        * `ChatMessageKafkaConsumer` ?앹꽦?먯뿉??`ObjectMapper` 二쇱엯???꾨㈃ ?쒓굅?섍퀬 ?대??먯꽌 `new ObjectMapper().findAndRegisterModules()`濡??섎룞 ?앹꽦?섏뿬 ?고???寃고븿 援먯젙 ?꾨즺.
+* `24d6943` - **[wave-messaging-service] RedisSubscriber ???꾨줈?앺듃 ?꾩뿭 ObjectMapper ?섎룞 ?몄뒪?댁뒪???쇨큵 ?곸슜**
+    * **?묒뾽 ?댁슜**:
+        * ?④굔 ?쎌뒪(Greedy) 諛⑹떇???꾨땶, `datt-platform`???꾩껜 ?ㅼ젙 湲곗“??諛쒕쭪異붿뼱 ?꾨줈?앺듃 ??`ObjectMapper`瑜??ъ슜?섎뒗 紐⑤뱺 ?쒕퉬???대옒??`RedisSubscriber` ?ы븿)瑜??꾩닔 議곗궗.
+        * `RedisSubscriber` ??떆 `@RequiredArgsConstructor`瑜??쒓굅?섍퀬 ?섎룞 ?앹꽦??泥댁젣濡??꾪솚?섏뿬 `new ObjectMapper().findAndRegisterModules()`瑜?吏곸젒 ?좊떦?⑥쑝濡쒖뜥, 異뷀썑 諛쒖깮?????덈뒗 ?숈씪??`UnsatisfiedDependencyException`???꾨줈?앺듃 ?덈꺼?먯꽌 ?먯쿇 李⑤떒??
+*   3 f 9 9 b 4 c   -   * * E l a s t i c s e a r c h   쑘,쥡틈? )셈? (?? ( 刃먕  펪?? ?? * * 
+         *   * * 뫧탤  눗㈕* * :   
+                 *   x?? 艸ß먉 ? O C I   V M X? |?쒔? I P |? 둘t? 刃먕  9 2 0 0 斤  4삭? 힙쵾礪? x? p퀃??? ㉩P? ??輛? T??櫓?? 붏l쵾?? 쑘,쥡틈? 艸ß( M e o w   a t t a c k   奏) D? 根쑱  (經쾕? 
+                 *   \ d o c k e r - c o m p o s e . y m l \ 斤? E S   琬L??켡? 刃먕  阿Q?? \ 9 2 0 0 : 9 2 0 0 \ 斤? \ 1 2 7 . 0 . 0 . 1 : 9 2 0 0 : 9 2 0 0 \ <?? 읊쉬X礪? $팁? \몄?聯쨍? ? ?? 캐按  $구駑?? 눗? S p r i n g   B o o t ,   M e s s a g i n g   S e r v i c e   奏) 斤죈? 힙?  Д쾊臘?? ??? $구駑?? ßЧ|? 홉?? 
+ 
+ 
+ 
+ # #   [ T E M P _ H A S H ]   S e r v i c e   t?랠? D푽깽? \망? J a v a d o c   붝 ? -   * * ㈉? * :   ? S e r v i c e   t?랠헫? 눗? D푽깽? \망? R e d i s ,   D B ,   먕쑘?X?   ?? 샦Ч  奏) D? 좇8햯? $햬튪?? 席댱훔  \?? J a v a d o c   붝 ? -   * * 뫧탤  ?? * :   s p r i n g - b o o t - a p p / s r c / m a i n / j a v a / x y z / d a t t / d o m a i n   ? g l o b a l   X??? ㉩石  * S e r v i c e . j a v a   ?? ( ? 3 1 ? 
+ -   * * 뫧탤  눗㈕* * :   
+     -   T堀?? 淺읠  J텬?? 핪쑈? 눗? P?툯? ??? ? 댤캐]? t??? 冒見  ?폁?  ??? 좇8? 恍? 뫧1?     -   0췺? D푽깽? \망?? ?? ??藍? J텬? $팁? 恍죈? 붝 ? ? 탤p퀃퓔? 
+ 
  

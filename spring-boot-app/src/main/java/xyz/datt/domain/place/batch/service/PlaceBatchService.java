@@ -26,6 +26,10 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+/**
+ * 상가정보 데이터를 동기화하기 위한 스프링 배치(Spring Batch) 작업을 실행하고 관리하는 서비스 클래스입니다.
+ * 공공데이터포털에서 최신 상가정보 CSV 파일(ZIP)을 자동 다운로드 및 압축 해제한 뒤, 배치 Job을 기동시킵니다.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,12 @@ public class PlaceBatchService {
     private final JobOperator jobOperator;
     private final Job placeSyncJob;
 
+    /**
+     * 상가정보 데이터 동기화 배치 작업을 비동기(Async)로 실행합니다.
+     * 1. 파일이 존재하지 않는 경우 공공데이터포털에서 파일을 다운로드하고 압축을 해제합니다.
+     * 2. 현재 시간을 타임스탬프로 사용하여 새로운 Job 파라미터를 생성합니다.
+     * 3. Spring Batch의 JobOperator를 통해 상가 동기화 Job(placeSyncJob)을 시작합니다.
+     */
     @Async
     public void runBatch() {
         try {

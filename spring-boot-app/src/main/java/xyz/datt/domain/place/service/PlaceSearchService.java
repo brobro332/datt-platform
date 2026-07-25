@@ -15,6 +15,11 @@ import xyz.datt.domain.place.repository.PlaceMasterRepository;
 
 import java.util.List;
 
+/**
+ * 장소 검색 및 마이그레이션을 담당하는 서비스 클래스입니다.
+ * Elasticsearch를 주력 검색 엔진으로 사용하여 빠른 전문 검색을 제공하며,
+ * 엘라스틱서치 서버 장애 시 PostgreSQL RDBMS로 폴백(Fallback)하는 안정성 로직을 포함하고 있습니다.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,6 +29,13 @@ public class PlaceSearchService {
     private final xyz.datt.domain.place.repository.PlaceElasticsearchRepository placeElasticsearchRepository;
     private final jakarta.persistence.EntityManager entityManager;
 
+    /**
+     * 사용자의 검색어를 기반으로 동의어 및 오타를 교정한 확장 키워드 목록을 생성합니다.
+     * 예를 들어, '댓국'을 '대국'으로, '순대'를 '순댓국', '순대국' 등으로 확장하여 검색 정확도를 높입니다.
+     *
+     * @param keyword 원본 검색 키워드
+     * @return 확장 및 교정된 검색 키워드 리스트 (중복 제거됨)
+     */
     private List<String> expandKeywords(String keyword) {
         List<String> keywords = new java.util.ArrayList<>();
         keywords.add(keyword);
@@ -56,6 +68,15 @@ public class PlaceSearchService {
         return keywords.stream().distinct().toList();
     }
 
+    /**
+     * 장소 검색 조건에 따라 장소 목록을 페이징하여 조회합니다.
+     * 검색어가 포함된 경우 Elasticsearch의 다중 필드(상호명, 업종, 주소 등)에 가중치(boost)를 부여하여 검색을 수행하며,
+     * 검색 과정에서 예외가 발생할 경우 {@link PlaceMasterRepository#searchPlaces}를 호출하여 RDBMS로 폴백 검색을 진행합니다.
+     *
+     * @param condition 장소 검색 조건 (키워드, 시/도 단위, 시/군/구 단위 등)
+     * @param pageable 페이징 파라미터 (offset, limit)
+     * @return 검색 조건에 부합하는 장소 응답 DTO의 페이지 객체
+     */
     public Page<PlaceSearchResponse> searchPlaces(
         PlaceSearchCondition condition,
         Pageable pageable
@@ -118,6 +139,14 @@ public class PlaceSearchService {
         return placeMasterRepository.searchPlaces(condition, pageable);
      }
 
+    /**
+     * RDBMS(PostgreSQL)의 장소 마스터 데이터를 Elasticsearch 인덱스로 마이그레이션(Bulk Insert)합니다.
+     * 대용량 데이터 처리를 위해 Id 기반의 Keyset 페이징 방식을 적용하고, 청크 단위로 Elasticsearch에 벌크 요청을 보냅니다.
+     * OOM(Out of Memory) 방지를 위해 각 배치 처리 후 JPA EntityManager의 영속성 컨텍스트를 초기화(clear)합니다.
+     *
+     * @param limit 최대 마이그레이션 대상 문서 수
+     * @return Elasticsearch로 성공적으로 마이그레이션된 총 문서 수
+     */
     public long migratePlaces(int limit) {
         log.info("Starting manual place migration up to limit={}", limit);
         long totalCount = placeMasterRepository.count();

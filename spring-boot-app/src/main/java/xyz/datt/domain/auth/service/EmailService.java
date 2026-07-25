@@ -12,6 +12,13 @@ import xyz.datt.domain.auth.repository.EmailVerificationRepository;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 
+/**
+ * 이메일 인증 코드 발송 및 발송 내역 관리를 담당하는 서비스입니다.
+ * <p>
+ * 난수를 생성하여 사용자에게 SMTP 서버를 통해 이메일을 전송하며,
+ * 전송된 인증 코드와 만료 시간을 DB에 기록하여 추후 검증 시 사용되도록 합니다.
+ * </p>
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -20,6 +27,18 @@ public class EmailService {
     private final EmailVerificationRepository emailVerificationRepository;
     private static final SecureRandom secureRandom = new SecureRandom();
 
+    /**
+     * 주어진 이메일 주소로 인증 코드를 생성하여 발송합니다.
+     * <p>
+     * 1. 6자리 난수로 구성된 인증 코드를 생성합니다.<br>
+     * 2. 현재 시간 기준 3분 뒤를 만료 시간으로 설정합니다.<br>
+     * 3. JavaMailSender를 통해 이메일을 발송합니다.<br>
+     * 4. 발송 실패 시 (예: SMTP 서버 미설정) 에러를 로깅하고 콘솔에 인증 코드를 출력하는 Fallback 로직을 수행합니다.<br>
+     * 5. 최종적으로 생성된 인증 코드와 만료 정보를 DB에 저장합니다.
+     * </p>
+     *
+     * @param email 인증 코드를 받을 사용자의 이메일 주소
+     */
     @Transactional
     public void sendVerificationCode(String email) {
         String code = generateVerificationCode();
@@ -43,6 +62,11 @@ public class EmailService {
         emailVerificationRepository.save(verification);
     }
 
+    /**
+     * 6자리의 숫자 인증 코드를 안전하게(SecureRandom) 생성합니다.
+     *
+     * @return 100000 ~ 999999 범위의 무작위 숫자 문자열
+     */
     private String generateVerificationCode() {
         int codeValue = secureRandom.nextInt(900000) + 100000; // 100000 ~ 999999
         return String.valueOf(codeValue);
