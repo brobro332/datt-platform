@@ -6,12 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.IndexOperations;
 import org.springframework.stereotype.Component;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import xyz.datt.domain.place.entity.PlaceDocument;
 import xyz.datt.domain.place.entity.PlaceMaster;
-import xyz.datt.domain.place.repository.PlaceElasticsearchRepository;
 import xyz.datt.domain.place.repository.PlaceMasterRepository;
 
 import java.util.List;
@@ -21,24 +19,20 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ElasticsearchIndexInitializer {
 
-    private final ElasticsearchOperations elasticsearchOperations;
+    private final ElasticsearchClient elasticsearchClient;
     private final PlaceMasterRepository placeMasterRepository;
-    private final PlaceElasticsearchRepository placeElasticsearchRepository;
     private final EntityManager entityManager;
 
     @EventListener(ApplicationReadyEvent.class)
     public void initializeIndices() {
         try {
-            IndexOperations indexOps = elasticsearchOperations.indexOps(PlaceDocument.class);
-            
             boolean indexCreated = false;
             try {
                 log.info("Attempting to create Elasticsearch 'places' index...");
-                indexCreated = indexOps.create();
-                if (indexCreated) {
-                    indexOps.putMapping(indexOps.createMapping(PlaceDocument.class));
-                    log.info("Successfully created new 'places' index.");
-                }
+                // Native indices create
+                elasticsearchClient.indices().create(c -> c.index("places"));
+                log.info("Successfully created new 'places' index.");
+                indexCreated = true;
             } catch (Exception e) {
                 String rootMsg = e.toString();
                 if (rootMsg.contains("resource_already_exists_exception") || rootMsg.contains("alreadyexists") || rootMsg.contains("already exists")) {
@@ -58,26 +52,54 @@ public class ElasticsearchIndexInitializer {
                         log.info("Starting background FULL migration of 2,725,322 places to Elasticsearch...");
                         long totalCount = placeMasterRepository.count();
                         int pageSize = 2000;
-                        int totalPages = (int) Math.ceil((double) totalCount / pageSize);
-                        log.info("Total places to migrate: {}. Total pages: {}", totalCount, totalPages);
+                        log.info("Total places to migrate: {}", totalCount);
 
                         long migratedCount = 0;
-                        for (int i = 0; i < totalPages; i++) {
-                            List<PlaceMaster> chunk = placeMasterRepository.findAll(PageRequest.of(i, pageSize)).getContent();
-                            if (!chunk.isEmpty()) {
-                                List<PlaceDocument> docs = chunk.stream()
-                                        .map(PlaceDocument::from)
-                                        .toList();
-                                placeElasticsearchRepository.saveAll(docs);
-                                migratedCount += docs.size();
-                                
-                                // [Crucial optimization] Clear Hibernate persistence context to prevent heap OOM
-                                entityManager.clear();
-                                
-                                if ((i + 1) % 10 == 0 || (i + 1) == totalPages) {
-                                    log.info("Background Full Migration Progress: {}/{} pages ({} / {} docs migrated)", 
-                                            i + 1, totalPages, migratedCount, totalCount);
-                                }
+                        Long lastId = 0L;
+
+                        while (migratedCount < totalCount) {
+                            int currentBatchSize = Math.min(pageSize, (int) (totalCount - migratedCount));
+                            if (currentBatchSize <= 0) {
+                                break;
+                            }
+
+                            List<PlaceMaster> chunk = placeMasterRepository.findByIdGreaterThanOrderByIdAsc(
+                                    lastId, PageRequest.of(0, currentBatchSize)
+                            );
+
+                            if (chunk.isEmpty()) {
+                                break;
+                            }
+
+                            List<PlaceDocument> docs = chunk.stream()
+                                    .map(PlaceDocument::from)
+                                    .toList();
+
+                            // Native bulk indexing
+                            co.elastic.clients.elasticsearch.core.BulkRequest.Builder br = new co.elastic.clients.elasticsearch.core.BulkRequest.Builder();
+                            for (PlaceDocument doc : docs) {
+                                br.operations(op -> op
+                                    .index(idx -> idx
+                                        .index("places")
+                                        .id(doc.getId())
+                                        .document(doc)
+                                    )
+                                );
+                            }
+                            co.elastic.clients.elasticsearch.core.BulkResponse result = elasticsearchClient.bulk(br.build());
+                            if (result.errors()) {
+                                log.error("Background Bulk index execution reported errors");
+                            }
+
+                            migratedCount += docs.size();
+                            lastId = chunk.get(chunk.size() - 1).getId();
+
+                            // Clear Hibernate persistence context to prevent heap OOM
+                            entityManager.clear();
+
+                            if (migratedCount % 20000 == 0 || migratedCount >= totalCount) {
+                                log.info("Background Full Migration Progress: {} / {} docs migrated", 
+                                        migratedCount, totalCount);
                             }
                         }
                         log.info("Successfully finished FULL background migration. Total migrated={}", migratedCount);
@@ -86,9 +108,8 @@ public class ElasticsearchIndexInitializer {
                     }
                 });
             }
-
         } catch (Exception e) {
-            log.error("Failed to initialize Elasticsearch 'places' index", e);
+            log.error("Failed to initialize Elasticsearch indices", e);
         }
     }
 }

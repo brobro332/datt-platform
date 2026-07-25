@@ -1,12 +1,11 @@
 package xyz.datt.domain.place.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import xyz.datt.domain.place.entity.PlaceDocument;
-import xyz.datt.domain.place.repository.PlaceElasticsearchRepository;
 
 import java.util.Map;
 
@@ -14,11 +13,11 @@ import java.util.Map;
 @Service
 public class PlaceKafkaConsumer {
 
-    private final PlaceElasticsearchRepository placeElasticsearchRepository;
+    private final ElasticsearchClient elasticsearchClient;
     private final ObjectMapper objectMapper;
 
-    public PlaceKafkaConsumer(PlaceElasticsearchRepository placeElasticsearchRepository) {
-        this.placeElasticsearchRepository = placeElasticsearchRepository;
+    public PlaceKafkaConsumer(ElasticsearchClient elasticsearchClient) {
+        this.elasticsearchClient = elasticsearchClient;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -35,14 +34,21 @@ public class PlaceKafkaConsumer {
 
             if ("DELETE".equals(eventType)) {
                 if (placeId != null) {
-                    placeElasticsearchRepository.deleteById(placeId);
+                    elasticsearchClient.delete(d -> d
+                        .index("places")
+                        .id(placeId)
+                    );
                     log.info("Deleted place from ES index: id={}", placeId);
                 }
             } else {
                 Map<?, ?> placeMap = (Map<?, ?>) message.get("place");
                 if (placeMap != null) {
                     PlaceDocument placeDoc = objectMapper.convertValue(placeMap, PlaceDocument.class);
-                    placeElasticsearchRepository.save(placeDoc);
+                    elasticsearchClient.index(i -> i
+                        .index("places")
+                        .id(placeDoc.getId())
+                        .document(placeDoc)
+                    );
                     log.info("Indexed place to ES index: name={}, id={}", placeDoc.getBizesNm(), placeId);
                 }
             }

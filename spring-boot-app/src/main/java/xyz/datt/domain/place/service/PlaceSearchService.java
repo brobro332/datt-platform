@@ -5,10 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
-import org.springframework.data.elasticsearch.core.SearchHits;
-import org.springframework.data.elasticsearch.core.query.Criteria;
-import org.springframework.data.elasticsearch.core.query.CriteriaQuery;
+import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import org.springframework.stereotype.Service;
 import xyz.datt.domain.place.dto.PlaceSearchCondition;
 import xyz.datt.domain.place.dto.PlaceSearchResponse;
@@ -22,7 +20,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlaceSearchService {
     private final PlaceMasterRepository placeMasterRepository;
-    private final ElasticsearchOperations elasticsearchOperations;
+    private final ElasticsearchClient elasticsearchClient;
     private final xyz.datt.domain.place.repository.PlaceElasticsearchRepository placeElasticsearchRepository;
     private final jakarta.persistence.EntityManager entityManager;
 
@@ -70,36 +68,46 @@ public class PlaceSearchService {
                 List<String> searchTerms = expandKeywords(condition.getKeyword());
                 log.info("Expanded search terms for query: {}", searchTerms);
 
-                Criteria criteria = null;
+                // Build should queries for keywords
+                java.util.List<Query> shouldQueries = new java.util.ArrayList<>();
                 for (String term : searchTerms) {
-                    Criteria termCriteria = new Criteria("bizesNm").is(term).boost(10.0f)
-                            .or(new Criteria("bizesNm.ngram").is(term).boost(0.1f))
-                            .or(new Criteria("indsSclsNm").is(term).boost(5.0f))
-                            .or(new Criteria("indsSclsNm.ngram").is(term).boost(0.05f))
-                            .or(new Criteria("rdnmAdr").is(term).boost(1.0f));
-                    
-                    if (criteria == null) {
-                        criteria = termCriteria;
-                    } else {
-                        criteria = criteria.or(termCriteria);
-                    }
+                    shouldQueries.add(Query.of(q -> q.match(m -> m.field("bizesNm").query(term).boost(10.0f))));
+                    shouldQueries.add(Query.of(q -> q.match(m -> m.field("bizesNm.ngram").query(term).boost(0.1f))));
+                    shouldQueries.add(Query.of(q -> q.match(m -> m.field("indsSclsNm").query(term).boost(5.0f))));
+                    shouldQueries.add(Query.of(q -> q.match(m -> m.field("indsSclsNm.ngram").query(term).boost(0.05f))));
+                    shouldQueries.add(Query.of(q -> q.match(m -> m.field("rdnmAdr").query(term).boost(1.0f))));
                 }
+
+                // Build must queries (combining keyword shoulds + location constraints)
+                java.util.List<Query> mustQueries = new java.util.ArrayList<>();
+                mustQueries.add(Query.of(q -> q.bool(b -> b.should(shouldQueries).minimumShouldMatch("1"))));
 
                 if (condition.getCtprvnNm() != null && !condition.getCtprvnNm().isBlank()) {
-                    criteria = criteria.and(new Criteria("ctprvnNm").is(condition.getCtprvnNm()));
+                    mustQueries.add(Query.of(q -> q.term(t -> t.field("ctprvnNm").value(condition.getCtprvnNm()))));
                 }
                 if (condition.getSignguNm() != null && !condition.getSignguNm().isBlank()) {
-                    criteria = criteria.and(new Criteria("signguNm").is(condition.getSignguNm()));
+                    mustQueries.add(Query.of(q -> q.term(t -> t.field("signguNm").value(condition.getSignguNm()))));
                 }
 
-                CriteriaQuery query = new CriteriaQuery(criteria, pageable);
-                SearchHits<PlaceDocument> searchHits = elasticsearchOperations.search(query, PlaceDocument.class);
+                int from = (int) pageable.getOffset();
+                int size = pageable.getPageSize();
 
-                List<PlaceSearchResponse> list = searchHits.stream()
-                        .map(hit -> PlaceSearchResponse.from(hit.getContent()))
+                co.elastic.clients.elasticsearch.core.SearchRequest searchRequest = co.elastic.clients.elasticsearch.core.SearchRequest.of(s -> s
+                        .index("places")
+                        .query(q -> q.bool(b -> b.must(mustQueries)))
+                        .from(from)
+                        .size(size)
+                );
+
+                co.elastic.clients.elasticsearch.core.SearchResponse<PlaceDocument> searchResponse =
+                        elasticsearchClient.search(searchRequest, PlaceDocument.class);
+
+                List<PlaceSearchResponse> list = searchResponse.hits().hits().stream()
+                        .map(hit -> PlaceSearchResponse.from(hit.source()))
                         .toList();
 
-                return new PageImpl<>(list, pageable, searchHits.getTotalHits());
+                long totalHits = searchResponse.hits().total() != null ? searchResponse.hits().total().value() : 0L;
+                return new PageImpl<>(list, pageable, totalHits);
             } catch (Exception e) {
                 log.error("Elasticsearch search failed, falling back to PostgreSQL RDBMS search", e);
             }
@@ -137,7 +145,26 @@ public class PlaceSearchService {
                     .map(PlaceDocument::from)
                     .toList();
 
-            placeElasticsearchRepository.saveAll(docs);
+            try {
+                co.elastic.clients.elasticsearch.core.BulkRequest.Builder br = new co.elastic.clients.elasticsearch.core.BulkRequest.Builder();
+                for (PlaceDocument doc : docs) {
+                    br.operations(op -> op
+                        .index(idx -> idx
+                            .index("places")
+                            .id(doc.getId())
+                            .document(doc)
+                        )
+                    );
+                }
+                co.elastic.clients.elasticsearch.core.BulkResponse result = elasticsearchClient.bulk(br.build());
+                if (result.errors()) {
+                    log.error("Bulk index execution reported errors");
+                }
+            } catch (Exception e) {
+                log.error("Native bulk indexing failed", e);
+                throw new RuntimeException("Native bulk indexing failed", e);
+            }
+
             migratedCount += docs.size();
 
             // Record last ID for the next keyset page
