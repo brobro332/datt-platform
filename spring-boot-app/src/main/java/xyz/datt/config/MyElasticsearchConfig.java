@@ -32,7 +32,7 @@ public class MyElasticsearchConfig {
     }
 
     @Bean
-    public ElasticsearchOperations elasticsearchOperations(ElasticsearchClient client) {
+    public ElasticsearchOperations elasticsearchTemplate(ElasticsearchClient client) {
         return new ElasticsearchTemplate(client);
     }
 }

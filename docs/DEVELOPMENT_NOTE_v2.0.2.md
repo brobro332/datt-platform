@@ -39,12 +39,13 @@
         * **[settings.json 분석기 설정 오류 교정]** CustomAnalyzer 하위에 잘못 정의되어 `JsonpMappingException (Unknown field 'decompound_mode')`을 유발하던 `decompound_mode` 설정을 `custom_nori_tokenizer` 토크나이저 정의 하위로 올바르게 재배치하여, 기동 시 places 인덱스가 정상 개설되지 못하던 기동 실패 문제를 완벽 교정함.
         * **[검색 가중치(Criteria.boost) 차등 조율을 통한 검색 정합성 복원]** Ngram 낱글자 조각 일치 매칭이 너무 광범위하게 적용되어 검색 결과 상단이 엉뚱한 매장들로 어질러지던 문제를 해소하고자, 형태소 정형 매치 필드인 bizesNm(10.0f)과 indsSclsNm(5.0f)에 가산점을 높게 부여하고 Ngram 필드(0.1f) 점수 가중치를 바닥으로 깎아 정확한 매장이 최상단에 우선 정렬되도록 검색 품질 튜닝 완료.
 
-### 📅 2026-07-25: Elasticsearch 8.17.0 다운그레이드, 빈 충돌, 자동구성 배제 및 수동 빈 오버라이딩 최종 패치
-* `4b4d985` - **Elasticsearch 8.17.0 다운그레이드, 빈 충돌, 자동구성 배제 및 수동 빈 오버라이딩 최종 패치**
+### 📅 2026-07-25: Elasticsearch 8.17.0 다운그레이드, 빈 충돌, 자동구성 배제, 리포지토리 와이어링 호환 최종 패치
+* `529ae0b` - **Elasticsearch 8.17.0 다운그레이드, 빈 충돌, 자동구성 배제, 리포지토리 와이어링 호환 최종 패치**
     * **작업 내용**:
         * `build.gradle`에서 스프링 부트 4.0.3이 기본 내장하는 9.2.5 버전의 Elasticsearch Java Client 라이브러리를 **`8.17.0`** 버전으로 하향 고정하여, `compatible-with=9` 무단 헤더 문제를 원천 차단.
         * 이 과정에서 스프링 부트 4.x 자동구성 시 9.x 전용 클래스(`Rest5ClientOptions`)를 호출하려다 런타임에 `NoClassDefFoundError`가 터지던 기동장애를 우회하기 위해, `MyElasticsearchConfig.java`에서 `ElasticsearchConfiguration` 상속을 배제하고 `RestClient`, `ElasticsearchTransport`, `ElasticsearchClient`, `ElasticsearchOperations` 빈을 수동으로 선언 오버라이딩.
         * 스프링 부트의 내장 자동구성 클래스가 백그라운드에서 임의로 생성하는 `elasticsearchRestClient` 빈과 수동 등록 빈 간의 중복 충돌을 원천 차단하고자, `DattApplication.java`의 `@SpringBootApplication` 선언부에 `ElasticsearchClientAutoConfiguration.class` 자동구성 제외(exclude) 옵션을 적용하여 기동 안정성 완벽 확보.
+        * 스프링 데이터 Elasticsearch 리포지토리 모듈(`PlaceElasticsearchRepository`)이 초기화될 때 내부 프록시 생성 과정에서 요구하는 필수 빈 명칭인 **`elasticsearchTemplate`**을 제공하기 위해, `MyElasticsearchConfig.java`의 빈 메소드 명칭을 기존 `elasticsearchOperations`에서 `elasticsearchTemplate`으로 맞춰 바인딩 누락 기동 장애 완벽 교정.
         * `ElasticsearchIndexInitializer.java`에서 HTTP HEAD 요청을 날려 빈 바디 파싱 에러(`Expecting a response body, but none was sent`)를 내던 `indexOps.exists()` 호출을 전면 제거.
         * `docker-compose.yml` 에서 `wave-messaging-service`가 바라보던 데이터베이스 명칭을 `datt_wave` 에서 `datt` 으로 일원화하여, 부팅 시 `FATAL: database "datt_wave" does not exist` 예외 해결.
         * `PlaceKafkaConsumer.java`의 수신 파라미터 시그니처를 `String`에서 `Map<String, Object>`로 리팩토링하고 `String.valueOf(placeId)` 안전 캐스팅을 가미하여, 수신된 HashMap 메시지 역직렬화 시 `MessageConversionException` 에러가 터지던 오류 완벽 교정.
