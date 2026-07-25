@@ -39,11 +39,12 @@
         * **[settings.json 분석기 설정 오류 교정]** CustomAnalyzer 하위에 잘못 정의되어 `JsonpMappingException (Unknown field 'decompound_mode')`을 유발하던 `decompound_mode` 설정을 `custom_nori_tokenizer` 토크나이저 정의 하위로 올바르게 재배치하여, 기동 시 places 인덱스가 정상 개설되지 못하던 기동 실패 문제를 완벽 교정함.
         * **[검색 가중치(Criteria.boost) 차등 조율을 통한 검색 정합성 복원]** Ngram 낱글자 조각 일치 매칭이 너무 광범위하게 적용되어 검색 결과 상단이 엉뚱한 매장들로 어질러지던 문제를 해소하고자, 형태소 정형 매치 필드인 bizesNm(10.0f)과 indsSclsNm(5.0f)에 가산점을 높게 부여하고 Ngram 필드(0.1f) 점수 가중치를 바닥으로 깎아 정확한 매장이 최상단에 우선 정렬되도록 검색 품질 튜닝 완료.
 
-### 📅 2026-07-25: 스프링 부트 4.0.3 유지 및 로우 레벨 HttpRequestInterceptor 를 통한 ES 호환성 최종 패치
-* `8542989` - **스프링 부트 4.0.3 유지 및 로우 레벨 HttpRequestInterceptor 를 통한 ES 호환성 최종 패치**
+### 📅 2026-07-25: 스프링 부트 4.0.3 유지 및 대소문자 무관 HttpRequestInterceptor 호환성 보강 패치
+* `a9a3863` - **스프링 부트 4.0.3 유지 및 대소문자 무관 HttpRequestInterceptor 호환성 보강 패치**
     * **작업 내용**:
         * 스프링 부트 4.0.3 버전을 그대로 유지하면서, 8.x 클라이언트 하향 시 검색 쿼리 매핑 도중 `Hit.matchedQueries()` 누락으로 발생하던 `NoSuchMethodError`를 방지하기 위해 `9.2.5` 순정 클라이언트로 복원.
-        * `9.2.5` 클라이언트가 네트워크 송출 전 헤더에 무단 탑재하는 `compatible-with=9`로 인해 8.17.0 서버가 `media_type_header_exception`을 내는 문제를 우회하고자, `build.gradle`에 `elasticsearch-rest-client:8.17.0`을 직접 탑재하고 `MyElasticsearchConfig.java`에 로우 레벨 **`HttpRequestInterceptor`**를 직접 삽입하여 송출 직전 `compatible-with=8`로 실시간 오버라이딩 처리.
+        * `9.2.5` 클라이언트가 네트워크 송출 전 헤더에 무단 탑재하는 `compatible-with=9`로 인해 8.17.0 서버가 `media_type_header_exception`을 내는 문제를 우회하고자, `build.gradle`에 `elasticsearch-rest-client:8.17.0`을 직접 탑재하고 `MyElasticsearchConfig.java`에 로우 레벨 **`HttpRequestInterceptor`**를 직접 삽입.
+        * 이때, 클라이언트 엔진이 헤더를 소문자(`accept`, `content-type`)로 보낼 경우 대소문자 구별 필터(`getHeaders("Accept")`)에 걸리지 않고 통과하여 에러가 재발하던 리스크를 완벽 타파하기 위해, `request.getAllHeaders()`로 전체 헤더를 순회하며 `equalsIgnoreCase` 조건으로 대소문자 구분 없이 무조건 `compatible-with=8`로 정화해 내보내도록 최종 보강 완료.
         * 스프링 부트의 내장 자동구성 클래스가 백그라운드에서 임의로 생성하는 `elasticsearchRestClient` 빈과 수동 등록 빈 간의 중복 충돌을 원천 차단하고자, `DattApplication.java`의 `@SpringBootApplication` 선언부에 `ElasticsearchClientAutoConfiguration.class` 자동구성 제외(exclude) 옵션을 적용하여 기동 안정성 완벽 확보.
         * 272만 건 전체 데이터 수동 동기화 시 JPA 1차 캐시 누적으로 인한 JVM 힙 OOM과 오프셋 페이징 지연(성능 OOM)을 방지하고자, `PlaceMasterRepository.java`에 `findByIdGreaterThanOrderByIdAsc` 쿼리를 추가하여 인덱스 스캔 기반 Keyset 페이징(id > lastId)을 도입하고, `PlaceSearchService.java`에서 매 청크 처리 후 `entityManager.clear()`를 명시적으로 실행하도록 최종 설계 개편.
         * `SecurityConfig.java`의 `permitAll()` 접근 제어 경로에 `/api/places/migrate`를 등록하여 외부 curl 요청 시 시큐리티 필터 체인에 의한 `403 Forbidden` 차단 문제 완벽 차단.

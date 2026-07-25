@@ -22,20 +22,15 @@ public class MyElasticsearchConfig {
                 new HttpHost("elasticsearch", 9200, "http")
         ).setHttpClientConfigCallback(httpClientBuilder ->
                 httpClientBuilder.addInterceptorFirst((HttpRequest request, org.apache.http.protocol.HttpContext context) -> {
-                    // Filter Accept header to downgrade compatibility mapping
-                    for (Header header : request.getHeaders("Accept")) {
-                        String value = header.getValue();
-                        if (value != null && value.contains("compatible-with=9")) {
-                            request.removeHeader(header);
-                            request.addHeader("Accept", value.replace("compatible-with=9", "compatible-with=8"));
-                        }
-                    }
-                    // Filter Content-Type header to downgrade compatibility mapping
-                    for (Header header : request.getHeaders("Content-Type")) {
-                        String value = header.getValue();
-                        if (value != null && value.contains("compatible-with=9")) {
-                            request.removeHeader(header);
-                            request.addHeader("Content-Type", value.replace("compatible-with=9", "compatible-with=8"));
+                    // Case-insensitive filtering of all request headers to capture "accept" / "content-type"
+                    for (Header header : request.getAllHeaders()) {
+                        String name = header.getName();
+                        if (name.equalsIgnoreCase("Accept") || name.equalsIgnoreCase("Content-Type")) {
+                            String value = header.getValue();
+                            if (value != null && value.contains("compatible-with=9")) {
+                                request.removeHeader(header);
+                                request.addHeader(name, value.replace("compatible-with=9", "compatible-with=8"));
+                            }
                         }
                     }
                 })
