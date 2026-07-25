@@ -6,7 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = {
+		org.springframework.boot.elasticsearch.autoconfigure.ElasticsearchClientAutoConfiguration.class
+})
 @EnableJpaAuditing
 @EnableAsync
 public class DattApplication {

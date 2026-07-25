@@ -15,15 +15,15 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 public class MyElasticsearchConfig {
 
     @Bean
-    public RestClient elasticsearchRestClient() {
+    public RestClient dattElasticsearchRestClient() {
         return RestClient.builder(
                 new HttpHost("elasticsearch", 9200, "http")
         ).build();
     }
 
     @Bean
-    public ElasticsearchTransport elasticsearchTransport(RestClient elasticsearchRestClient) {
-        return new RestClientTransport(elasticsearchRestClient, new JacksonJsonpMapper());
+    public ElasticsearchTransport elasticsearchTransport(RestClient dattElasticsearchRestClient) {
+        return new RestClientTransport(dattElasticsearchRestClient, new JacksonJsonpMapper());
     }
 
     @Bean
