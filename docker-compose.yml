@@ -212,7 +212,7 @@ services:
       - /home/ubuntu/wave-messaging-service/build/libs:/app
     environment:
       - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://datt-db:5432/datt_wave
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://datt-db:5432/datt
       - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
       - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
       - SPRING_DATA_REDIS_HOST=wave-redis
