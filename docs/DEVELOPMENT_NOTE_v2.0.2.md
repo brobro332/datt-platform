@@ -39,10 +39,11 @@
         * **[settings.json 분석기 설정 오류 교정]** CustomAnalyzer 하위에 잘못 정의되어 `JsonpMappingException (Unknown field 'decompound_mode')`을 유발하던 `decompound_mode` 설정을 `custom_nori_tokenizer` 토크나이저 정의 하위로 올바르게 재배치하여, 기동 시 places 인덱스가 정상 개설되지 못하던 기동 실패 문제를 완벽 교정함.
         * **[검색 가중치(Criteria.boost) 차등 조율을 통한 검색 정합성 복원]** Ngram 낱글자 조각 일치 매칭이 너무 광범위하게 적용되어 검색 결과 상단이 엉뚱한 매장들로 어질러지던 문제를 해소하고자, 형태소 정형 매치 필드인 bizesNm(10.0f)과 indsSclsNm(5.0f)에 가산점을 높게 부여하고 Ngram 필드(0.1f) 점수 가중치를 바닥으로 깎아 정확한 매장이 최상단에 우선 정렬되도록 검색 품질 튜닝 완료.
 
-### 📅 2026-07-25: ES HttpHeaders.clear() 최종 정화, DB 통합, Kafka Map 역직렬화 및 수동 마이그레이션 허용 패치
-* `e10bc0f` - **ES HttpHeaders.clear() 최종 정화, DB 통합, Kafka Map 역직렬화 및 수동 마이그레이션 허용 패치**
+### 📅 2026-07-25: Elasticsearch 8.17.0 클라이언트 다운그레이드로 HTTP 프로토콜 규격 오류 완전 차단 패치
+* `718c819` - **Elasticsearch 8.17.0 클라이언트 다운그레이드로 HTTP 프로토콜 규격 오류 완전 차단 패치**
     * **작업 내용**:
-        * `MyElasticsearchConfig.java`의 API 요청 빌더에서 `headers.clear()`를 사용하여 스프링 데이터 ES 라이브러리가 기본 탑재하던 호환성 헤더(`compatible-with=9`)를 완전히 청소한 뒤, `Accept: application/json`만 깔끔하게 주입하도록 최종 리팩토링. 이로써 `indices.refresh`와 `es/bulk` 요청 모두에서 `media_type_header_exception` 에러 완전 영구 해결.
+        * `build.gradle`에서 스프링 부트 4.0.3이 기본 내장하는 9.2.5 버전의 Elasticsearch Java Client 라이브러리를 **`8.17.0`** 버전으로 하향 고정하여, 클라이언트가 무단 전송하던 `compatible-with=9` 호환성 헤더 문제를 원천 차단.
+        * 버전이 일치함에 따라 `MyElasticsearchConfig.java`에서 억지로 우회하려던 복잡한 헤더 오버라이딩(`withHeaders`) 설정을 완전히 걷어내고 순정 상태로 통신하도록 정비. 이로써 `es/bulk` 및 `indices.refresh` 통신 규격 정상화.
         * `ElasticsearchIndexInitializer.java`에서 HTTP HEAD 요청을 날려 빈 바디 파싱 에러(`Expecting a response body, but none was sent`)를 내던 `indexOps.exists()` 호출을 전면 제거.
         * `docker-compose.yml` 에서 `wave-messaging-service`가 바라보던 데이터베이스 명칭을 `datt_wave` 에서 `datt` 으로 일원화하여, 부팅 시 `FATAL: database "datt_wave" does not exist` 예외 해결.
         * `PlaceKafkaConsumer.java`의 수신 파라미터 시그니처를 `String`에서 `Map<String, Object>`로 리팩토링하고 `String.valueOf(placeId)` 안전 캐스팅을 가미하여, 수신된 HashMap 메시지 역직렬화 시 `MessageConversionException` 에러가 터지던 오류 완벽 교정.
