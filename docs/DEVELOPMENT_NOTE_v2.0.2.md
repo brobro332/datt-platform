@@ -48,8 +48,7 @@
         * 스프링 부트의 내장 자동구성 클래스가 백그라운드에서 임의로 생성하는 `elasticsearchRestClient` 빈과 수동 등록 빈 간의 중복 충돌을 원천 차단하고자, `DattApplication.java`의 `@SpringBootApplication` 선언부에 `ElasticsearchClientAutoConfiguration.class` 자동구성 제외(exclude) 옵션을 적용하여 기동 안정성 완벽 확보.
         * 272만 건 전체 데이터 수동 동기화 시 JPA 1차 캐시 누적으로 인한 JVM 힙 OOM과 오프셋 페이징 지연(성능 OOM)을 방지하고자, `PlaceMasterRepository.java`에 `findByIdGreaterThanOrderByIdAsc` 쿼리를 추가하여 인덱스 스캔 기반 Keyset 페이징(id > lastId)을 도입하고, `PlaceSearchService.java`에서 매 청크 처리 후 `entityManager.clear()`를 명시적으로 실행하도록 최종 설계 개편.
         * `SecurityConfig.java`의 `permitAll()` 접근 제어 경로에 `/api/places/migrate`를 등록하여 외부 curl 요청 시 시큐리티 필터 체인에 의한 `403 Forbidden` 차단 문제 완벽 차단.
-
-
-
-
-
+* `3b78962` - **PlaceDocument Jackson 역직렬화 오류 수정 (@JsonIgnoreProperties 추가)**
+    * **작업 내용**:
+        * 네이티브 `ElasticsearchClient` 전환 이후, 기존 Spring Data Elasticsearch 가 색인 시점에 주입해 둔 `_class` 메타데이터 필드를 Jackson ObjectMapper가 역직렬화할 때 인식하지 못하여 터지는 `UnrecognizedPropertyException: Unrecognized field "_class"` 에러를 원천 차단함.
+        * `xyz.datt.domain.place.entity.PlaceDocument` 클래스에 `@JsonIgnoreProperties(ignoreUnknown = true)` 어노테이션을 부착하여 `_class` 등 매핑되지 않은 임의의 필드(Unknown property)가 포함된 응답을 받더라도 역직렬화가 무사 통과되도록 엔티티 설정을 보강.
