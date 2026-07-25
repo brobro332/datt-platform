@@ -24,6 +24,7 @@ public class PlaceSearchService {
     private final PlaceMasterRepository placeMasterRepository;
     private final ElasticsearchOperations elasticsearchOperations;
     private final xyz.datt.domain.place.repository.PlaceElasticsearchRepository placeElasticsearchRepository;
+    private final jakarta.persistence.EntityManager entityManager;
 
     private List<String> expandKeywords(String keyword) {
         List<String> keywords = new java.util.ArrayList<>();
@@ -114,21 +115,42 @@ public class PlaceSearchService {
         long totalCount = placeMasterRepository.count();
         int pageSize = 1000;
         int targetCount = Math.min(limit, (int) totalCount);
-        int totalPages = (int) Math.ceil((double) targetCount / pageSize);
 
         long migratedCount = 0;
-        for (int i = 0; i < totalPages; i++) {
-            List<xyz.datt.domain.place.entity.PlaceMaster> chunk = placeMasterRepository.findAll(org.springframework.data.domain.PageRequest.of(i, pageSize)).getContent();
-            if (!chunk.isEmpty()) {
-                List<PlaceDocument> docs = chunk.stream()
-                        .map(PlaceDocument::from)
-                        .toList();
-                placeElasticsearchRepository.saveAll(docs);
-                migratedCount += docs.size();
-                log.info("Manual migration: page {}/{} ({} docs accumulated)", i + 1, totalPages, migratedCount);
+        Long lastId = 0L;
+
+        while (migratedCount < targetCount) {
+            int currentBatchSize = Math.min(pageSize, (int) (targetCount - migratedCount));
+            if (currentBatchSize <= 0) {
+                break;
+            }
+
+            List<xyz.datt.domain.place.entity.PlaceMaster> chunk = placeMasterRepository.findByIdGreaterThanOrderByIdAsc(
+                    lastId, org.springframework.data.domain.PageRequest.of(0, currentBatchSize)
+            );
+
+            if (chunk.isEmpty()) {
+                break;
+            }
+
+            List<PlaceDocument> docs = chunk.stream()
+                    .map(PlaceDocument::from)
+                    .toList();
+
+            placeElasticsearchRepository.saveAll(docs);
+            migratedCount += docs.size();
+
+            // Record last ID for the next keyset page
+            lastId = chunk.get(chunk.size() - 1).getId();
+
+            // Clear 1st-level cache of JPA to prevent OOM
+            entityManager.clear();
+
+            if (migratedCount % 10000 == 0 || migratedCount >= targetCount) {
+                log.info("Manual place migration progress: {} / {} docs migrated", migratedCount, targetCount);
             }
         }
-        log.info("Finished manual migration. Total migrated count={}", migratedCount);
+        log.info("Finished manual place migration. Total migrated count={}", migratedCount);
         return migratedCount;
     }
 }
