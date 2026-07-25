@@ -23,24 +23,28 @@ public class PlaceKafkaConsumer {
     }
 
     @KafkaListener(topics = "place-events", groupId = "datt-es-group")
-    public void consumePlaceEvent(String messageJson) {
+    public void consumePlaceEvent(Map<String, Object> message) {
         try {
-            log.info("Received raw place event from Kafka: {}", messageJson);
-            Map<String, Object> message = objectMapper.readValue(messageJson, Map.class);
+            log.info("Received place event from Kafka map: {}", message);
             String eventType = (String) message.get("eventType");
-            String placeId = (String) message.get("placeId");
+            
+            Object placeIdObj = message.get("placeId");
+            String placeId = placeIdObj != null ? String.valueOf(placeIdObj) : null;
 
             log.info("Received place event from Kafka: type={}, id={}", eventType, placeId);
 
             if ("DELETE".equals(eventType)) {
-                placeElasticsearchRepository.deleteById(placeId);
-                log.info("Deleted place from ES index: id={}", placeId);
+                if (placeId != null) {
+                    placeElasticsearchRepository.deleteById(placeId);
+                    log.info("Deleted place from ES index: id={}", placeId);
+                }
             } else {
                 Map<?, ?> placeMap = (Map<?, ?>) message.get("place");
-                PlaceDocument placeDoc = objectMapper.convertValue(placeMap, PlaceDocument.class);
-                
-                placeElasticsearchRepository.save(placeDoc);
-                log.info("Indexed place to ES index: name={}, id={}", placeDoc.getBizesNm(), placeId);
+                if (placeMap != null) {
+                    PlaceDocument placeDoc = objectMapper.convertValue(placeMap, PlaceDocument.class);
+                    placeElasticsearchRepository.save(placeDoc);
+                    log.info("Indexed place to ES index: name={}, id={}", placeDoc.getBizesNm(), placeId);
+                }
             }
         } catch (Exception e) {
             log.error("Failed to process place event and index to Elasticsearch", e);
