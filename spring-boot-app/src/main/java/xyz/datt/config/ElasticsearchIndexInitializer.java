@@ -31,11 +31,25 @@ public class ElasticsearchIndexInitializer {
         try {
             IndexOperations indexOps = elasticsearchOperations.indexOps(PlaceDocument.class);
             
-            if (!indexOps.exists()) {
-                log.info("Elasticsearch 'places' index not found. Creating with custom settings (Ngram & Nori)...");
-                indexOps.create();
-                indexOps.putMapping(indexOps.createMapping(PlaceDocument.class));
-                log.info("Successfully created new 'places' index. Starting background automatic full migration...");
+            boolean indexCreated = false;
+            try {
+                log.info("Attempting to create Elasticsearch 'places' index...");
+                indexCreated = indexOps.create();
+                if (indexCreated) {
+                    indexOps.putMapping(indexOps.createMapping(PlaceDocument.class));
+                    log.info("Successfully created new 'places' index.");
+                }
+            } catch (Exception e) {
+                String rootMsg = e.toString();
+                if (rootMsg.contains("resource_already_exists_exception") || rootMsg.contains("alreadyexists") || rootMsg.contains("already exists")) {
+                    log.info("Elasticsearch 'places' index already exists. Skipping creation.");
+                } else {
+                    log.error("Failed to create index but proceeding, error: " + e.getMessage());
+                }
+            }
+
+            if (indexCreated) {
+                log.info("Starting background automatic full migration...");
 
                 // Asynchronously migrate ALL 2.7 million records in the background only when index is newly created
                 java.util.concurrent.CompletableFuture.runAsync(() -> {
@@ -67,12 +81,10 @@ public class ElasticsearchIndexInitializer {
                             }
                         }
                         log.info("Successfully finished FULL background migration. Total migrated={}", migratedCount);
-                    } catch (Exception e) {
-                        log.error("Failed to run FULL background place migration", e);
+                    } catch (Exception ex) {
+                        log.error("Failed to run FULL background place migration", ex);
                     }
                 });
-            } else {
-                log.info("Elasticsearch 'places' index already exists. Skipping recreation.");
             }
 
         } catch (Exception e) {
