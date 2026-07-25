@@ -16,7 +16,6 @@ public class MyElasticsearchConfig extends ElasticsearchConfiguration {
                 .withHeaders(() -> {
                     org.springframework.data.elasticsearch.support.HttpHeaders headers = new org.springframework.data.elasticsearch.support.HttpHeaders();
                     headers.set("Accept", "application/json");
-                    headers.set("Content-Type", "application/json");
                     return headers;
                 })
                 .withConnectTimeout(Duration.ofSeconds(5))
