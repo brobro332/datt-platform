@@ -84,7 +84,7 @@ export function UserGuideModal({ isOpen, onClose }: UserGuideModalProps) {
           {guides.map((guide, idx) => (
             <div
               key={idx}
-              className="flex gap-4 p-5 rounded-2xl bg-slate-50/70 border border-slate-150/40 hover:bg-white hover:shadow-lg hover:shadow-slate-100/50 transition-all duration-300"
+              className="flex gap-4 p-5 rounded-2xl bg-slate-50/70 hover:bg-white hover:shadow-lg hover:shadow-slate-100/50 transition-all duration-300"
             >
               <div className="flex-shrink-0 flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-slate-200/50 shadow-inner">
                 {guide.icon}
