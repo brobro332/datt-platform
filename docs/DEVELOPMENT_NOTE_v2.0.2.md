@@ -39,10 +39,10 @@
         * **[settings.json 분석기 설정 오류 교정]** CustomAnalyzer 하위에 잘못 정의되어 `JsonpMappingException (Unknown field 'decompound_mode')`을 유발하던 `decompound_mode` 설정을 `custom_nori_tokenizer` 토크나이저 정의 하위로 올바르게 재배치하여, 기동 시 places 인덱스가 정상 개설되지 못하던 기동 실패 문제를 완벽 교정함.
         * **[검색 가중치(Criteria.boost) 차등 조율을 통한 검색 정합성 복원]** Ngram 낱글자 조각 일치 매칭이 너무 광범위하게 적용되어 검색 결과 상단이 엉뚱한 매장들로 어질러지던 문제를 해소하고자, 형태소 정형 매치 필드인 bizesNm(10.0f)과 indsSclsNm(5.0f)에 가산점을 높게 부여하고 Ngram 필드(0.1f) 점수 가중치를 바닥으로 깎아 정확한 매장이 최상단에 우선 정렬되도록 검색 품질 튜닝 완료.
 
-### 📅 2026-07-25: Elasticsearch 기동 HEAD 요청 클라이언트 예외 우회 및 Content-Type 헤더 충돌 최소화 패치
-* `52dbb50` - **Elasticsearch 기동 HEAD 요청 클라이언트 예외 우회 및 Content-Type 헤더 충돌 최소화 패치**
+### 📅 2026-07-25: Elasticsearch 기동 HEAD 요청 클라이언트 예외 우회 및 HttpHeaders set() 덮어쓰기 정공법 패치
+* `78b42d9` - **Elasticsearch 기동 HEAD 요청 클라이언트 예외 우회 및 HttpHeaders set() 덮어쓰기 정공법 패치**
     * **작업 내용**:
-        * `MyElasticsearchConfig.java`의 API 요청 빌더에서 `Content-Type: application/json` 강제 주입 구문을 제거하여 바디가 없는 요청(indices.refresh 등)과의 HTTP 호환성 충돌로 인한 `media_type_header_exception` 원천 해결.
+        * `MyElasticsearchConfig.java`의 API 요청 헤더 바인딩 시 `add()` 대신 `set()` 메소드를 사용하여 스프링 프레임워크가 자동 삽입하던 호환성 헤더(`compatible-with=9`)를 완전히 제거(Override)하고 단일 미디어 타입 `application/json`만 전달하도록 수정. 이로써 `indices.create`, `indices.refresh` 등 모든 요청에서 `media_type_header_exception` 원천 차단.
         * `ElasticsearchIndexInitializer.java`에서 HTTP HEAD 요청을 날려 빈 바디 파싱 에러(`Expecting a response body, but none was sent`)를 내던 `indexOps.exists()` 호출을 전면 제거.
         * 대신 부팅 시 `indexOps.create()`를 직접 시도하고, 이미 인덱스가 존재하여 발생하는 예외는 catch하여 흘려보내는 안전 가드 구조로 개편함으로써 기동 안정성 100% 확보 및 기존 백그라운드 마이그레이션 실행 논리 완전 보존.
 
