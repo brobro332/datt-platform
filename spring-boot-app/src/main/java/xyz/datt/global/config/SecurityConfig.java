@@ -28,6 +28,7 @@ public class SecurityConfig {
                 auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers(
                         "/api/health", "/api/admin/batch/run",
+                        "/api/places/migrate",
                         "/api/auth/signup", "/api/auth/login", "/api/auth/reissue", "/api/auth/logout",
                         "/api/auth/check-email", "/api/auth/check-nickname",
                         "/api/auth/email/send", "/api/auth/email/verify", "/api/auth/social/**",
