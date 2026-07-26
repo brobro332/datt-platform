@@ -35,7 +35,8 @@ public class SecurityConfig {
                         "/api/place-masters/**", "/api/batch/place-sync",
                         "/api/subway-stations", "/api/admin/subway-stations/sync",
                         "/api/ads",
-                        "/uploads/**").permitAll()
+                        "/uploads/**",
+                        "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/stats").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/anchors/{anchorId}").permitAll()
                     .requestMatchers(HttpMethod.GET, "/api/anchors/recommendations").permitAll()
