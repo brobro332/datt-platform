@@ -1,4 +1,4 @@
-﻿# ⚓ DATT 플랫폼 히스토리 백과 (v2.0.2 개발자 노트)
+# ⚓ DATT 플랫폼 히스토리 백과 (v2.0.2 개발자 노트)
 
 ## 🚀 DATT v2.0.2 상세 타임라인 개발 역사
 
@@ -49,19 +49,15 @@
 
 
 
-
-
-
-
 ### [복구된 추가 작업 내역]
 
-*  - **Swagger UI 연동, Controller Javadoc 추가 및 User Guide 모달 테두리 제거**
+* `15c8e3a` - **Swagger UI 연동, Controller Javadoc 추가 및 User Guide 모달 테두리 제거**
     * **작업 내용**:
-        * spring-boot-app의 uild.gradle에 springdoc-openapi-starter-webmvc-ui 의존성 추가 및 pplication.yml에 Swagger 경로 설정.
+        * `spring-boot-app`의 `build.gradle`에 `springdoc-openapi-starter-webmvc-ui` 의존성 추가 및 `application.yml`에 Swagger 경로 설정.
         * 추후 API 분석기를 위한 21개 Controller 클래스 비즈니스 로직(Call Graph) 상세 Javadoc 작성 완료.
-        * Next.js 프론트엔드 UserGuideModal.tsx의 각 기능 블록 테두리(border) 제거하여 UI 개선.
+        * Next.js 프론트엔드 `UserGuideModal.tsx`의 각 기능 블록 테두리(border) 제거하여 UI 개선.
 
-* $(git rev-parse --short HEAD) - **Swagger(springdoc) TypeInformation 런타임 에러 핫픽스**
+* `(git rev-parse --short HEAD)` - **Swagger(springdoc) TypeInformation 런타임 에러 핫픽스**
     * **작업 내용**: Spring Boot 최신 버전에서 삭제된 TypeInformation 클래스를 springdoc이 QueryDSL 통합 과정에서 참조하여 앱 기동이 실패하는 문제 해결을 위해, 임시 더미 인터페이스를 추가하여 클래스 로딩 에러(NoClassDefFoundError)를 우회함.
 
 ### 2a116ae TraceId 전파 및 IP 로깅 추가
@@ -75,9 +71,9 @@
 - **작업 파일**: spring-boot-app/build.gradle, spring-boot-app/src/main/resources/application.yml, docker-compose.yml
 - **작업 목적**: Prometheus 메트릭 수집 허용 및 Docker 로그 무한 증식 방지
 - **작업 내용**:
-  - spring-boot-starter-actuator, micrometer-registry-prometheus 의존성 추가
-  - pplication.yml에 Actuator 엔드포인트 개방 설정 추가
-  - docker-compose.yml에서 spring-boot-app과 wave-messaging-service의 로그 사이즈 제한(10m, 3개) 설정
+  - `spring-boot-starter-actuator`, `micrometer-registry-prometheus` 의존성 추가
+  - `application.yml`에 Actuator 엔드포인트 개방 설정 추가
+  - `docker-compose.yml`에서 `spring-boot-app`과 `wave-messaging-service`의 로그 사이즈 제한(10m, 3개) 설정
 
 ### 71fb191 어드민 포털 사이드바 시스템 링크(Grafana, Swagger) 추가
 * **작업 파일**: next-js-app/app/admin/layout.tsx
@@ -88,45 +84,38 @@
 
 ### 55736fa Nginx 프록시를 활용한 안전한 Swagger 연동 (HTTPS 지원)
 * **작업 대상**: 
-  * 
-ginx/default.conf
-  * spring-boot-app/src/main/resources/application.yml
-  * 
-ext-js-app/app/admin/layout.tsx
+  * `nginx/default.conf`
+  * `spring-boot-app/src/main/resources/application.yml`
+  * `next-js-app/app/admin/layout.tsx`
 * **작업 목적**: 외부 포트(8080, 8081) 노출 없이 안전하게 HTTPS 443 포트만으로 Swagger UI 접근 환경 구성
 * **작업 내용**:
-  * Nginx에 /datt-swagger/ 및 /wave-swagger/ Location 블록 추가 및 X-Forwarded-Prefix 헤더 주입
-  * Spring Boot(datt-platform, wave-messaging-service) 설정에 server.forward-headers-strategy: framework 추가하여 역방향 프록시 주소 지원
+  * Nginx에 `/datt-swagger/` 및 `/wave-swagger/` Location 블록 추가 및 `X-Forwarded-Prefix` 헤더 주입
+  * Spring Boot(`datt-platform`, `wave-messaging-service`) 설정에 `server.forward-headers-strategy: framework` 추가하여 역방향 프록시 주소 지원
   * 어드민 페이지 "System Links"의 기본 주소를 Nginx 프록시 HTTPS 주소로 수정
 
 ### 2a4a3af Next.js Docker 환경변수(ARG/ENV) 빌드 주입 누락 수정
 * **작업 대상**: 
-  * docker-compose.yml
-  * 
-ext-js-app/Dockerfile
-* **작업 목적**: 깃허브 시크릿으로 주입한 NEXT_PUBLIC_ 환경변수가 Next.js 컨테이너 빌드 시점에 정상적으로 주입되도록 파이프라인 수정
+  * `docker-compose.yml`
+  * `next-js-app/Dockerfile`
+* **작업 목적**: 깃허브 시크릿으로 주입한 `NEXT_PUBLIC_` 환경변수가 Next.js 컨테이너 빌드 시점에 정상적으로 주입되도록 파이프라인 수정
 * **작업 내용**:
-  * docker-compose.yml의 rgs 및 environment에 Grafana 및 Swagger URL 환경변수 추가
-  * 
-ext-js-app/Dockerfile에 해당 변수들을 ARG 및 ENV로 선언하여 정적 빌드 시점에 값을 읽을 수 있도록 수정
+  * `docker-compose.yml`의 `args` 및 `environment`에 Grafana 및 Swagger URL 환경변수 추가
+  * `next-js-app/Dockerfile`에 해당 변수들을 `ARG` 및 `ENV`로 선언하여 정적 빌드 시점에 값을 읽을 수 있도록 수정
 
 ### bf18b29 GitHub Actions CD 파이프라인 누락 시크릿 추가
 * **작업 대상**: .github/workflows/deploy.yml
 * **작업 목적**: 깃허브 시크릿이 OCI VM의 .env에 올바르게 전달되도록 파이프라인 수정
 * **작업 내용**:
-  * ppleboy/ssh-action의 env 및 envs 구문에 NEXT_PUBLIC_GRAFANA_URL 외 2개의 변수 추가
+  * `appleboy/ssh-action`의 `env` 및 `envs` 구문에 `NEXT_PUBLIC_GRAFANA_URL` 외 2개의 변수 추가
   * SSH 실행 스크립트에서 .env 파일에 3개의 변수 출력문 추가
 
 ### 99a37b4 📊 모니터링을 통한 프론트엔드 N+1 API 호출 장애 발견 및 해결
-* **작업 대상**: 
-ext-js-app/hooks/useLatestReviewImage.ts (이전 수정 내역 반영)
+* **작업 대상**: `next-js-app/hooks/useLatestReviewImage.ts` (이전 수정 내역 반영)
 * **작업 목적**: 불필요한 API 중복 호출(N+1 문제) 방지를 통한 네트워크 및 서버 부하 최적화
 * **작업 내용**:
-  * **[문제 발견]** 그라파나(Grafana) 대시보드 모니터링 중, 특정 장소 렌더링 시 /api/places/{placeId}/reviews API 트래픽이 비정상적으로 치솟는 현상(순간 13회 호출)을 포착했습니다.
+  * **[문제 발견]** 그라파나(Grafana) 대시보드 모니터링 중, 특정 장소 렌더링 시 `/api/places/{placeId}/reviews` API 트래픽이 비정상적으로 치솟는 현상(순간 13회 호출)을 포착했습니다.
   * **[원인 분석]** 어드민 대시보드 통계상 실제 등록된 리뷰는 **0건**이었습니다. 원인을 분석한 결과, 프론트엔드에서 리뷰 썸네일 이미지를 찾을 때까지 불필요하게 반복적으로 리뷰 API를 재호출하는 **프론트엔드 발 N+1 호출 문제**가 원인이었습니다. 
   * **[해결 완료]** 썸네일 캐싱 로직 및 호출 방어 코드를 수정하여 중복 호출을 차단했습니다. 모니터링 시스템(Prometheus + Grafana)이 없었다면 0건의 데이터에서 조용히 발생하는 네트워크 누수를 발견하기 어려웠을 것입니다.
 
-<p align="center">
-  <img src="./images/grafana-n1-spike.png" width="45%" alt="Grafana 트래픽 스파이크 발견" />
-  <img src="./images/stats-zero.png" width="45%" alt="실제 리뷰는 0건인 통계 화면" />
-</p>
+![Grafana 트래픽 스파이크 발견](./images/grafana-n1-spike.png)
+![실제 리뷰는 0건인 통계 화면](./images/stats-zero.png)
