@@ -29,8 +29,8 @@ public class KakaoClient {
     public String getAccessToken(String code) {
         String tokenUrl = "https://kauth.kakao.com/oauth/token";
 
-        log.error("[KAKAO LOGIN DEBUG] clientId: '{}', redirectUri: '{}', clientSecretLength: '{}', code: '{}'", 
-                clientId, redirectUri, clientSecret != null ? clientSecret.length() : 0, code);
+        log.info("[KAKAO LOGIN DEBUG] clientId: '{}', redirectUri: '{}', clientSecretLength: '{}', code: '{}'", 
+                clientId, redirectUri, clientSecret != null ? clientSecret.length() : 0, "***");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);

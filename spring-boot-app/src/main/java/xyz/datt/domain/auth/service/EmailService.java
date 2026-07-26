@@ -54,7 +54,7 @@ public class EmailService {
         } catch (Exception e) {
             log.error("메일 발송 실패: SMTP 설정 확인 필요. 이메일={}. 에러={}", email, e.getMessage());
             log.info("★[FALLBACK LOG] 메일 서버 미설정으로 콘솔 로그에 인증 코드를 출력합니다. ★");
-            log.info("★[EMAIL VERIFICATION CODE] email: {}, code: {} ★", email, code);
+            log.info("★[EMAIL VERIFICATION CODE] email: {}, code: *** ★", email);
         }
 
         // 인증코드와 만료 정보를 DB에 기록
