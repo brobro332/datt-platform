@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createPlaceReview, updatePlaceReview, deletePlaceReview } from "@/services/reviewService";
 
 import type { PlaceReviewCreateRequest, PlaceReviewUpdateRequest } from "@/types/review";
+import { clearLatestReviewImageCache } from "@/hooks/useLatestReviewImage";
 
 export function useCreatePlaceReview(placeId: number) {
     const queryClient = useQueryClient();
@@ -19,6 +20,10 @@ export function useCreatePlaceReview(placeId: number) {
             queryClient.invalidateQueries({
                 queryKey: ["place", placeId],
             });
+            queryClient.invalidateQueries({
+                queryKey: ["place-latest-image", placeId],
+            });
+            clearLatestReviewImageCache(placeId);
         },
     });
 }
@@ -37,6 +42,10 @@ export function useUpdatePlaceReview(placeId: number) {
             queryClient.invalidateQueries({
                 queryKey: ["place", placeId],
             });
+            queryClient.invalidateQueries({
+                queryKey: ["place-latest-image", placeId],
+            });
+            clearLatestReviewImageCache(placeId);
         },
     });
 }
@@ -55,6 +64,10 @@ export function useDeletePlaceReview(placeId: number) {
             queryClient.invalidateQueries({
                 queryKey: ["place", placeId],
             });
+            queryClient.invalidateQueries({
+                queryKey: ["place-latest-image", placeId],
+            });
+            clearLatestReviewImageCache(placeId);
         },
     });
 }

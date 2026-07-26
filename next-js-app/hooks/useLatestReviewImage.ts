@@ -6,6 +6,10 @@ import { getPlaceReviews } from "@/services/reviewService";
 // 동일 세션 내에서 불필요한 중복 API 재요청을 원천 차단합니다.
 const noImageCache = new Set<number>();
 
+export function clearLatestReviewImageCache(placeId: number) {
+    noImageCache.delete(placeId);
+}
+
 export function useLatestReviewImage(placeId: number, enabled: boolean = true) {
     return useQuery({
         queryKey: ["place-latest-image", placeId],
