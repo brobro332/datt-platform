@@ -98,3 +98,14 @@ ext-js-app/app/admin/layout.tsx
   * Nginx에 /datt-swagger/ 및 /wave-swagger/ Location 블록 추가 및 X-Forwarded-Prefix 헤더 주입
   * Spring Boot(datt-platform, wave-messaging-service) 설정에 server.forward-headers-strategy: framework 추가하여 역방향 프록시 주소 지원
   * 어드민 페이지 "System Links"의 기본 주소를 Nginx 프록시 HTTPS 주소로 수정
+
+### 2a4a3af Next.js Docker 환경변수(ARG/ENV) 빌드 주입 누락 수정
+* **작업 대상**: 
+  * docker-compose.yml
+  * 
+ext-js-app/Dockerfile
+* **작업 목적**: 깃허브 시크릿으로 주입한 NEXT_PUBLIC_ 환경변수가 Next.js 컨테이너 빌드 시점에 정상적으로 주입되도록 파이프라인 수정
+* **작업 내용**:
+  * docker-compose.yml의 rgs 및 environment에 Grafana 및 Swagger URL 환경변수 추가
+  * 
+ext-js-app/Dockerfile에 해당 변수들을 ARG 및 ENV로 선언하여 정적 빌드 시점에 값을 읽을 수 있도록 수정
