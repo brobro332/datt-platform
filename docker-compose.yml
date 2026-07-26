@@ -84,6 +84,11 @@ services:
       resources:
         limits:
           memory: 1.5g
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       datt-db:
         condition: service_healthy
@@ -226,6 +231,11 @@ services:
       resources:
         limits:
           memory: 1g
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     depends_on:
       datt-db:
         condition: service_healthy

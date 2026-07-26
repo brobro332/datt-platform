@@ -103,3 +103,11 @@
 - **작업 내용**:
   - Nginx가 생성한 $request_id를 X-Trace-Id 헤더로 전달하도록 설정
   - RequestLoggingFilter에서 X-Trace-Id 헤더 우선 적용 및 X-Forwarded-For 헤더를 통한 IP 수집 로직 추가
+
+### 3adbc44 모니터링 메트릭 추가 및 로그 제한 설정
+- **작업 파일**: spring-boot-app/build.gradle, spring-boot-app/src/main/resources/application.yml, docker-compose.yml
+- **작업 목적**: Prometheus 메트릭 수집 허용 및 Docker 로그 무한 증식 방지
+- **작업 내용**:
+  - spring-boot-starter-actuator, micrometer-registry-prometheus 의존성 추가
+  - pplication.yml에 Actuator 엔드포인트 개방 설정 추가
+  - docker-compose.yml에서 spring-boot-app과 wave-messaging-service의 로그 사이즈 제한(10m, 3개) 설정
