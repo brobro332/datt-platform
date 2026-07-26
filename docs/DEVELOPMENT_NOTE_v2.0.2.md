@@ -109,3 +109,10 @@ ext-js-app/Dockerfile
   * docker-compose.yml의 rgs 및 environment에 Grafana 및 Swagger URL 환경변수 추가
   * 
 ext-js-app/Dockerfile에 해당 변수들을 ARG 및 ENV로 선언하여 정적 빌드 시점에 값을 읽을 수 있도록 수정
+
+### bf18b29 GitHub Actions CD 파이프라인 누락 시크릿 추가
+* **작업 대상**: .github/workflows/deploy.yml
+* **작업 목적**: 깃허브 시크릿이 OCI VM의 .env에 올바르게 전달되도록 파이프라인 수정
+* **작업 내용**:
+  * ppleboy/ssh-action의 env 및 envs 구문에 NEXT_PUBLIC_GRAFANA_URL 외 2개의 변수 추가
+  * SSH 실행 스크립트에서 .env 파일에 3개의 변수 출력문 추가
