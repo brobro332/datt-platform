@@ -96,3 +96,10 @@
 
 * $(git rev-parse --short HEAD) - **Swagger(springdoc) TypeInformation 런타임 에러 핫픽스**
     * **작업 내용**: Spring Boot 최신 버전에서 삭제된 TypeInformation 클래스를 springdoc이 QueryDSL 통합 과정에서 참조하여 앱 기동이 실패하는 문제 해결을 위해, 임시 더미 인터페이스를 추가하여 클래스 로딩 에러(NoClassDefFoundError)를 우회함.
+
+### 2a116ae TraceId 전파 및 IP 로깅 추가
+- **작업 파일**: nginx/default.conf, spring-boot-app/src/main/java/xyz/datt/global/logging/RequestLoggingFilter.java
+- **작업 목적**: 분산 환경 로깅(Trace ID 전파) 및 클라이언트 IP 수집 기능 추가
+- **작업 내용**:
+  - Nginx가 생성한 $request_id를 X-Trace-Id 헤더로 전달하도록 설정
+  - RequestLoggingFilter에서 X-Trace-Id 헤더 우선 적용 및 X-Forwarded-For 헤더를 통한 IP 수집 로직 추가

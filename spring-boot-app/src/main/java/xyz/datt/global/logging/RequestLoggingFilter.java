@@ -17,6 +17,8 @@ import java.util.UUID;
 public class RequestLoggingFilter extends OncePerRequestFilter {
 
     private static final String TRACE_ID = "traceId";
+    private static final String CLIENT_IP = "clientIp";
+    private static final String TRACE_ID_HEADER = "X-Trace-Id";
 
     @Override
     protected void doFilterInternal(
@@ -26,9 +28,16 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         long startTime = System.currentTimeMillis();
-        String traceId = createTraceId();
+        
+        String traceId = request.getHeader(TRACE_ID_HEADER);
+        if (traceId == null || traceId.isBlank()) {
+            traceId = createTraceId();
+        }
+        
+        String clientIp = getClientIp(request);
 
         MDC.put(TRACE_ID, traceId);
+        MDC.put(CLIENT_IP, clientIp);
 
         try {
             filterChain.doFilter(request, response);
@@ -36,8 +45,9 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             long durationMs = System.currentTimeMillis() - startTime;
 
             log.info(
-                "event=request_completed traceId={} method={} uri={} status={} durationMs={}",
+                "event=request_completed traceId={} clientIp={} method={} uri={} status={} durationMs={}",
                 traceId,
+                clientIp,
                 request.getMethod(),
                 request.getRequestURI(),
                 response.getStatus(),
@@ -46,6 +56,17 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
 
             MDC.clear();
         }
+    }
+
+    private String getClientIp(HttpServletRequest request) {
+        String ip = request.getHeader("X-Forwarded-For");
+        if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        } else {
+            // X-Forwarded-For can contain multiple IPs, the first one is the real client
+            ip = ip.split(",")[0].trim();
+        }
+        return ip;
     }
 
     private String createTraceId() {
