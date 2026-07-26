@@ -87,12 +87,12 @@ export default function AdminLayout({
     },
     {
       name: "DATT Swagger API",
-      href: process.env.NEXT_PUBLIC_DATT_SWAGGER_URL || "http://localhost:8080/swagger-ui/index.html",
+      href: process.env.NEXT_PUBLIC_DATT_SWAGGER_URL || "https://datt-prd.xyz/datt-swagger/swagger-ui/index.html",
       icon: BookOpen,
     },
     {
       name: "WAVE Swagger API",
-      href: process.env.NEXT_PUBLIC_WAVE_SWAGGER_URL || "http://localhost:8081/swagger-ui/index.html",
+      href: process.env.NEXT_PUBLIC_WAVE_SWAGGER_URL || "https://datt-prd.xyz/wave-swagger/swagger-ui/index.html",
       icon: MessageSquareCode,
     },
   ];

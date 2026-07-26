@@ -85,3 +85,16 @@
 * **작업 내용**:
   * Next.js 환경변수(NEXT_PUBLIC_GRAFANA_URL, NEXT_PUBLIC_DATT_SWAGGER_URL, NEXT_PUBLIC_WAVE_SWAGGER_URL)를 참조하여 동적으로 URL을 주입.
   * 어드민 사이드바 영역에 'System Links' 그룹을 신설하고 Lucide 아이콘(Activity, BookOpen, MessageSquareCode)과 함께 링크 UI 추가.
+
+### 55736fa Nginx 프록시를 활용한 안전한 Swagger 연동 (HTTPS 지원)
+* **작업 대상**: 
+  * 
+ginx/default.conf
+  * spring-boot-app/src/main/resources/application.yml
+  * 
+ext-js-app/app/admin/layout.tsx
+* **작업 목적**: 외부 포트(8080, 8081) 노출 없이 안전하게 HTTPS 443 포트만으로 Swagger UI 접근 환경 구성
+* **작업 내용**:
+  * Nginx에 /datt-swagger/ 및 /wave-swagger/ Location 블록 추가 및 X-Forwarded-Prefix 헤더 주입
+  * Spring Boot(datt-platform, wave-messaging-service) 설정에 server.forward-headers-strategy: framework 추가하여 역방향 프록시 주소 지원
+  * 어드민 페이지 "System Links"의 기본 주소를 Nginx 프록시 HTTPS 주소로 수정
