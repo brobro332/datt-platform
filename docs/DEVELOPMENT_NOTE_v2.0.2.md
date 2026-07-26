@@ -1,4 +1,4 @@
-# ⚓ DATT 플랫폼 히스토리 백과 (v2.0.2 개발자 노트)
+﻿# ⚓ DATT 플랫폼 히스토리 백과 (v2.0.2 개발자 노트)
 
 ## 🚀 DATT v2.0.2 상세 타임라인 개발 역사
 
@@ -78,3 +78,10 @@
   - spring-boot-starter-actuator, micrometer-registry-prometheus 의존성 추가
   - pplication.yml에 Actuator 엔드포인트 개방 설정 추가
   - docker-compose.yml에서 spring-boot-app과 wave-messaging-service의 로그 사이즈 제한(10m, 3개) 설정
+
+### 71fb191 어드민 포털 사이드바 시스템 링크(Grafana, Swagger) 추가
+* **작업 파일**: next-js-app/app/admin/layout.tsx
+* **작업 목적**: 관리자 접근성을 높이기 위해 모니터링 및 API 명세서 외부 링크 연동
+* **작업 내용**:
+  * Next.js 환경변수(NEXT_PUBLIC_GRAFANA_URL, NEXT_PUBLIC_DATT_SWAGGER_URL, NEXT_PUBLIC_WAVE_SWAGGER_URL)를 참조하여 동적으로 URL을 주입.
+  * 어드민 사이드바 영역에 'System Links' 그룹을 신설하고 Lucide 아이콘(Activity, BookOpen, MessageSquareCode)과 함께 링크 UI 추가.
