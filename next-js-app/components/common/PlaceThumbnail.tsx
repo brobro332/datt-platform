@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { getCategoryFromText, getPlaceholderDetails, type PlaceCategory } from "@/utils/category";
 import { Utensils, Coffee, Beer, Hotel, Ticket, Sparkles, MapPin } from "lucide-react";
-import { useLatestReviewImage } from "@/hooks/useLatestReviewImage";
 import { apiClient } from "@/lib/apiClient";
 
 type PlaceThumbnailProps = {
@@ -32,12 +31,11 @@ export function PlaceThumbnail({
 }: PlaceThumbnailProps) {
   const resolvedCategory = (category as PlaceCategory) || getCategoryFromText(indsMclsNm, indsSclsNm);
   const placeholder = getPlaceholderDetails(resolvedCategory);
-  const { data: latestImage } = useLatestReviewImage(placeId, !thumbnailUrl);
   const [imgError, setImgError] = useState(false);
 
   const Icon = CATEGORY_ICONS[resolvedCategory] || Sparkles;
 
-  const activeImage = thumbnailUrl || latestImage;
+  const activeImage = thumbnailUrl;
   const showImage = activeImage && !imgError;
 
   const handleImageError = async () => {
