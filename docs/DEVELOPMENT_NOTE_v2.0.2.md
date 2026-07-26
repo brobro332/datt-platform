@@ -117,5 +117,5 @@
   * **[원인 분석]** 어드민 대시보드 통계상 실제 등록된 리뷰는 **0건**이었습니다. 원인을 분석한 결과, 프론트엔드에서 리뷰 썸네일 이미지를 찾을 때까지 불필요하게 반복적으로 리뷰 API를 재호출하는 **프론트엔드 발 N+1 호출 문제**가 원인이었습니다. 
   * **[해결 완료]** 썸네일 캐싱 로직 및 호출 방어 코드를 수정하여 중복 호출을 차단했습니다. 모니터링 시스템(Prometheus + Grafana)이 없었다면 0건의 데이터에서 조용히 발생하는 네트워크 누수를 발견하기 어려웠을 것입니다.
 
-![Grafana 트래픽 스파이크 발견](./images/grafana-n1-spike.png)
-![실제 리뷰는 0건인 통계 화면](./images/stats-zero.png)
+![Grafana 트래픽 스파이크 발견](https://raw.githubusercontent.com/brobro332/datt-platform/main/docs/images/grafana-n1-spike.png)
+![실제 리뷰는 0건인 통계 화면](https://raw.githubusercontent.com/brobro332/datt-platform/main/docs/images/stats-zero.png)
