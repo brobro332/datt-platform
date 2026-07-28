@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/authStore";
-import { PlusCircle, Image as ImageIcon, LogOut, ShieldAlert, ArrowLeft, Menu, X, Activity, BookOpen, MessageSquareCode } from "lucide-react";
+import { PlusCircle, Image as ImageIcon, LogOut, ShieldAlert, ArrowLeft, Menu, X, Activity, BookOpen, MessageSquareCode, Users, Globe } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -68,6 +68,11 @@ export default function AdminLayout({
 
   const menuItems = [
     {
+      name: "회원 관리",
+      href: "/admin/members",
+      icon: Users,
+    },
+    {
       name: "매장 등록",
       href: "/admin/places",
       icon: PlusCircle,
@@ -76,6 +81,11 @@ export default function AdminLayout({
       name: "광고 관리",
       href: "/admin/ads",
       icon: ImageIcon,
+    },
+    {
+      name: "시스템 설정",
+      href: "/admin/systems",
+      icon: Globe,
     },
   ];
 
@@ -175,28 +185,6 @@ export default function AdminLayout({
                     }`} />
                     {item.name}
                   </Link>
-                );
-              })}
-            </nav>
-
-            <div className="text-[10px] font-black tracking-widest text-slate-500 uppercase px-3 mt-8">
-              System Links
-            </div>
-            
-            <nav className="space-y-1">
-              {systemLinks.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <a
-                    key={item.name}
-                    href={item.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-slate-400 hover:bg-slate-800 hover:text-white transition-all duration-200 group"
-                  >
-                    <Icon className="w-4 h-4 text-slate-500 group-hover:text-indigo-400 transition-transform group-hover:scale-110" />
-                    {item.name}
-                  </a>
                 );
               })}
             </nav>

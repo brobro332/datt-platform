@@ -1,4 +1,4 @@
-# ⚓ DATT 플랫폼 히스토리 백과 (v2.0.2 개발자 노트)
+﻿# ⚓ DATT 플랫폼 히스토리 백과 (v2.0.2 개발자 노트)
 
 ## 🚀 DATT v2.0.2 상세 타임라인 개발 역사
 
@@ -119,3 +119,20 @@
 
 ![Grafana 트래픽 스파이크 발견](https://raw.githubusercontent.com/brobro332/datt-platform/main/docs/images/grafana-n1-spike.png)
 ![실제 리뷰는 0건인 통계 화면](https://raw.githubusercontent.com/brobro332/datt-platform/main/docs/images/stats-zero.png)
+
+ # # #   [ T E M P _ H A S H ]   ��ܴ��  ��8�  ����   ���  0���  �� �  �  �¤�\�  ��l�  T�t�  ���
+ *   * * ����  �|�* * : 
+     *   s p r i n g - b o o t - a p p / s r c / m a i n / j a v a / x y z / d a t t / d o m a i n / m e m b e r / c o n t r o l l e r / M e m b e r A d m i n C o n t r o l l e r . j a v a   ( �  S e r v i c e ,   D T O ) 
+     *   s p r i n g - b o o t - a p p / s r c / m a i n / j a v a / x y z / d a t t / g l o b a l / c o n f i g / S e c u r i t y C o n f i g . j a v a 
+     *   n e x t - j s - a p p / a p p / a d m i n / l a y o u t . t s x 
+     *   n e x t - j s - a p p / a p p / a d m i n / m e m b e r s / p a g e . t s x 
+     *   n e x t - j s - a p p / a p p / a d m i n / s y s t e m s / p a g e . t s x 
+ *   * * ����  ���* * :    �����  ���1�D�  ��t�0�  �t�  ����  ��]�  pȌ�  0���D�  ��$�X��,   ����t�  ��X�  xƀ�  �¤�\�  ��l�|�  �|�  T�t�\�  ��i�. 
+ *   * * ����  ����* * : 
+     *   * * [ B a c k e n d ] * *   \ G E T   / a p i / a d m i n / m e m b e r s \   ��ܴ��xǸ�|�  �� �X���  ��t���  0��  ����  ��]�  pȌ�  0���  l��. 
+     *   * * [ B a c k e n d ] * *   \ S e c u r i t y C o n f i g \ ��  \ / a p i / a d m i n / m e m b e r s / * * \   ��\�  ���  ��\�( A D M I N )   ����. 
+     *   * * [ F r o n t e n d ] * *   ��t�ܴ����  \ S y s t e m   L i n k s \   ����  ���D�  �p�X��,   \ ����   ���\   �  \ �¤�\�  $��\ D�  T�x�  T�t�\�  ��i�. 
+     *   * * [ F r o n t e n d ] * *   1���ܴ  A P I |�  ��ٳX���   ��ǐ�  �i�D�  ����Ȕ�  ����   ���  L�t��  �  D�1�. 
+     *   * * [ F r o n t e n d ] * *   G r a f a n a ,   S w a g g e r   ��l�|�  t�ܴ  ���\�   ���XՔ�  �¤�\�  $��  ��t���  ��$�. 
+ 
+ 
