@@ -13,7 +13,12 @@ import xyz.datt.domain.workspace.dto.WorkspaceCreateRequest;
 import xyz.datt.domain.workspace.dto.WorkspaceResponse;
 import xyz.datt.domain.workspace.repository.WorkspaceMemberRepository;
 import xyz.datt.domain.workspace.repository.WorkspaceRepository;
-
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.ResponseEntity;
+import java.util.Map;
+import java.util.HashMap;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 
 
 /**
@@ -32,6 +37,8 @@ public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
+    private final String WAVE_SERVICE_URL = "http://wave-messaging-service:8081/api/chat";
     
     
 
@@ -73,7 +80,17 @@ public class WorkspaceService {
 
         workspaceMemberRepository.save(member);
 
-        // TODO: call WAVE messaging service via HTTP to create default chatroom
+        try {
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("roomName", workspace.getName() + " 기본 채널");
+            requestBody.put("roomType", "WORKSPACE");
+            requestBody.put("userId", request.getUserId());
+            requestBody.put("workspaceId", workspace.getId());
+
+            restTemplate.postForEntity(WAVE_SERVICE_URL + "/rooms", requestBody, Object.class);
+        } catch (Exception e) {
+            System.err.println("Failed to create default chat room in wave-messaging-service: " + e.getMessage());
+        }
 
         return convertToResponse(workspace);
     }
@@ -134,7 +151,23 @@ public class WorkspaceService {
 
         workspaceMemberRepository.save(member);
 
-        // TODO: call WAVE messaging service via HTTP to auto-join user to default chatroom
+        try {
+            // 해당 워크스페이스의 채팅방 목록을 조회하여 첫 번째(기본) 방에 참가시킴
+            ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+                    WAVE_SERVICE_URL + "/workspaces/" + workspace.getId() + "/rooms?userId=" + userId,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+            );
+
+            List<Map<String, Object>> rooms = response.getBody();
+            if (rooms != null && !rooms.isEmpty()) {
+                String roomId = (String) rooms.get(0).get("roomId");
+                restTemplate.postForEntity(WAVE_SERVICE_URL + "/rooms/" + roomId + "/join?userId=" + userId, null, Void.class);
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to auto-join default chat room in wave-messaging-service: " + e.getMessage());
+        }
 
         return convertToResponse(workspace);
     }
