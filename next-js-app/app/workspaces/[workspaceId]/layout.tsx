@@ -50,8 +50,9 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
         if (!member || !workspaceId) return;
 
         try {
-            // member.nickname으로 유저 정보 조회
-            const wsList = await getWorkspacesByUser(member.nickname);
+            // member.nickname으로 유저 정보 조회 (이전 버전 호환성을 위해 nickname이 없으면 memberId 사용)
+            const targetUserId = member.nickname || String(member.memberId);
+            const wsList = await getWorkspacesByUser(targetUserId);
             setWorkspaces(wsList);
 
             const curr = wsList.find((w) => w.id === workspaceId);
@@ -62,8 +63,8 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
                 return;
             }
 
-            // member.nickname으로 룸 조회
-            const roomList = await getRoomsByWorkspace(workspaceId, member.nickname);
+            // member.nickname으로 룸 조회 (이전 버전 호환성을 위해 nickname이 없으면 memberId 사용)
+            const roomList = await getRoomsByWorkspace(workspaceId, targetUserId);
             setRooms(roomList);
 
             const memberList = await getWorkspaceMembers(workspaceId);

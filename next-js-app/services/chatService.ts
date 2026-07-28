@@ -53,7 +53,7 @@ export interface ChatMessage {
  * 신규 워크스페이스 개설 API
  */
 export async function createWorkspace(request: WorkspaceCreateRequest): Promise<WorkspaceResponse> {
-    const response = await apiClient.post<WorkspaceResponse>("/api/workspaces", request);
+    const response = await apiClient.post<WorkspaceResponse>("/api/workspaces?_nocache=1", request);
     return response.data;
 }
 
@@ -61,6 +61,10 @@ export async function createWorkspace(request: WorkspaceCreateRequest): Promise<
  * 유저별 참여 워크스페이스 목록 조회 API
  */
 export async function getWorkspacesByUser(userId: string): Promise<WorkspaceResponse[]> {
+    if (!userId) {
+        console.warn("getWorkspacesByUser called without userId, skipping API call.");
+        return [];
+    }
     const response = await apiClient.get<WorkspaceResponse[]>("/api/workspaces", {
         params: { userId },
     });

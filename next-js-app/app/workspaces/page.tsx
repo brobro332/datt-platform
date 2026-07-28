@@ -35,7 +35,8 @@ export default function WorkspacesPage() {
     const fetchWorkspaces = React.useCallback(async () => {
         if (!member) return;
         try {
-            const data = await getWorkspacesByUser(member.nickname);
+            const targetUserId = member.nickname || String(member.memberId);
+            const data = await getWorkspacesByUser(targetUserId);
             setWorkspaces(data);
         } catch (error) {
             console.error("Failed to fetch workspaces:", error);
@@ -57,9 +58,10 @@ export default function WorkspacesPage() {
         if (!member || !newWsName.trim()) return;
 
         try {
+            const targetUserId = member.nickname || String(member.memberId);
             const ws = await createWorkspace({
                 name: newWsName,
-                userId: member.nickname,
+                userId: targetUserId,
             });
             setNewWsName("");
             setIsCreateOpen(false);
@@ -75,7 +77,8 @@ export default function WorkspacesPage() {
         if (!member || !inviteCode.trim()) return;
 
         try {
-            const ws = await joinWorkspace(inviteCode, member.nickname);
+            const targetUserId = member.nickname || String(member.memberId);
+            const ws = await joinWorkspace(inviteCode, targetUserId);
             setInviteCode("");
             setIsJoinOpen(false);
             router.push(`/workspaces/${ws.id}`);
