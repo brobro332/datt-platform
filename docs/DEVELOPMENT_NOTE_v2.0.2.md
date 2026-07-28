@@ -26,6 +26,10 @@
     * **작업 내용**: 이전 Nginx 리팩토링 과정에서 `/api/chat`과 `/api/workspaces`를 분리할 때 누락되었던 `/api/workspaces/` 트레일링 슬래시 제거 `rewrite` 규칙을 `location = /api/workspaces/` 블록으로 복구했습니다.
     * **결과**: 브라우저에 301 캐시된 트레일링 슬래시가 붙은 `/api/workspaces/` 요청이 Spring Boot 애플리케이션으로 포워딩되면서 발생하던 `NoHandlerFoundException` 및 500 에러를 완전히 해결하여 워크스페이스 조회 및 생성 기능이 다시 정상 동작합니다.
 
+* `93d73d5` - **Nginx 자동 301 리다이렉트로 인한 POST 메서드 유실 버그 수정**
+    * **작업 내용**: 이전 Nginx 리팩토링에서 추가된 `location = /api/workspaces/` 블록으로 인해, 슬래시가 없는 `POST /api/workspaces` 요청 시 Nginx가 자동으로 `301 Moved Permanently` 리다이렉트를 발생시키고 있었습니다. 이로 인해 브라우저가 301 응답을 따라갈 때 POST 요청을 GET으로 변환하며 쿼리 파라미터(`userId`)와 본문(Body)을 소실하여 백엔드에서 `MissingServletRequestParameterException` (500 에러)이 발생하던 치명적 버그를 해결하기 위해, `location = /api/workspaces` 블록을 명시적으로 추가하여 자동 301 리다이렉션을 차단했습니다.
+    * **결과**: 워크스페이스 생성 및 조회가 정상적으로 동작하며, 브라우저가 POST 요청을 GET으로 임의 변경하는 네트워크 유실 문제가 완벽히 해결되었습니다.
+
 * `5c2c025` - **refactor: 워크스페이스와 채팅 마이크로서비스 도메인 완전 분리 및 캘린더 UI 분리**
   * **작업 내용**:
     * `wave-messaging-service`에 있던 워크스페이스 개설/멤버/달력(Appointment) 관련 코드를 `datt-platform`(`spring-boot-app`)으로 이동 (동일 `datt-db` 사용 중이므로 JPA 연관관계 손상 없음).
