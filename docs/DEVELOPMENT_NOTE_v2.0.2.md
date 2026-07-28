@@ -12,6 +12,10 @@
   * **결과**: `datt-platform`의 Next.js 프론트엔드가 Nginx 리버스 프록시를 통해 80번 포트로 통신하며, 백엔드 메시징 서비스와 9092, 6380 포트 분리 환경 위에서 실시간 STOMP 통신을 수행할 수 있는 완벽한 연동 인프라 완성.
 
 ### 📅 2026-07-28: 워크스페이스 도메인(DATT)과 채팅 도메인(WAVE) 완벽 분리 및 캘린더 UI 독립
+* `847cff6` - **Nginx /api/workspaces 트레일링 슬래시 리라이트 룰 복구**
+    * **작업 내용**: 이전 Nginx 리팩토링 과정에서 `/api/chat`과 `/api/workspaces`를 분리할 때 누락되었던 `/api/workspaces/` 트레일링 슬래시 제거 `rewrite` 규칙을 `location = /api/workspaces/` 블록으로 복구했습니다.
+    * **결과**: 브라우저에 301 캐시된 트레일링 슬래시가 붙은 `/api/workspaces/` 요청이 Spring Boot 애플리케이션으로 포워딩되면서 발생하던 `NoHandlerFoundException` 및 500 에러를 완전히 해결하여 워크스페이스 조회 및 생성 기능이 다시 정상 동작합니다.
+
 * `5c2c025` - **refactor: 워크스페이스와 채팅 마이크로서비스 도메인 완전 분리 및 캘린더 UI 분리**
   * **작업 내용**:
     * `wave-messaging-service`에 있던 워크스페이스 개설/멤버/달력(Appointment) 관련 코드를 `datt-platform`(`spring-boot-app`)으로 이동 (동일 `datt-db` 사용 중이므로 JPA 연관관계 손상 없음).
