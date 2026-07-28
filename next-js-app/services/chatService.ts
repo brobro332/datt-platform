@@ -148,3 +148,40 @@ export async function searchChatMessages(roomId: string, keyword: string): Promi
     });
     return response.data;
 }
+
+export interface WorkspaceAppointmentRequest {
+    title: string;
+    description: string;
+    appointmentTime: string; // ISO String
+    location: string;
+}
+
+export interface WorkspaceAppointmentResponse {
+    id: number;
+    workspaceId: number;
+    title: string;
+    description: string;
+    appointmentTime: string;
+    location: string;
+    creatorId: number;
+    createdAt: string;
+}
+
+export async function createWorkspaceAppointment(workspaceId: number, request: WorkspaceAppointmentRequest, memberId: number): Promise<WorkspaceAppointmentResponse> {
+    const response = await apiClient.post<WorkspaceAppointmentResponse>(`/api/wave/workspaces/${workspaceId}/appointments`, request, {
+        headers: { "X-Member-Id": memberId.toString() }
+    });
+    return response.data;
+}
+
+export async function getWorkspaceAppointments(workspaceId: number): Promise<WorkspaceAppointmentResponse[]> {
+    const response = await apiClient.get<WorkspaceAppointmentResponse[]>(`/api/wave/workspaces/${workspaceId}/appointments`);
+    return response.data;
+}
+
+export async function deleteWorkspaceAppointment(workspaceId: number, appointmentId: number, memberId: number): Promise<void> {
+    await apiClient.delete(`/api/wave/workspaces/${workspaceId}/appointments/${appointmentId}`, {
+        headers: { "X-Member-Id": memberId.toString() }
+    });
+}
+

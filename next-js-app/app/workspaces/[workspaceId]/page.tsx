@@ -4,8 +4,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import { useAuthStore } from "@/stores/authStore";
 import { useChat } from "@/hooks/useChat";
-import { getRoomsByWorkspace, markAsRead, searchChatMessages, ChatMessage } from "@/services/chatService";
-import { Send, Hash, Sparkles, Search, X, MessageSquare } from "lucide-react";
+import { getRoomsByWorkspace, markAsRead, searchChatMessages, ChatMessage, getWorkspaceAppointments, createWorkspaceAppointment, deleteWorkspaceAppointment, WorkspaceAppointmentResponse } from "@/services/chatService";
+import { Send, Hash, Sparkles, Search, X, MessageSquare, Calendar, Plus, MapPin, Clock } from "lucide-react";
 
 export default function WorkspaceDashboardHomePage() {
     const params = useParams();
@@ -22,6 +22,19 @@ export default function WorkspaceDashboardHomePage() {
     const [searchKeyword, setSearchKeyword] = useState("");
     const [searchResults, setSearchResults] = useState<ChatMessage[]>([]);
     const [searching, setSearching] = useState(false);
+
+    // 약속 캘린더 상태
+    const [isAppointmentsOpen, setIsAppointmentsOpen] = useState(false);
+    const [appointments, setAppointments] = useState<WorkspaceAppointmentResponse[]>([]);
+    const [loadingAppointments, setLoadingAppointments] = useState(false);
+    const [isCreatingAppointment, setIsCreatingAppointment] = useState(false);
+    
+    // 새 약속 폼 상태
+    const [newApptTitle, setNewApptTitle] = useState("");
+    const [newApptDesc, setNewApptDesc] = useState("");
+    const [newApptDate, setNewApptDate] = useState("");
+    const [newApptTime, setNewApptTime] = useState("");
+    const [newApptLoc, setNewApptLoc] = useState("");
 
     // 인증 복구
     useEffect(() => {
@@ -96,6 +109,62 @@ export default function WorkspaceDashboardHomePage() {
         return () => clearTimeout(delayDebounceFn);
     }, [searchKeyword, roomId]);
 
+    // 약속 목록 가져오기
+    useEffect(() => {
+        if (isAppointmentsOpen && workspaceId) {
+            fetchAppointments();
+        }
+    }, [isAppointmentsOpen, workspaceId]);
+
+    const fetchAppointments = async () => {
+        setLoadingAppointments(true);
+        try {
+            const data = await getWorkspaceAppointments(workspaceId);
+            setAppointments(data);
+        } catch (err) {
+            console.error("Failed to load appointments:", err);
+        } finally {
+            setLoadingAppointments(false);
+        }
+    };
+
+    const handleCreateAppointment = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!newApptTitle || !newApptDate || !newApptTime) return;
+
+        try {
+            const dateTime = new Date(`${newApptDate}T${newApptTime}`).toISOString();
+            await createWorkspaceAppointment(workspaceId, {
+                title: newApptTitle,
+                description: newApptDesc,
+                appointmentTime: dateTime,
+                location: newApptLoc,
+            }, member?.id || 1); // Assuming member has id or fallback to 1
+
+            setNewApptTitle("");
+            setNewApptDesc("");
+            setNewApptDate("");
+            setNewApptTime("");
+            setNewApptLoc("");
+            setIsCreatingAppointment(false);
+            fetchAppointments();
+        } catch (err) {
+            console.error("Failed to create appointment", err);
+            alert("약속 생성에 실패했습니다.");
+        }
+    };
+
+    const handleDeleteAppointment = async (apptId: number) => {
+        if (!confirm("이 약속을 취소하시겠습니까?")) return;
+        try {
+            await deleteWorkspaceAppointment(workspaceId, apptId, member?.id || 1);
+            fetchAppointments();
+        } catch (err) {
+            console.error("Failed to delete appointment", err);
+            alert("삭제 권한이 없거나 실패했습니다.");
+        }
+    };
+
     const handleSend = (e: React.FormEvent) => {
         e.preventDefault();
         if (!inputText.trim()) return;
@@ -146,9 +215,18 @@ export default function WorkspaceDashboardHomePage() {
                 </div>
 
                 <div className="flex items-center gap-3">
+                    {/* 약속 캘린더 아이콘 */}
+                    <button
+                        onClick={() => { setIsAppointmentsOpen(true); setIsSearchOpen(false); }}
+                        className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
+                        title="모임 약속"
+                    >
+                        <Calendar className="w-4 h-4" />
+                    </button>
+
                     {/* 검색 돋보기 단추 */}
                     <button
-                        onClick={() => setIsSearchOpen(true)}
+                        onClick={() => { setIsSearchOpen(true); setIsAppointmentsOpen(false); }}
                         className="p-1.5 hover:bg-slate-100 rounded-xl text-slate-500 hover:text-slate-800 transition-colors cursor-pointer"
                         title="대화 검색"
                     >
@@ -328,6 +406,108 @@ export default function WorkspaceDashboardHomePage() {
                                             <p className="text-xs text-slate-650 break-all leading-relaxed whitespace-pre-wrap">
                                                 {msg.message}
                                             </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* [모임 약속 슬라이드오버] */}
+            {isAppointmentsOpen && (
+                <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs z-30 flex justify-end">
+                    <div className="flex-1" onClick={() => setIsAppointmentsOpen(false)} />
+                    
+                    <div className="w-96 bg-white h-full border-l border-slate-200 shadow-2xl flex flex-col animate-in slide-in-from-right duration-200">
+                        <div className="px-4 py-4 border-b border-slate-200/60 flex justify-between items-center bg-slate-50/50">
+                            <div className="flex items-center gap-1.5">
+                                <Calendar className="w-4 h-4 text-indigo-650" />
+                                <span className="text-xs font-bold text-slate-800">모임 약속 일정</span>
+                            </div>
+                            <button
+                                onClick={() => setIsAppointmentsOpen(false)}
+                                className="p-1 hover:bg-slate-200 rounded-lg text-slate-500"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                            {isCreatingAppointment ? (
+                                <form onSubmit={handleCreateAppointment} className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                                    <h4 className="text-xs font-bold text-slate-800 mb-2">새 약속 만들기</h4>
+                                    <div>
+                                        <label className="text-[10px] font-semibold text-slate-500 mb-1 block">약속 제목</label>
+                                        <input required type="text" value={newApptTitle} onChange={e=>setNewApptTitle(e.target.value)} className="w-full text-xs p-2 border border-slate-200 rounded-lg" placeholder="예) 강남역 저녁 모임" />
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <div className="flex-1">
+                                            <label className="text-[10px] font-semibold text-slate-500 mb-1 block">날짜</label>
+                                            <input required type="date" value={newApptDate} onChange={e=>setNewApptDate(e.target.value)} className="w-full text-xs p-2 border border-slate-200 rounded-lg" />
+                                        </div>
+                                        <div className="flex-1">
+                                            <label className="text-[10px] font-semibold text-slate-500 mb-1 block">시간</label>
+                                            <input required type="time" value={newApptTime} onChange={e=>setNewApptTime(e.target.value)} className="w-full text-xs p-2 border border-slate-200 rounded-lg" />
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-semibold text-slate-500 mb-1 block">장소</label>
+                                        <input type="text" value={newApptLoc} onChange={e=>setNewApptLoc(e.target.value)} className="w-full text-xs p-2 border border-slate-200 rounded-lg" placeholder="장소를 입력하세요" />
+                                    </div>
+                                    <div>
+                                        <label className="text-[10px] font-semibold text-slate-500 mb-1 block">설명 (선택)</label>
+                                        <textarea value={newApptDesc} onChange={e=>setNewApptDesc(e.target.value)} className="w-full text-xs p-2 border border-slate-200 rounded-lg" placeholder="간단한 메모" rows={2} />
+                                    </div>
+                                    <div className="flex gap-2 pt-2">
+                                        <button type="button" onClick={() => setIsCreatingAppointment(false)} className="flex-1 py-2 text-xs font-semibold text-slate-500 bg-slate-200 rounded-lg">취소</button>
+                                        <button type="submit" className="flex-1 py-2 text-xs font-semibold text-white bg-indigo-600 rounded-lg">저장</button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <button
+                                    onClick={() => setIsCreatingAppointment(true)}
+                                    className="w-full py-3 flex items-center justify-center gap-2 border border-dashed border-indigo-300 bg-indigo-50/50 text-indigo-600 rounded-xl hover:bg-indigo-50 transition"
+                                >
+                                    <Plus className="w-4 h-4" />
+                                    <span className="text-xs font-bold">새 약속 만들기</span>
+                                </button>
+                            )}
+
+                            {loadingAppointments ? (
+                                <div className="py-10 flex justify-center"><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-indigo-600"></div></div>
+                            ) : appointments.length === 0 && !isCreatingAppointment ? (
+                                <div className="text-center py-10 text-slate-400">
+                                    <p className="text-xs font-medium">예정된 약속이 없습니다.</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3 mt-4">
+                                    {appointments.map(appt => (
+                                        <div key={appt.id} className="p-4 bg-white border border-slate-200 rounded-xl shadow-sm hover:border-indigo-300 transition group relative">
+                                            <h4 className="text-sm font-bold text-slate-800 mb-1">{appt.title}</h4>
+                                            <div className="flex items-center gap-1 text-[11px] text-slate-500 mb-1">
+                                                <Clock className="w-3 h-3 text-indigo-400" />
+                                                {new Date(appt.appointmentTime).toLocaleString([], { month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'})}
+                                            </div>
+                                            {appt.location && (
+                                                <div className="flex items-center gap-1 text-[11px] text-slate-500 mb-2">
+                                                    <MapPin className="w-3 h-3 text-rose-400" />
+                                                    {appt.location}
+                                                </div>
+                                            )}
+                                            {appt.description && (
+                                                <p className="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg mt-2 line-clamp-2">
+                                                    {appt.description}
+                                                </p>
+                                            )}
+                                            {/* 삭제 버튼 (작성자만 보이게 로직 필요하지만 일단 보여주고 서버에서 막음) */}
+                                            <button 
+                                                onClick={() => handleDeleteAppointment(appt.id)}
+                                                className="absolute top-3 right-3 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition"
+                                            >
+                                                <X className="w-3.5 h-3.5" />
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
