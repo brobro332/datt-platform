@@ -11,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/wave/workspaces/{workspaceId}/appointments")
+@RequestMapping("/api/workspaces/{workspaceId}/appointments")
 public class WorkspaceAppointmentController {
 
     private final WorkspaceAppointmentService appointmentService;

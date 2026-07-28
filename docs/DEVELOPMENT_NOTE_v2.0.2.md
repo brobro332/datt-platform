@@ -13,7 +13,12 @@
 
 ### 📅 2026-07-28: 워크스페이스 도메인(DATT)과 채팅 도메인(WAVE) 완벽 분리 및 캘린더 UI 독립
 
-* `294943e` - **워크스페이스 테이블 네이밍 규칙 DATT 표준화**
+* `d88b04f` - **워크스페이스 API CORS 및 엔드포인트 경로 버그 픽스**
+    * **작업 내용**: 
+        * `WorkspaceController`에 남아있던 `@CrossOrigin(origins = "*")` 어노테이션이 전역 Security Config의 `allowCredentials=true` 옵션과 충돌하여 발생하는 `500 Internal Server Error` (IllegalArgumentException) 문제를 해결하기 위해 해당 어노테이션을 제거했습니다.
+        * `WorkspaceAppointmentController`의 매핑 주소가 과거 잔재인 `/api/wave/workspaces/...`로 남아있어 프론트엔드 연동 시 404 에러가 발생하는 문제를 `/api/workspaces/...`로 올바르게 수정했습니다.
+
+* `3c880f0` - **워크스페이스 테이블 네이밍 규칙 DATT 표준화**
     * **작업 내용**: 엔티티 파일(`Workspace.java`, `WorkspaceMember.java`, `WorkspaceAppointment.java`)의 `@Table` 어노테이션에서 기존 `wave_` 접두사를 제거하고 DATT 테이블 네이밍 규칙(단수 명사)에 맞게 `workspace`, `workspace_member`, `workspace_appointment`로 테이블 명을 수정했습니다.
     * **결과**: 데이터베이스 테이블명이 DATT 플랫폼의 컨벤션과 일치하게 되어 도메인 관리의 일관성이 향상되었습니다.
 

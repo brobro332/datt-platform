@@ -27,7 +27,6 @@ import xyz.datt.domain.workspace.service.WorkspaceService;
  */
 @RestController
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class WorkspaceController {
 
     private final WorkspaceService workspaceService;
