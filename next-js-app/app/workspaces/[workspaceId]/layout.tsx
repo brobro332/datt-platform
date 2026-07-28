@@ -195,17 +195,18 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
 
                     {/* 2. 약속 캘린더 */}
                     <button
-                        onClick={() => router.push(`/workspaces/${workspaceId}`)}
-                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs font-semibold cursor-pointer transition-all text-slate-600 hover:bg-slate-200/50 hover:text-slate-900"
-                        title="우측 상단 캘린더 아이콘을 통해 진입 가능합니다."
+                        onClick={() => router.push(`/workspaces/${workspaceId}/calendar`)}
+                        className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-left text-xs font-semibold cursor-pointer transition-all ${
+                            pathname === `/workspaces/${workspaceId}/calendar`
+                                ? "bg-indigo-50/80 text-indigo-650 shadow-sm"
+                                : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900"
+                        }`}
+                        title="워크스페이스 모임 약속 관리"
                     >
                         <div className="flex items-center gap-1.5">
                             <Calendar className="w-3.5 h-3.5" />
                             <span>약속 캘린더</span>
                         </div>
-                        <span className="text-[8px] scale-90 px-1.5 py-0.5 bg-indigo-50 text-indigo-600 rounded font-bold border border-indigo-200/50">
-                            채팅방 내장
-                        </span>
                     </button>
 
                     {/* 3. 닻 코스 빌딩 */}

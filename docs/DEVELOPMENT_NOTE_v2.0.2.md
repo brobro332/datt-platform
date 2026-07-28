@@ -1,13 +1,24 @@
-﻿# ⚓ DATT 플랫폼 히스토리 백과 (v2.0.2 개발자 노트)
+# ⚓ DATT 플랫폼 히스토리 백과 (v2.0.2 개발자 노트)
 
 ## 🚀 DATT v2.0.2 상세 타임라인 개발 역사
 
-`main` 브랜치에 누적된 v2.0.2 개발 역사는 **워크스페이스 개념 도입 및 친구 초대 기반 실시간 채팅 시스템 구축**을 통해 사용자 간의 그룹 협업 및 실시간 소통 기능을 플랫폼에 확보하는 마일스톤을 다룹니다.
+`main` 브랜치에 누적된 v2.0.2 개발 역사는 **워크스페이스 개념 도입 및 친구 초대 기반 실시간 채팅 시스템 구축**을 통해 사용자 간의 그룹 협업 및 실시간 소통 기능을 플랫폼에 확보하는 마일스톤을 다듭니다.
 
 ### 📅 2026-07-22: 워크스페이스(Workspace) 개설, 초대 코드 기반 참가 및 Slack 스타일 다중 사이드바 대시보드 UI 개발
 * `1c190b6` - **실시간 채팅 및 워크스페이스 통합 인프라 구성 및 Nginx 프록시 라우팅 추가**
-    * **작업 내용**: 
-        * `datt-platform`의 `docker-compose.yml`에 실시간 메시징을 위한 `wave-redis`, `wave-kafka` 및 `wave-messaging-service`(Arm64 OCI VM용 호환 이미지 `eclipse-temurin:17-jre`로 구성) 컨테이너 선언 추가.
+  * **작업 내용**:
+    * `datt-platform`의 `docker-compose.yml`에 실시간 메시징을 위한 `wave-redis`, `wave-kafka` 및 `wave-messaging-service`(Arm64 OCI VM용 호환 이미지 `eclipse-temurin:17-jre`로 구성) 컨테이너 선언 추가.
+    * Nginx 설정(`default.conf`)에 `/api/chat/*` 및 WebSocket 프로토콜 업그레이드를 지원하는 `/ws-stomp` 라우팅 설정 추가.
+  * **결과**: `datt-platform`의 Next.js 프론트엔드가 Nginx 리버스 프록시를 통해 80번 포트로 통신하며, 백엔드 메시징 서비스와 9092, 6380 포트 분리 환경 위에서 실시간 STOMP 통신을 수행할 수 있는 완벽한 연동 인프라 완성.
+
+### 📅 2026-07-28: 워크스페이스 도메인(DATT)과 채팅 도메인(WAVE) 완벽 분리 및 캘린더 UI 독립
+* `5c2c025` - **refactor: 워크스페이스와 채팅 마이크로서비스 도메인 완전 분리 및 캘린더 UI 분리**
+  * **작업 내용**:
+    * `wave-messaging-service`에 있던 워크스페이스 개설/멤버/달력(Appointment) 관련 코드를 `datt-platform`(`spring-boot-app`)으로 이동 (동일 `datt-db` 사용 중이므로 JPA 연관관계 손상 없음).
+    * `wave-messaging-service`는 순수 실시간 채팅(ChatRoom) 로직만 남기고, 관련된 Nginx 라우팅에서 `workspaces`를 제거하여 `/api/workspaces`는 DATT로 향하도록 수정.
+    * 프론트엔드(`next-js-app`)의 채팅 페이지(`page.tsx`) 내부에 있던 캘린더 슬라이드오버를 제거하고, 독립된 경로(`/workspaces/[workspaceId]/calendar`)를 생성하여 라우팅 연결.
+  * **결과**: 워크스페이스 도메인(DATT)과 순수 메시징(WAVE) 역할이 명확해지고, 캘린더 기능이 독립된 페이지로 분리되어 구조적 완결성을 갖춤.
+
         * Nginx 설정(`default.conf`)에 `/api/chat/*` 및 WebSocket 프로토콜 업그레이드를 지원하는 `/ws-stomp` 리버스 프록시 포워딩 경로 추가. (301 리다이렉션으로 인한 웹소켓 핸드셰이크 실패 오류를 막기 위해 `/ws-stomp` 트레일링 슬래시도 함께 제거)
         * **[추가 수정]** Nginx `/api/workspaces` 블록에 리라이트(`rewrite`) 규칙을 내장하여, 브라우저가 캐싱한 이전 301 트레일링 슬래시(`/`) 요청을 백엔드 진입 전 제거함으로써 404 매칭 실패 문제 완전 해결.
 * `1c190b6` - **Next.js 프론트엔드 워크스페이스 대시보드 UI 개발 및 DATT 디자인 시스템 테마 통합**

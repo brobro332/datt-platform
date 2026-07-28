@@ -106,7 +106,7 @@ export async function joinRoom(roomId: string, userId: string): Promise<void> {
  * 특정 워크스페이스 내부의 채팅방 목록 및 안 읽은 메시지 수 조회 API
  */
 export async function getRoomsByWorkspace(workspaceId: number, userId: string): Promise<ChatRoomResponse[]> {
-    const response = await apiClient.get<ChatRoomResponse[]>(`/api/workspaces/${workspaceId}/rooms`, {
+    const response = await apiClient.get<ChatRoomResponse[]>(`/api/chat/workspaces/${workspaceId}/rooms`, {
         params: { userId },
     });
     return response.data;
@@ -168,19 +168,19 @@ export interface WorkspaceAppointmentResponse {
 }
 
 export async function createWorkspaceAppointment(workspaceId: number, request: WorkspaceAppointmentRequest, memberId: number): Promise<WorkspaceAppointmentResponse> {
-    const response = await apiClient.post<WorkspaceAppointmentResponse>(`/api/wave/workspaces/${workspaceId}/appointments`, request, {
+    const response = await apiClient.post<WorkspaceAppointmentResponse>(`/api/workspaces/${workspaceId}/appointments`, request, {
         headers: { "X-Member-Id": memberId.toString() }
     });
     return response.data;
 }
 
 export async function getWorkspaceAppointments(workspaceId: number): Promise<WorkspaceAppointmentResponse[]> {
-    const response = await apiClient.get<WorkspaceAppointmentResponse[]>(`/api/wave/workspaces/${workspaceId}/appointments`);
+    const response = await apiClient.get<WorkspaceAppointmentResponse[]>(`/api/workspaces/${workspaceId}/appointments`);
     return response.data;
 }
 
 export async function deleteWorkspaceAppointment(workspaceId: number, appointmentId: number, memberId: number): Promise<void> {
-    await apiClient.delete(`/api/wave/workspaces/${workspaceId}/appointments/${appointmentId}`, {
+    await apiClient.delete(`/api/workspaces/${workspaceId}/appointments/${appointmentId}`, {
         headers: { "X-Member-Id": memberId.toString() }
     });
 }
