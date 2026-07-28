@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "wave_workspace_members")
+@Table(name = "workspace_member")
 @Getter
 @Setter
 @NoArgsConstructor
