@@ -139,7 +139,7 @@ export default function WorkspaceDashboardHomePage() {
                 description: newApptDesc,
                 appointmentTime: dateTime,
                 location: newApptLoc,
-            }, member?.id || 1); // Assuming member has id or fallback to 1
+            }, member?.memberId || 1); // Use member.memberId
 
             setNewApptTitle("");
             setNewApptDesc("");
@@ -157,7 +157,7 @@ export default function WorkspaceDashboardHomePage() {
     const handleDeleteAppointment = async (apptId: number) => {
         if (!confirm("이 약속을 취소하시겠습니까?")) return;
         try {
-            await deleteWorkspaceAppointment(workspaceId, apptId, member?.id || 1);
+            await deleteWorkspaceAppointment(workspaceId, apptId, member?.memberId || 1);
             fetchAppointments();
         } catch (err) {
             console.error("Failed to delete appointment", err);

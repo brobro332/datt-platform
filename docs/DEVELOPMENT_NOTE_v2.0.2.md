@@ -120,32 +120,37 @@
 ![Grafana 트래픽 스파이크 발견](https://raw.githubusercontent.com/brobro332/datt-platform/main/docs/images/grafana-n1-spike.png)
 ![실제 리뷰는 0건인 통계 화면](https://raw.githubusercontent.com/brobro332/datt-platform/main/docs/images/stats-zero.png)
 
- # # #   [ T E M P _ H A S H ]   ��ܴ��  ��8�  ����   ���  0���  �� �  �  �¤�\�  ��l�  T�t�  ���
- *   * * ����  �|�* * : 
-     *   s p r i n g - b o o t - a p p / s r c / m a i n / j a v a / x y z / d a t t / d o m a i n / m e m b e r / c o n t r o l l e r / M e m b e r A d m i n C o n t r o l l e r . j a v a   ( �  S e r v i c e ,   D T O ) 
-     *   s p r i n g - b o o t - a p p / s r c / m a i n / j a v a / x y z / d a t t / g l o b a l / c o n f i g / S e c u r i t y C o n f i g . j a v a 
-     *   n e x t - j s - a p p / a p p / a d m i n / l a y o u t . t s x 
-     *   n e x t - j s - a p p / a p p / a d m i n / m e m b e r s / p a g e . t s x 
-     *   n e x t - j s - a p p / a p p / a d m i n / s y s t e m s / p a g e . t s x 
- *   * * ����  ���* * :    �����  ���1�D�  ��t�0�  �t�  ����  ��]�  pȌ�  0���D�  ��$�X��,   ����t�  ��X�  xƀ�  �¤�\�  ��l�|�  �|�  T�t�\�  ��i�. 
- *   * * ����  ����* * : 
-     *   * * [ B a c k e n d ] * *   \ G E T   / a p i / a d m i n / m e m b e r s \   ��ܴ��xǸ�|�  �� �X���  ��t���  0��  ����  ��]�  pȌ�  0���  l��. 
-     *   * * [ B a c k e n d ] * *   \ S e c u r i t y C o n f i g \ ��  \ / a p i / a d m i n / m e m b e r s / * * \   ��\�  ���  ��\�( A D M I N )   ����. 
-     *   * * [ F r o n t e n d ] * *   ��t�ܴ����  \ S y s t e m   L i n k s \   ����  ���D�  �p�X��,   \ ����   ���\   �  \ �¤�\�  $��\ D�  T�x�  T�t�\�  ��i�. 
-     *   * * [ F r o n t e n d ] * *   1���ܴ  A P I |�  ��ٳX���   ��ǐ�  �i�D�  ����Ȕ�  ����   ���  L�t��  �  D�1�. 
-     *   * * [ F r o n t e n d ] * *   G r a f a n a ,   S w a g g e r   ��l�|�  t�ܴ  ���\�   ���XՔ�  �¤�\�  $��  ��t���  ��$�. 
- 
- 
 
- # # #   [ T E M P _ H A S H ]   ��lФ�tǤ�  }ō�  �ΰ�T�  0���  l��
- *   * * ����  �|�* * : 
-     *   ( w a v e - m e s s a g i n g )   s r c / m a i n / j a v a / x y z / m e s s a g i n g / w a v e / d o m a i n / W o r k s p a c e A p p o i n t m e n t . j a v a   �  1���ܴ  A P I 
-     *   ( d a t t - p l a t f o r m )   n e x t - j s - a p p / s e r v i c e s / c h a t S e r v i c e . t s 
-     *   ( d a t t - p l a t f o r m )   n e x t - j s - a p p / a p p / w o r k s p a c e s / [ w o r k s p a c e I d ] / p a g e . t s x 
- *   * * ����  ���* * :   ��lФ�tǤ�  8��Ő��t�  D��)�  H����  $��|�x�  ����  }ō�D�  �X��  �ΰ�T�  ���\�  U�x�`�  �  �ǔ�  0���  �� �
- *   * * ����  ����* * : 
-     *   * * [ B a c k e n d ] * *   \ w a v e - m e s s a g i n g - s e r v i c e \ ��  }ō�  ������  �  C R U D   A P I   ��$�  ( \ / a p i / w a v e / w o r k s p a c e s / { i d } / a p p o i n t m e n t s \ ) . 
-     *   * * [ F r o n t e n d ] * *    �T�)�  ��!�  �����  �ΰ�T�  D�t�X�  �� �  �  tЭ�  ��  ��!����  ��|�t�ܴ  $�����  ��t�ܴ�  (��  �  l��. 
-     *   * * [ F r o n t e n d ] * *   ��  }ō�  ̹�0�  ��( ȩ�,   ����,   ���,   �ǌ�,   $���)   l��  �  1���ܴ  ��ٳ  D�1�. 
- 
- 
+### 6eb422f 어드민 포털 회원 관리 기능 추가 및 시스템 링크 메뉴 개편
+* **작업 파일**:
+  * spring-boot-app/src/main/java/xyz/datt/domain/member/controller/MemberAdminController.java (및 Service, DTO)
+  * spring-boot-app/src/main/java/xyz/datt/global/config/SecurityConfig.java
+  * next-js-app/app/admin/layout.tsx
+  * next-js-app/app/admin/members/page.tsx
+  * next-js-app/app/admin/systems/page.tsx
+* **작업 목적**: 관리자 접근성을 높이기 위해 회원 목록 조회 기능을 신설하고, 산재해 있던 외부 시스템 링크를 단일 메뉴로 통합.
+* **작업 내용**:
+  * **[Backend]** `GET /api/admin/members` 엔드포인트를 추가하여 페이징 기반 회원 목록 조회 기능 구현.
+  * **[Backend]** `SecurityConfig`에 `/api/admin/members/**` 경로 접근 권한(ADMIN) 부여.
+  * **[Frontend]** 사이드바에서 `System Links` 분리 영역을 제거하고, `회원 관리` 및 `시스템 설정`을 메인 메뉴로 통합.
+  * **[Frontend]** 백엔드 API를 연동하여 가입자 현황을 보여주는 회원 관리 테이블 뷰 완성.
+  * **[Frontend]** Grafana, Swagger 링크를 카드 형태로 관리하는 시스템 설정 페이지 신설.
+
+### e62fe5b 워크스페이스 약속 캘린더 기능 구현
+* **작업 파일**:
+  * (wave-messaging) src/main/java/xyz/messaging/wave/domain/WorkspaceAppointment.java 등 백엔드 API
+  * (datt-platform) next-js-app/services/chatService.ts
+  * (datt-platform) next-js-app/app/workspaces/[workspaceId]/page.tsx
+* **작업 목적**: 워크스페이스 참여자들이 채팅방 안에서 오프라인 모임 약속을 정하고 캘린더 형태로 확인할 수 있는 기능 추가
+* **작업 내용**:
+  * **[Backend]** `wave-messaging-service`에 약속 엔티티 및 CRUD API 신설 (`/api/wave/workspaces/{id}/appointments`).
+  * **[Frontend]** 대화방 우측 상단에 캘린더 아이콘 추가 및 클릭 시 우측에서 슬라이드 오픈되는 사이드바 패널 뷰 구현.
+  * **[Frontend]** 새 약속 만들기 폼(제목, 날짜, 시간, 장소, 설명) 구현 및 백엔드 연동 완성.
+
+### 446e4ca 타입스크립트 빌드 에러 및 인코딩 핫픽스
+* **작업 파일**: 
+  * next-js-app/app/workspaces/[workspaceId]/page.tsx
+  * docs/DEVELOPMENT_NOTE_v2.0.2.md
+* **작업 내용**: 
+  * Next.js 프로덕션 빌드 단계에서 발생한 `Property 'id' does not exist on type` 타입 에러를 해결하기 위해, `member` 객체 참조 속성을 `member.id`에서 `member.memberId`로 수정.
+  * 이전 커밋에서 발생한 개발자 노트 한글 깨짐 현상(인코딩 에러)을 복구하고, 커밋 메시지 정책(한글 작성)을 준수하도록 통합 핫픽스 적용.
