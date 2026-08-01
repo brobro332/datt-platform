@@ -260,3 +260,8 @@
 - �۾� ����: �� Ǫ�� �˸�(Web Push API) ����/���� ��� �߰�
 - ����Ʈ����: next-pwa Ŀ���� ��Ŀ ����, Ǫ�� �˸� ���� ȹ�� �� �鿣�� ���� ��� �߰�
 - �鿣��: webpush-java ����, ���� ���� ����� PushSubscription ��ƼƼ �� API �߰�
+
+
+## 1ac1425
+- 작업 목적: Spring Boot 런타임 ObjectMapper Bean 주입 에러 핫픽스
+- 구체적 내용: WebPushService에서 ObjectMapper 빈 주입 대신 직접 생성하여 사용하도록 수정

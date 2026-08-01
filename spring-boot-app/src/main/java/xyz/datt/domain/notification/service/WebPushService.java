@@ -25,7 +25,7 @@ import java.util.Map;
 public class WebPushService {
 
     private final PushSubscriptionRepository pushSubscriptionRepository;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private PushService pushService;
 
     @Value("${VAPID_PUBLIC_KEY}")
