@@ -1,0 +1,67 @@
+package xyz.datt.domain.support.service;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import xyz.datt.domain.support.dto.InquiryCreateRequest;
+import xyz.datt.domain.support.dto.ReportCreateRequest;
+import xyz.datt.domain.support.entity.Report;
+import xyz.datt.domain.support.entity.ServiceInquiry;
+import xyz.datt.domain.support.repository.ReportRepository;
+import xyz.datt.domain.support.repository.ServiceInquiryRepository;
+
+@Service
+@RequiredArgsConstructor
+@Transactional(readOnly = true)
+public class SupportService {
+
+    private final ServiceInquiryRepository inquiryRepository;
+    private final ReportRepository reportRepository;
+
+    @Transactional
+    public ServiceInquiry createInquiry(InquiryCreateRequest request, String authorId) {
+        ServiceInquiry inquiry = ServiceInquiry.builder()
+                .category(request.getCategory())
+                .content(request.getContent())
+                .status("PENDING")
+                .authorId(authorId)
+                .build();
+        return inquiryRepository.save(inquiry);
+    }
+
+    @Transactional
+    public Report createReport(ReportCreateRequest request, String reporterId) {
+        Report report = Report.builder()
+                .targetType(request.getTargetType())
+                .targetId(request.getTargetId())
+                .reason(request.getReason())
+                .status("PENDING")
+                .reporterId(reporterId)
+                .build();
+        return reportRepository.save(report);
+    }
+
+    public Page<ServiceInquiry> getInquiries(Pageable pageable) {
+        return inquiryRepository.findAllByOrderByCreatedAtDesc(pageable);
+    }
+
+    public Page<Report> getReports(Pageable pageable) {
+        return reportRepository.findAllByOrderByCreatedAtDesc(pageable);
+    }
+
+    @Transactional
+    public void resolveInquiry(Long id) {
+        ServiceInquiry inquiry = inquiryRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Inquiry not found"));
+        inquiry.resolve();
+    }
+
+    @Transactional
+    public void resolveReport(Long id) {
+        Report report = reportRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Report not found"));
+        report.resolve();
+    }
+}

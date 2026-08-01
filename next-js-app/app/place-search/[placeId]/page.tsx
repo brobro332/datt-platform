@@ -23,6 +23,7 @@ import {
 import { ReviewCreateForm } from "@/components/review/ReviewCreateForm";
 import { usePlaceReviews } from "@/hooks/usePlaceReviews";
 import { useAuthStore } from "@/stores/authStore";
+import { supportService } from "@/services/supportService";
 
 import { getCategoryFromText, getPlaceholderDetails, type PlaceCategory } from "@/utils/category";
 import { CategoryBadge } from "@/components/common/CategoryBadge";
@@ -159,6 +160,27 @@ export default function PlaceDetailPage() {
   async function handleUnsave() {
     await removeBookmarkMutation.mutateAsync();
     setIsFolderModalOpen(false);
+  }
+
+  async function handleReportPlace() {
+    if (!isLoggedIn) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    const reason = window.prompt("매장 신고 사유를 입력해주세요. (예: 폐업, 잘못된 정보 등)");
+    if (!reason || !reason.trim()) return;
+
+    try {
+      await supportService.createReport({
+        targetType: "PLACE",
+        targetId: placeId,
+        reason: reason.trim()
+      });
+      alert("신고가 접수되었습니다.");
+    } catch (err) {
+      console.error(err);
+      alert("신고 접수에 실패했습니다.");
+    }
   }
 
   useEffect(() => {
@@ -361,6 +383,13 @@ export default function PlaceDetailPage() {
                       ? "저장됨"
                       : "저장하기"}
                 </Button>
+                
+                <button
+                  onClick={handleReportPlace}
+                  className="flex items-center justify-center h-11 px-4 rounded-2xl bg-rose-50 text-rose-600 text-xs font-bold shadow-sm hover:bg-rose-100 transition-all cursor-pointer w-full md:w-auto"
+                >
+                  🚨 신고
+                </button>
               </div>
             </div>
           </Card>

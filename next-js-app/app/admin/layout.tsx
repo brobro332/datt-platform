@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import { useAuthStore } from "@/stores/authStore";
-import { PlusCircle, Image as ImageIcon, LogOut, ShieldAlert, ArrowLeft, Menu, X, Activity, BookOpen, MessageSquareCode, Users, Globe } from "lucide-react";
+import { PlusCircle, Image as ImageIcon, LogOut, ShieldAlert, ArrowLeft, Menu, X, Activity, BookOpen, MessageSquareCode, Users, Globe, HeadphonesIcon } from "lucide-react";
 
 export default function AdminLayout({
   children,
@@ -86,6 +86,11 @@ export default function AdminLayout({
       name: "시스템 설정",
       href: "/admin/systems",
       icon: Globe,
+    },
+    {
+      name: "고객 지원",
+      href: "/admin/support",
+      icon: HeadphonesIcon,
     },
   ];
 

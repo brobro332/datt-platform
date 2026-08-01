@@ -4,6 +4,7 @@ import { useAuthStore } from "@/stores/authStore";
 import { useUpdatePlaceReview, useDeletePlaceReview } from "@/hooks/usePlaceReviewMutation";
 import { Button } from "@/components/common/Button";
 import { apiClient } from "@/lib/apiClient";
+import { supportService } from "@/services/supportService";
 
 type ReviewCardProps = {
     review: PlaceReviewResponse;
@@ -43,6 +44,27 @@ export function ReviewCard({
         } catch (err) {
             console.error(err);
             alert("리뷰 삭제에 실패했습니다.");
+        }
+    };
+
+    const handleReport = async () => {
+        if (!member) {
+            alert("로그인이 필요합니다.");
+            return;
+        }
+        const reason = window.prompt("신고 사유를 입력해주세요. (예: 욕설, 비방, 광고 등)");
+        if (!reason || !reason.trim()) return;
+
+        try {
+            await supportService.createReport({
+                targetType: "REVIEW",
+                targetId: review.reviewId,
+                reason: reason.trim()
+            });
+            alert("신고가 접수되었습니다.");
+        } catch (err) {
+            console.error(err);
+            alert("신고 접수에 실패했습니다.");
         }
     };
 
@@ -185,6 +207,15 @@ export function ReviewCard({
                         className="text-xs font-bold text-slate-400 hover:text-rose-600 transition cursor-pointer"
                     >
                         삭제
+                    </button>
+                </div>
+            ) : (
+                <div className="mt-4 flex justify-end border-t border-slate-100/80 pt-3">
+                    <button
+                        onClick={handleReport}
+                        className="text-[10px] font-bold text-slate-300 hover:text-rose-500 transition cursor-pointer"
+                    >
+                        🚨 리뷰 신고
                     </button>
                 </div>
             )}

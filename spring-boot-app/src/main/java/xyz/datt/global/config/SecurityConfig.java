@@ -46,6 +46,7 @@ public class SecurityConfig {
                     .requestMatchers("/api/admin/places/**").hasRole("ADMIN")
                     .requestMatchers("/api/admin/ads/**").hasRole("ADMIN")
                     .requestMatchers("/api/admin/members/**").hasRole("ADMIN")
+                    .requestMatchers("/api/admin/support/**").hasRole("ADMIN")
                     .anyRequest().authenticated()
             )
             .addFilterBefore(
