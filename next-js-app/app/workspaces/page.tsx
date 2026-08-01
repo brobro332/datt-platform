@@ -99,24 +99,21 @@ export default function WorkspacesPage() {
 
     return (
         <MainLayout requireAuth>
-            <div className="max-w-3xl mx-auto px-2">
-                {/* 헤더 */}
-                <div className="flex justify-between items-start mb-8">
-                    <div>
-                        <div className="flex items-center gap-2 text-indigo-600 text-xs font-black uppercase tracking-wider mb-2">
-                            <Layout className="w-4 h-4" />
-                            WORKSPACE HUB
-                        </div>
-                        <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-                            DATT 크루
+            <section className="space-y-8 pb-20 max-w-4xl mx-auto px-4 animate-in fade-in duration-500">
+                <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200/50 bg-white/80 p-8 md:p-10 shadow-sm backdrop-blur-md">
+                    <div className="mb-8">
+                        <p className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 uppercase tracking-widest">
+                            <Layout className="w-4 h-4" /> WORKSPACE HUB
+                        </p>
+                        <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900">
+                            크루
                         </h1>
-                        <p className="text-sm text-slate-500 mt-1">
+                        <p className="mt-1.5 text-xs text-slate-500">
                             {member.nickname}님, 함께 약속을 계획하고 일정을 조율할 수 있는 독립 공간입니다.
                         </p>
                     </div>
-                </div>
 
-                {/* 메인 선택 카드 (생성 / 참가) */}
+                    {/* 메인 선택 카드 (생성 / 참가) */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
                     <button
                         onClick={() => {
@@ -232,7 +229,8 @@ export default function WorkspacesPage() {
                         </div>
                     )}
                 </div>
-            </div>
+                </div>
+            </section>
         </MainLayout>
     );
 }

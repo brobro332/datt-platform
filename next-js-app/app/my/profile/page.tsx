@@ -426,7 +426,7 @@ export default function MyProfilePage() {
                             <Link
                               key={anchor.anchorId}
                               href={`/anchors/${anchor.anchorId}`}
-                              className="flex flex-col h-full rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-blue-300 hover:bg-blue-50/20 transition-all duration-200"
+                              className="flex flex-col h-[144px] overflow-hidden rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-blue-300 hover:bg-blue-50/20 transition-all duration-200"
                             >
                               <div className="flex items-center gap-3">
                                 <div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
@@ -477,7 +477,7 @@ export default function MyProfilePage() {
                             <Link
                               key={review.placeId}
                               href={`/place-search/${review.placeId}`}
-                              className="flex flex-col h-full rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-indigo-400 hover:bg-indigo-50/20 transition-all duration-200"
+                              className="flex flex-col h-[144px] overflow-hidden rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-indigo-400 hover:bg-indigo-50/20 transition-all duration-200"
                             >
                               <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 mb-1.5">
                                 <p className="font-extrabold text-slate-900 text-xs truncate">
@@ -524,7 +524,7 @@ export default function MyProfilePage() {
                             <Link
                               key={bookmark.bookmarkId}
                               href={`/place-search/${bookmark.placeId}`}
-                              className="flex flex-col h-full rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-rose-300 hover:bg-rose-50/20 transition-all duration-200"
+                              className="flex flex-col h-[144px] overflow-hidden rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-rose-300 hover:bg-rose-50/20 transition-all duration-200"
                             >
                               <div className="min-w-0 flex-1">
                                 <p className="font-extrabold text-slate-900 text-xs truncate">
@@ -571,7 +571,7 @@ export default function MyProfilePage() {
                           {myInquiries.content.map((inquiry: any) => (
                             <div
                               key={inquiry.id}
-                              className="flex flex-col h-full rounded-xl border border-slate-100/60 bg-slate-50/50 p-3"
+                              className="flex flex-col h-[144px] overflow-hidden rounded-xl border border-slate-100/60 bg-slate-50/50 p-3"
                             >
                               <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 mb-1.5">
                                 <p className="font-extrabold text-slate-900 text-[10px] truncate">
