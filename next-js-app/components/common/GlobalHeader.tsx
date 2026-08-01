@@ -297,6 +297,5 @@ function MobileNav({ pathname, isLoggedIn }: { pathname: string; isLoggedIn: boo
           </Link>
         )}
       </nav>
-    </>
   );
 }

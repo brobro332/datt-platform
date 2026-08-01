@@ -402,25 +402,39 @@ export default function SignupPage() {
                 )}
               </div>
 
-              <Input
-                id="password"
-                label="비밀번호"
-                type="password"
-                placeholder="비밀번호를 입력하세요"
-                autoComplete="new-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-              />
+              <div className="space-y-1">
+                <Input
+                  id="password"
+                  label="비밀번호"
+                  type="password"
+                  placeholder="비밀번호를 입력하세요 (8~30자)"
+                  autoComplete="new-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+                {password.length > 0 && (
+                  <p className={`text-[10px] pl-1 font-semibold ${password.length >= 8 && password.length <= 30 ? "text-emerald-600" : "text-rose-600"}`}>
+                    {password.length >= 8 && password.length <= 30 ? "사용 가능한 비밀번호입니다." : "비밀번호는 8자 이상 30자 이하로 입력해야 합니다."}
+                  </p>
+                )}
+              </div>
 
-              <Input
-                id="passwordConfirm"
-                label="비밀번호 확인"
-                type="password"
-                placeholder="비밀번호를 다시 입력하세요"
-                autoComplete="new-password"
-                value={passwordConfirm}
-                onChange={(event) => setPasswordConfirm(event.target.value)}
-              />
+              <div className="space-y-1">
+                <Input
+                  id="passwordConfirm"
+                  label="비밀번호 확인"
+                  type="password"
+                  placeholder="비밀번호를 다시 입력하세요"
+                  autoComplete="new-password"
+                  value={passwordConfirm}
+                  onChange={(event) => setPasswordConfirm(event.target.value)}
+                />
+                {passwordConfirm.length > 0 && (
+                  <p className={`text-[10px] pl-1 font-semibold ${password === passwordConfirm ? "text-emerald-600" : "text-rose-600"}`}>
+                    {password === passwordConfirm ? "비밀번호가 일치합니다." : "비밀번호가 일치하지 않습니다."}
+                  </p>
+                )}
+              </div>
 
               <Button
                 type="submit"
