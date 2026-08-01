@@ -6,12 +6,18 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "DATT",
   description: "Discover All The Town",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "DATT",
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
+  themeColor: "#4f46e5",
 };
 
 export default function RootLayout({
