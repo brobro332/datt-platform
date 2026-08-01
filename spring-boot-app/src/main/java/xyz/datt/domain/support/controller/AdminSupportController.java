@@ -9,6 +9,8 @@ import xyz.datt.domain.support.entity.Report;
 import xyz.datt.domain.support.entity.ServiceInquiry;
 import xyz.datt.domain.support.service.SupportService;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("/api/admin/support")
 @RequiredArgsConstructor
@@ -31,8 +33,9 @@ public class AdminSupportController {
     }
 
     @PatchMapping("/inquiries/{id}/resolve")
-    public ResponseEntity<Void> resolveInquiry(@PathVariable Long id) {
-        supportService.resolveInquiry(id);
+    public ResponseEntity<Void> resolveInquiry(@PathVariable Long id, @RequestBody Map<String, String> body) {
+        String answer = body.get("answer");
+        supportService.resolveInquiry(id, answer);
         return ResponseEntity.ok().build();
     }
 

@@ -11,6 +11,7 @@ import xyz.datt.domain.support.entity.Report;
 import xyz.datt.domain.support.entity.ServiceInquiry;
 import xyz.datt.domain.support.repository.ReportRepository;
 import xyz.datt.domain.support.repository.ServiceInquiryRepository;
+import xyz.datt.domain.notification.service.NotificationService;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +20,7 @@ public class SupportService {
 
     private final ServiceInquiryRepository inquiryRepository;
     private final ReportRepository reportRepository;
+    private final NotificationService notificationService;
 
     @Transactional
     public ServiceInquiry createInquiry(InquiryCreateRequest request, String authorId) {
@@ -56,10 +58,22 @@ public class SupportService {
     }
 
     @Transactional
-    public void resolveInquiry(Long id) {
+    public void resolveInquiry(Long id, String answer) {
         ServiceInquiry inquiry = inquiryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Inquiry not found"));
-        inquiry.resolve();
+        inquiry.resolve(answer);
+
+        try {
+            Long memberId = Long.parseLong(inquiry.getAuthorId());
+            notificationService.createNotification(
+                    memberId,
+                    "SUPPORT_REPLY",
+                    "서비스 문의에 대한 답변이 등록되었습니다.",
+                    "고객님의 문의에 관리자가 답변을 남겼습니다."
+            );
+        } catch (NumberFormatException e) {
+            // ignore
+        }
     }
 
     @Transactional

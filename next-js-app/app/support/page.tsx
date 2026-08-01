@@ -5,10 +5,12 @@ import { useAuthStore } from "@/stores/authStore";
 import { supportService } from "@/services/supportService";
 import { MessageSquarePlus, Send, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function SupportPage() {
     const { isLoggedIn, restoreAuth } = useAuthStore();
     const router = useRouter();
+    const queryClient = useQueryClient();
     
     const [category, setCategory] = useState("IMPROVEMENT");
     const [content, setContent] = useState("");
@@ -35,6 +37,10 @@ export default function SupportPage() {
         setIsSubmitting(true);
         try {
             await supportService.createInquiry({ category, content });
+            
+            // 캐시 갱신
+            queryClient.invalidateQueries({ queryKey: ["myInquiries"] });
+            
             setIsSuccess(true);
             setContent("");
         } catch (err) {

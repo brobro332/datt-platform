@@ -2,6 +2,7 @@ export interface ServiceInquiry {
     id: number;
     category: string;
     content: string;
+    answer?: string;
     status: string;
     authorId: string;
     createdAt: string;

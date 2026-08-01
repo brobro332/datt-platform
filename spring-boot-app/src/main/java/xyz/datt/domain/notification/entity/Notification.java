@@ -1,4 +1,4 @@
-package xyz.datt.domain.support.entity;
+package xyz.datt.domain.notification.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -8,45 +8,40 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "service_inquiry")
+@Table(name = "notification")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class ServiceInquiry {
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // IMPROVEMENT, STORE_REGISTRATION
+    @Column(nullable = false)
+    private Long memberId;
+
+    // e.g. "SUPPORT_REPLY", "NEW_FOLLOWER"
     @Column(nullable = false, length = 50)
-    private String category;
+    private String type;
+
+    @Column(nullable = false, length = 200)
+    private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    @Column(columnDefinition = "TEXT")
-    private String answer;
-
-    // PENDING, RESOLVED
-    @Column(nullable = false, length = 20)
-    private String status;
-
-    @Column(nullable = false, length = 100)
-    private String authorId;
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isRead = false;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    @Column
-    private LocalDateTime resolvedAt;
-
-    public void resolve(String answer) {
-        this.status = "RESOLVED";
-        this.answer = answer;
-        this.resolvedAt = LocalDateTime.now();
+    public void markAsRead() {
+        this.isRead = true;
     }
 }

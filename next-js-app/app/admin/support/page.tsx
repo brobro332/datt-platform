@@ -34,9 +34,15 @@ export default function AdminSupportPage() {
     }, [activeTab]);
 
     const handleResolveInquiry = async (id: number) => {
-        if (!confirm("해당 문의를 처리 완료하시겠습니까?")) return;
+        const answer = window.prompt("문의에 대한 답변을 입력하세요.");
+        if (answer === null) return;
+        if (answer.trim() === "") {
+            alert("답변을 입력해야 합니다.");
+            return;
+        }
+
         try {
-            await supportService.resolveInquiry(id);
+            await supportService.resolveInquiry(id, answer);
             fetchData();
         } catch (err) {
             alert("상태 변경에 실패했습니다.");

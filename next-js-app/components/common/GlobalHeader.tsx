@@ -6,6 +6,7 @@ import { Anchor, Search, MapPin, Compass, User, LogOut, Shield, Layout, MessageS
 
 import { logout as logoutRequest } from "@/services/authService";
 import { useAuthStore } from "@/stores/authStore";
+import { NotificationDropdown } from "./NotificationDropdown";
 
 const navigationItems = [
   {
@@ -122,8 +123,10 @@ export function GlobalHeader() {
                   ].join(" ")}
                 >
                   <User className="w-4 h-4" />
-                  {member?.nickname ?? "내 프로필"}
+                  {member?.nickname ?? "프로필"}
                 </Link>
+
+                <NotificationDropdown />
 
                 <button
                   type="button"

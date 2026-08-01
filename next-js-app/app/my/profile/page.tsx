@@ -584,6 +584,12 @@ export default function MyProfilePage() {
                               <p className="mt-1 text-[8px] text-slate-400 text-right">
                                 {new Date(inquiry.createdAt).toLocaleDateString()}
                               </p>
+                              {inquiry.answer && (
+                                <div className="mt-2 bg-emerald-50/50 rounded-lg p-2 border border-emerald-100/30">
+                                  <p className="text-[9px] font-black text-emerald-800 mb-0.5">답변</p>
+                                  <p className="text-[10px] font-medium leading-relaxed text-emerald-700 whitespace-pre-wrap">{inquiry.answer}</p>
+                                </div>
+                              )}
                             </div>
                           ))}
                         </div>

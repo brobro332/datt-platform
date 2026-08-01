@@ -32,8 +32,8 @@ export const supportService = {
         return response.data;
     },
 
-    resolveInquiry: async (id: number): Promise<void> => {
-        await apiClient.patch(`/api/admin/support/inquiries/${id}/resolve`);
+    resolveInquiry: async (id: number, answer: string): Promise<void> => {
+        await apiClient.patch(`/api/admin/support/inquiries/${id}/resolve`, { answer });
     },
 
     resolveReport: async (id: number): Promise<void> => {
