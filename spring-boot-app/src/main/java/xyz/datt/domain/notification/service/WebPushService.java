@@ -28,23 +28,27 @@ public class WebPushService {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private PushService pushService;
 
-    @Value("${VAPID_PUBLIC_KEY}")
+    @Value("${VAPID_PUBLIC_KEY:}")
     private String publicKey;
 
-    @Value("${VAPID_PRIVATE_KEY}")
+    @Value("${VAPID_PRIVATE_KEY:}")
     private String privateKey;
 
     @PostConstruct
     public void init() {
+        if (publicKey == null || publicKey.isEmpty() || privateKey == null || privateKey.isEmpty()) {
+            System.err.println("WARN: VAPID keys are missing. Web Push notifications will be disabled.");
+            return;
+        }
         try {
             if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
                 Security.addProvider(new BouncyCastleProvider());
             }
-            pushService = new PushService();
-            pushService.setPublicKey(publicKey);
-            pushService.setPrivateKey(privateKey);
-            // Default subject, usually a mailto: or url
-            pushService.setSubject("mailto:support@datt.xyz");
+            pushService = new PushService(
+                    "mailto:support@datt.xyz",
+                    publicKey,
+                    privateKey
+            );
         } catch (Exception e) {
             LoggerFactory.getLogger(WebPushService.class).error("Error initializing PushService", e);
         }
@@ -72,6 +76,9 @@ public class WebPushService {
 
     @Transactional(readOnly = true)
     public void sendPushNotificationToMember(Long memberId, String title, String body, String url) {
+        if (pushService == null) {
+            return;
+        }
         List<PushSubscription> subscriptions = pushSubscriptionRepository.findAllByMemberId(memberId);
         if (subscriptions.isEmpty()) {
             return;

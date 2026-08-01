@@ -265,3 +265,8 @@
 ## 1ac1425
 - 작업 목적: Spring Boot 런타임 ObjectMapper Bean 주입 에러 핫픽스
 - 구체적 내용: WebPushService에서 ObjectMapper 빈 주입 대신 직접 생성하여 사용하도록 수정
+
+
+## 8cd1154
+- 작업 목적: VAPID 키 누락 환경(CI/CD 등)에서의 서버 크래시 방지
+- 구체적 내용: @Value 애노테이션에 기본값 추가 및 키가 없을 경우 PushService 초기화를 건너뛰어 에러 방지
