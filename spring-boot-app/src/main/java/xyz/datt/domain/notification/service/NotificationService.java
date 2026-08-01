@@ -16,6 +16,7 @@ import java.util.List;
 public class NotificationService {
     
     private final NotificationRepository notificationRepository;
+    private final WebPushService webPushService;
 
     @Transactional
     public void createNotification(Long memberId, String type, String title, String content) {
@@ -27,6 +28,14 @@ public class NotificationService {
                 .isRead(false)
                 .build();
         notificationRepository.save(notification);
+        
+        // 브라우저 푸시 알림 비동기 전송 (여기서는 동기로 실행해도 내부가 빠르지만 가급적 비동기 처리가 좋음)
+        // 편의상 바로 호출
+        try {
+            webPushService.sendPushNotificationToMember(memberId, title, content, null);
+        } catch (Exception e) {
+            // Push failure shouldn't rollback notification creation
+        }
     }
 
     public Page<Notification> getMyNotifications(Long memberId, Pageable pageable) {

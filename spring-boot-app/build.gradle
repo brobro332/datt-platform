@@ -44,6 +44,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-kafka'
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+	
+	// Web Push API
+	implementation 'nl.martijndwars:web-push:5.1.1'
+	implementation 'org.bouncycastle:bcprov-jdk18on:1.76'
 
 	// OCI SDK
 	implementation 'com.oracle.oci.sdk:oci-java-sdk-objectstorage:3.32.0'

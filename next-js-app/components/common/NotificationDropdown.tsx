@@ -5,6 +5,7 @@ import { Bell, CheckCircle2 } from "lucide-react";
 import { useNotifications, useUnreadNotificationCount } from "@/hooks/useNotifications";
 import { notificationService } from "@/services/notificationService";
 import { useQueryClient } from "@tanstack/react-query";
+import { useWebPush } from "@/hooks/useWebPush";
 
 export function NotificationDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -13,6 +14,7 @@ export function NotificationDropdown() {
   const { data: notificationsData } = useNotifications(0, 10);
   const { data: unreadData } = useUnreadNotificationCount();
   const queryClient = useQueryClient();
+  const { isSupported, isSubscribed, subscribe } = useWebPush();
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -96,6 +98,17 @@ export function NotificationDropdown() {
           <div className="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <h3 className="text-xs font-extrabold text-slate-800">알림</h3>
           </div>
+          {isSupported && !isSubscribed && (
+            <div className="p-2 bg-indigo-50 border-b border-indigo-100 flex items-center justify-between">
+              <span className="text-[11px] text-indigo-700 font-medium">새로운 소식을 푸시 알림으로 받으세요!</span>
+              <button 
+                onClick={subscribe}
+                className="px-2 py-1 bg-indigo-500 text-white text-[10px] rounded-lg font-bold hover:bg-indigo-600 transition"
+              >
+                켜기
+              </button>
+            </div>
+          )}
           <div className="max-h-[320px] overflow-y-auto p-1">
             {notifications.length === 0 ? (
               <div className="py-8 text-center text-slate-400 text-xs font-medium">
