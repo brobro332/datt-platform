@@ -31,7 +31,7 @@ export function NotificationDropdown() {
       return {
         ...oldData,
         content: oldData.content.map((n: any) =>
-          n.id === id ? { ...n, isRead: true } : n
+          n.id === id ? { ...n, read: true } : n
         ),
       };
     });
@@ -57,7 +57,7 @@ export function NotificationDropdown() {
       if (!oldData) return oldData;
       return {
         ...oldData,
-        content: oldData.content.map((n: any) => ({ ...n, isRead: true })),
+        content: oldData.content.map((n: any) => ({ ...n, read: true })),
       };
     });
     queryClient.setQueryData(["unreadNotificationCount"], { count: 0 });
@@ -106,25 +106,25 @@ export function NotificationDropdown() {
                 <div
                   key={notif.id}
                   onClick={() => {
-                    if (!notif.isRead) handleRead(notif.id);
+                    if (!notif.read) handleRead(notif.id);
                   }}
                   className={`p-3 rounded-xl mb-1 cursor-pointer transition-colors ${
-                    notif.isRead ? "bg-white hover:bg-slate-50" : "bg-indigo-50/40 hover:bg-indigo-50/70"
+                    notif.read ? "bg-white hover:bg-slate-50" : "bg-indigo-50/40 hover:bg-indigo-50/70"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
-                      <h4 className={`text-[11px] font-bold truncate ${notif.isRead ? "text-slate-600" : "text-slate-900"}`}>
+                      <h4 className={`text-[11px] font-bold truncate ${notif.read ? "text-slate-600" : "text-slate-900"}`}>
                         {notif.title}
                       </h4>
-                      <p className={`text-[10px] mt-0.5 leading-snug line-clamp-2 ${notif.isRead ? "text-slate-500" : "text-slate-700"}`}>
+                      <p className={`text-[10px] mt-0.5 leading-snug line-clamp-2 ${notif.read ? "text-slate-500" : "text-slate-700"}`}>
                         {notif.content}
                       </p>
                       <p className="text-[9px] mt-1.5 text-slate-400">
                         {new Date(notif.createdAt).toLocaleDateString()}
                       </p>
                     </div>
-                    {!notif.isRead && (
+                    {!notif.read && (
                       <div className="shrink-0 mt-0.5">
                         <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
                       </div>
