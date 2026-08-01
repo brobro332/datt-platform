@@ -15,6 +15,7 @@ import xyz.datt.domain.support.entity.ServiceInquiry;
 import xyz.datt.domain.support.dto.InquiryCreateRequest;
 import xyz.datt.domain.support.dto.ReportCreateRequest;
 import xyz.datt.domain.support.service.SupportService;
+import xyz.datt.global.security.CustomUserDetails;
 
 @RestController
 @RequestMapping("/api/support")
@@ -26,10 +27,11 @@ public class SupportController {
     @PostMapping("/inquiries")
     public ResponseEntity<Void> createInquiry(
             @RequestBody InquiryCreateRequest request,
-            @AuthenticationPrincipal String userId) {
-        if (userId == null) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
             return ResponseEntity.status(401).build();
         }
+        String userId = String.valueOf(userDetails.getMemberId());
         supportService.createInquiry(request, userId);
         return ResponseEntity.ok().build();
     }
@@ -37,22 +39,24 @@ public class SupportController {
     @PostMapping("/reports")
     public ResponseEntity<Void> createReport(
             @RequestBody ReportCreateRequest request,
-            @AuthenticationPrincipal String userId) {
-        if (userId == null) {
+            @AuthenticationPrincipal CustomUserDetails userDetails) {
+        if (userDetails == null) {
             return ResponseEntity.status(401).build();
         }
+        String userId = String.valueOf(userDetails.getMemberId());
         supportService.createReport(request, userId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/inquiries/me")
     public ResponseEntity<Page<ServiceInquiry>> getMyInquiries(
-            @AuthenticationPrincipal String userId,
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
-        if (userId == null) {
+        if (userDetails == null) {
             return ResponseEntity.status(401).build();
         }
+        String userId = String.valueOf(userDetails.getMemberId());
         Page<ServiceInquiry> result = supportService.getMyInquiries(userId, PageRequest.of(page, size));
         return ResponseEntity.ok(result);
     }

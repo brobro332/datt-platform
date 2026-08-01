@@ -230,3 +230,9 @@
   * **[Frontend]** 문의 작성 페이지(pp/support/page.tsx)에 뒤로가기 버튼(ArrowLeft) 추가.
   * **[Frontend]** 관리자 고객 지원 페이지(pp/admin/support/page.tsx)의 배경, 텍스트 색상을 다크 테마(slate-900 등)로 변경하여 전체 어드민 레이아웃과 디자인 통일.
 
+
+### 37d4a8d SupportController 인증 객체 캐스팅 오류로 인한 마이페이지 리다이렉트 버그 수정
+* **작업 파일**: spring-boot-app/src/main/java/xyz/datt/domain/support/controller/SupportController.java
+* **작업 목적**: 서비스 문의 내역을 불러오는 API 호출 시, 인증 객체(CustomUserDetails)를 String으로 캐스팅하려다 발생하는 오류(null 할당)로 인해 401 에러 및 자동 로그아웃이 발생하던 현상 수정
+* **작업 내용**: @AuthenticationPrincipal의 타입을 CustomUserDetails로 변경하고 String.valueOf(userDetails.getMemberId())를 사용하여 안전하게 userId를 추출하도록 수정.
+
