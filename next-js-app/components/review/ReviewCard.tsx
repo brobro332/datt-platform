@@ -193,7 +193,7 @@ export function ReviewCard({
                 </div>
             )}
 
-            {isOwner && (
+            {isOwner ? (
                 <div className="mt-4 flex gap-2 justify-end border-t border-slate-100/80 pt-3">
                     <button
                         onClick={() => setIsEditing(true)}

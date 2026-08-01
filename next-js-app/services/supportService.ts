@@ -1,4 +1,4 @@
-import { api } from "./api";
+import { apiClient } from "@/lib/apiClient";
 import { 
     ServiceInquiry, 
     Report, 
@@ -9,29 +9,29 @@ import {
 export const supportService = {
     // User APIs
     createInquiry: async (request: InquiryCreateRequest): Promise<void> => {
-        await api.post("/support/inquiries", request);
+        await apiClient.post("/api/support/inquiries", request);
     },
 
     createReport: async (request: ReportCreateRequest): Promise<void> => {
-        await api.post("/support/reports", request);
+        await apiClient.post("/api/support/reports", request);
     },
 
     // Admin APIs
     getInquiries: async (page = 0, size = 20): Promise<{ content: ServiceInquiry[]; totalPages: number }> => {
-        const response = await api.get(`/admin/support/inquiries?page=${page}&size=${size}`);
+        const response = await apiClient.get(`/api/admin/support/inquiries?page=${page}&size=${size}`);
         return response.data;
     },
 
     getReports: async (page = 0, size = 20): Promise<{ content: Report[]; totalPages: number }> => {
-        const response = await api.get(`/admin/support/reports?page=${page}&size=${size}`);
+        const response = await apiClient.get(`/api/admin/support/reports?page=${page}&size=${size}`);
         return response.data;
     },
 
     resolveInquiry: async (id: number): Promise<void> => {
-        await api.patch(`/admin/support/inquiries/${id}/resolve`);
+        await apiClient.patch(`/api/admin/support/inquiries/${id}/resolve`);
     },
 
     resolveReport: async (id: number): Promise<void> => {
-        await api.patch(`/admin/support/reports/${id}/resolve`);
+        await apiClient.patch(`/api/admin/support/reports/${id}/resolve`);
     }
 };
