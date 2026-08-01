@@ -50,7 +50,12 @@ export function NotificationDropdown() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          if (!isOpen && unreadCount > 0) {
+            handleReadAll();
+          }
+        }}
         className="relative p-2 rounded-xl text-slate-650 hover:bg-slate-50 transition cursor-pointer flex items-center justify-center"
       >
         <Bell className="w-5 h-5" />
@@ -63,14 +68,6 @@ export function NotificationDropdown() {
         <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden z-50">
           <div className="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
             <h3 className="text-xs font-extrabold text-slate-800">알림</h3>
-            {unreadCount > 0 && (
-              <button
-                onClick={handleReadAll}
-                className="text-[10px] font-bold text-indigo-600 hover:text-indigo-700 transition"
-              >
-                모두 읽음
-              </button>
-            )}
           </div>
           <div className="max-h-[320px] overflow-y-auto p-1">
             {notifications.length === 0 ? (

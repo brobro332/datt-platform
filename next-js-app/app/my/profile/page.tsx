@@ -345,10 +345,12 @@ export default function MyProfilePage() {
         <div className="grid gap-8 lg:grid-cols-12 items-start">
           
           {/* LEFT: Recent Activities & Logs (8/12) */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 flex flex-col gap-8 lg:h-[752px]">
             
-            {/* Recent Items Tab Navigation Header */}
-            <div className="flex items-center bg-slate-100/80 p-1.5 rounded-2xl mb-5 w-full border border-slate-200/10 shadow-inner">
+            {/* Top Half: Recent Items (Tabs + Content) */}
+            <div className="flex flex-col flex-1 min-h-0">
+              {/* Recent Items Tab Navigation Header */}
+              <div className="flex items-center bg-slate-100/80 p-1.5 rounded-2xl mb-4 shrink-0 w-full border border-slate-200/10 shadow-inner">
               <button
                 type="button"
                 onClick={() => setRecentTab("anchors")}
@@ -395,10 +397,10 @@ export default function MyProfilePage() {
               </button>
             </div>
 
-            {/* Recent Anchor, Reviews & Bookmarks Box (Height 360px) */}
-            <div className="min-h-[360px]">
+            {/* Recent Anchor, Reviews & Bookmarks Box */}
+            <div className="flex-1 min-h-0">
               {recentTab === "anchors" && (
-                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
+                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-full overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
                   <div className="flex flex-col h-full">
                     <div className="mb-4 flex items-center justify-between shrink-0">
                       <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
@@ -450,7 +452,7 @@ export default function MyProfilePage() {
               )}
 
               {recentTab === "reviews" && (
-                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
+                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-full overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
                   <div className="flex flex-col h-full">
                     <div className="mb-4 flex items-center justify-between shrink-0">
                       <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
@@ -496,7 +498,7 @@ export default function MyProfilePage() {
               )}
 
               {recentTab === "bookmarks" && (
-                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
+                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-full overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
                   <div className="flex flex-col h-full">
                     <div className="mb-4 flex items-center justify-between shrink-0">
                       <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
@@ -545,12 +547,18 @@ export default function MyProfilePage() {
               )}
 
               {recentTab === "inquiries" && (
-                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
+                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-full overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
                   <div className="flex flex-col h-full">
                     <div className="mb-4 flex items-center justify-between shrink-0">
                       <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
                         <Headset className="w-4 h-4 text-emerald-500" /> 내 서비스 문의
                       </h2>
+                      <Link
+                        href="/support"
+                        className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1.5 rounded-xl hover:bg-emerald-100 transition-colors shrink-0 whitespace-nowrap"
+                      >
+                        전체 보기
+                      </Link>
                     </div>
 
                     <div className="flex-1 overflow-y-auto pr-0.5 min-h-0">
@@ -600,8 +608,10 @@ export default function MyProfilePage() {
               )}
             </div>
 
-            {/* Experience Timeline Logs (Height 360px) */}
-            <Card className="p-6 bg-white/80 border border-slate-100 h-[360px] flex flex-col justify-between overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)]">
+            </div>
+
+            {/* Experience Timeline Logs */}
+            <Card className="p-6 bg-white/80 border border-slate-100 flex-1 flex flex-col justify-between overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)]">
               <ActivityLogSection />
             </Card>
 
