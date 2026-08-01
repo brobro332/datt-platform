@@ -25,6 +25,23 @@ export function NotificationDropdown() {
   }, []);
 
   const handleRead = async (id: number) => {
+    // Optimistic update for immediate UI response
+    queryClient.setQueryData(["notifications", 0, 10], (oldData: any) => {
+      if (!oldData) return oldData;
+      return {
+        ...oldData,
+        content: oldData.content.map((n: any) =>
+          n.id === id ? { ...n, isRead: true } : n
+        ),
+      };
+    });
+    
+    // Decrement unread count optimistically if greater than 0
+    queryClient.setQueryData(["unreadNotificationCount"], (oldData: any) => {
+      if (!oldData || oldData.count <= 0) return oldData;
+      return { ...oldData, count: oldData.count - 1 };
+    });
+
     try {
       await notificationService.readNotification(id);
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
@@ -35,6 +52,16 @@ export function NotificationDropdown() {
   };
 
   const handleReadAll = async () => {
+    // Optimistic update for immediate UI response
+    queryClient.setQueryData(["notifications", 0, 10], (oldData: any) => {
+      if (!oldData) return oldData;
+      return {
+        ...oldData,
+        content: oldData.content.map((n: any) => ({ ...n, isRead: true })),
+      };
+    });
+    queryClient.setQueryData(["unreadNotificationCount"], { count: 0 });
+
     try {
       await notificationService.readAllNotifications();
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
