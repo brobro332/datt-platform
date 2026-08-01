@@ -47,6 +47,10 @@ public class SupportService {
         return inquiryRepository.findAllByOrderByCreatedAtDesc(pageable);
     }
 
+    public Page<ServiceInquiry> getMyInquiries(String authorId, Pageable pageable) {
+        return inquiryRepository.findAllByAuthorIdOrderByCreatedAtDesc(authorId, pageable);
+    }
+
     public Page<Report> getReports(Pageable pageable) {
         return reportRepository.findAllByOrderByCreatedAtDesc(pageable);
     }

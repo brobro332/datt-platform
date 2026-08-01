@@ -12,6 +12,7 @@ import { useMyProfile } from "@/hooks/useMyProfile";
 import { useMyTitles } from "@/hooks/useMyTitles";
 import { useSelectMyTitle } from "@/hooks/useTitleMutation";
 import { useMyAchievements } from "@/hooks/useMyAchievements";
+import { useMyInquiries } from "@/hooks/useMyInquiries";
 import { ActivityLogSection } from "@/components/activity/ActivityLogSection";
 import { useRouter } from "next/navigation";
 import { updateNickname, withdrawMember } from "@/services/memberService";
@@ -29,7 +30,8 @@ import {
   Trophy, 
   Lock,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Headset
 } from "lucide-react";
 
 const ITEMS_PER_PAGE = 4;
@@ -38,6 +40,7 @@ export default function MyProfilePage() {
   const { data: profile, isLoading, isError, refetch } = useMyProfile();
   const { data: titles = [] } = useMyTitles();
   const { data: achievements = [] } = useMyAchievements();
+  const { data: myInquiries } = useMyInquiries(0, 10);
   const selectTitleMutation = useSelectMyTitle();
 
   const [isEditingNickname, setIsEditingNickname] = useState(false);
@@ -93,7 +96,7 @@ export default function MyProfilePage() {
   };
 
   const [activeTab, setActiveTab] = useState<"titles" | "achievements">("titles");
-  const [recentTab, setRecentTab] = useState<"anchors" | "reviews" | "bookmarks">("anchors");
+  const [recentTab, setRecentTab] = useState<"anchors" | "reviews" | "bookmarks" | "inquiries">("anchors");
   const [titleNotice, setTitleNotice] = useState<string | null>(null);
 
   // Pagination states
@@ -379,6 +382,17 @@ export default function MyProfilePage() {
               >
                 최근 저장 장소
               </button>
+              <button
+                type="button"
+                onClick={() => setRecentTab("inquiries")}
+                className={`flex-1 text-center py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer ${
+                  recentTab === "inquiries"
+                    ? "text-indigo-600 bg-white shadow-[0_4px_15px_rgba(0,0,0,0.02)]"
+                    : "text-slate-400 hover:text-slate-650"
+                }`}
+              >
+                내 서비스 문의
+              </button>
             </div>
 
             {/* Recent Anchor, Reviews & Bookmarks Box (Height 360px) */}
@@ -522,6 +536,55 @@ export default function MyProfilePage() {
                                 </p>
                               </div>
                             </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Card>
+              )}
+
+              {recentTab === "inquiries" && (
+                <Card className="p-6 bg-white/80 border border-slate-100 flex flex-col justify-between h-[360px] overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
+                  <div className="flex flex-col h-full">
+                    <div className="mb-4 flex items-center justify-between shrink-0">
+                      <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                        <Headset className="w-4 h-4 text-emerald-500" /> 내 서비스 문의
+                      </h2>
+                    </div>
+
+                    <div className="flex-1 overflow-y-auto pr-0.5 min-h-0">
+                      {!myInquiries?.content || myInquiries.content.length === 0 ? (
+                        <div className="h-full flex flex-col items-center justify-center py-10 gap-2">
+                          <Headset className="w-8 h-8 text-slate-300" />
+                          <p className="text-xs font-bold text-slate-400">아직 등록한 문의가 없습니다.</p>
+                        </div>
+                      ) : (
+                        <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+                          {myInquiries.content.map((inquiry: any) => (
+                            <div
+                              key={inquiry.id}
+                              className="block rounded-xl border border-slate-100/60 bg-slate-50/50 p-3"
+                            >
+                              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 mb-1.5">
+                                <p className="font-extrabold text-slate-900 text-[10px] truncate">
+                                  {inquiry.category}
+                                </p>
+                                <span className={`shrink-0 rounded-lg px-2 py-0.5 text-[9px] font-black border ${
+                                  inquiry.status === "RESOLVED" 
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200/20" 
+                                    : "bg-amber-50 text-amber-700 border-amber-200/20"
+                                }`}>
+                                  {inquiry.status === "RESOLVED" ? "처리 완료" : "대기 중"}
+                                </span>
+                              </div>
+                              <p className="line-clamp-2 text-[10px] font-medium leading-normal text-slate-500">
+                                {inquiry.content}
+                              </p>
+                              <p className="mt-1 text-[8px] text-slate-400 text-right">
+                                {new Date(inquiry.createdAt).toLocaleDateString()}
+                              </p>
+                            </div>
                           ))}
                         </div>
                       )}

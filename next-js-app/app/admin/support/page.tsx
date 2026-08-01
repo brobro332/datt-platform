@@ -55,15 +55,15 @@ export default function AdminSupportPage() {
 
     return (
         <div className="p-6">
-            <h1 className="text-2xl font-bold text-slate-800 mb-6">고객 지원 관리</h1>
+            <h1 className="text-2xl font-bold text-slate-100 mb-6">고객 지원 관리</h1>
             
-            <div className="flex border-b border-slate-200 mb-6">
+            <div className="flex border-b border-slate-800 mb-6">
                 <button 
                     onClick={() => setActiveTab("inquiries")}
                     className={`px-6 py-3 font-semibold text-sm transition-colors border-b-2 ${
                         activeTab === "inquiries" 
-                        ? "border-indigo-600 text-indigo-600" 
-                        : "border-transparent text-slate-500 hover:text-slate-700"
+                        ? "border-indigo-500 text-indigo-400" 
+                        : "border-transparent text-slate-400 hover:text-slate-200"
                     }`}
                 >
                     서비스 문의 내역
@@ -72,8 +72,8 @@ export default function AdminSupportPage() {
                     onClick={() => setActiveTab("reports")}
                     className={`px-6 py-3 font-semibold text-sm transition-colors border-b-2 ${
                         activeTab === "reports" 
-                        ? "border-indigo-600 text-indigo-600" 
-                        : "border-transparent text-slate-500 hover:text-slate-700"
+                        ? "border-indigo-500 text-indigo-400" 
+                        : "border-transparent text-slate-400 hover:text-slate-200"
                     }`}
                 >
                     신고 접수 내역
@@ -85,42 +85,42 @@ export default function AdminSupportPage() {
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
                 </div>
             ) : activeTab === "inquiries" ? (
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden">
                     <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 border-b border-slate-200">
+                        <thead className="bg-slate-800 border-b border-slate-700">
                             <tr>
-                                <th className="px-4 py-3 font-semibold text-slate-600">ID</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600">분류</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600 w-1/2">내용</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600">작성자</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600">작성일</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600">상태</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600 text-center">관리</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">ID</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">분류</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300 w-1/2">내용</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">작성자</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">작성일</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">상태</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300 text-center">관리</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-800">
                             {inquiries.length === 0 ? (
                                 <tr>
                                     <td colSpan={7} className="px-4 py-8 text-center text-slate-500">문의 내역이 없습니다.</td>
                                 </tr>
                             ) : inquiries.map(inq => (
-                                <tr key={inq.id} className="hover:bg-slate-50">
-                                    <td className="px-4 py-3 text-slate-600">{inq.id}</td>
+                                <tr key={inq.id} className="hover:bg-slate-800/50">
+                                    <td className="px-4 py-3 text-slate-400">{inq.id}</td>
                                     <td className="px-4 py-3">
                                         <span className={`px-2 py-1 text-xs font-semibold rounded-md ${
-                                            inq.category === "IMPROVEMENT" ? "bg-blue-100 text-blue-700" : "bg-teal-100 text-teal-700"
+                                            inq.category === "IMPROVEMENT" ? "bg-blue-900/50 text-blue-300" : "bg-teal-900/50 text-teal-300"
                                         }`}>
                                             {inq.category === "IMPROVEMENT" ? "개선건의" : "매장등록"}
                                         </span>
                                     </td>
                                     <td className="px-4 py-3">
-                                        <p className="line-clamp-2 text-slate-700 whitespace-pre-wrap">{inq.content}</p>
+                                        <p className="line-clamp-2 text-slate-300 whitespace-pre-wrap">{inq.content}</p>
                                     </td>
-                                    <td className="px-4 py-3 text-slate-600">{inq.authorId}</td>
+                                    <td className="px-4 py-3 text-slate-400">{inq.authorId}</td>
                                     <td className="px-4 py-3 text-slate-500">{new Date(inq.createdAt).toLocaleDateString()}</td>
                                     <td className="px-4 py-3">
                                         <span className={`flex items-center gap-1.5 text-xs font-bold ${
-                                            inq.status === "RESOLVED" ? "text-emerald-600" : "text-amber-500"
+                                            inq.status === "RESOLVED" ? "text-emerald-400" : "text-amber-400"
                                         }`}>
                                             {inq.status === "RESOLVED" ? <CheckCircle className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                                             {inq.status === "RESOLVED" ? "처리완료" : "대기중"}
@@ -130,7 +130,7 @@ export default function AdminSupportPage() {
                                         {inq.status !== "RESOLVED" && (
                                             <button 
                                                 onClick={() => handleResolveInquiry(inq.id)}
-                                                className="px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded hover:bg-slate-800 transition"
+                                                className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded hover:bg-indigo-500 transition"
                                             >
                                                 처리
                                             </button>
@@ -142,44 +142,44 @@ export default function AdminSupportPage() {
                     </table>
                 </div>
             ) : (
-                <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <div className="bg-slate-900 rounded-xl shadow-sm border border-slate-800 overflow-hidden">
                     <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 border-b border-slate-200">
+                        <thead className="bg-slate-800 border-b border-slate-700">
                             <tr>
-                                <th className="px-4 py-3 font-semibold text-slate-600">ID</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600">구분</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600">대상 ID</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600 w-1/3">사유</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600">신고자</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600">신고일</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600">상태</th>
-                                <th className="px-4 py-3 font-semibold text-slate-600 text-center">관리</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">ID</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">구분</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">대상 ID</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300 w-1/3">사유</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">신고자</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">신고일</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300">상태</th>
+                                <th className="px-4 py-3 font-semibold text-slate-300 text-center">관리</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-100">
+                        <tbody className="divide-y divide-slate-800">
                             {reports.length === 0 ? (
                                 <tr>
                                     <td colSpan={8} className="px-4 py-8 text-center text-slate-500">신고 내역이 없습니다.</td>
                                 </tr>
                             ) : reports.map(rep => (
-                                <tr key={rep.id} className="hover:bg-slate-50">
-                                    <td className="px-4 py-3 text-slate-600">{rep.id}</td>
+                                <tr key={rep.id} className="hover:bg-slate-800/50">
+                                    <td className="px-4 py-3 text-slate-400">{rep.id}</td>
                                     <td className="px-4 py-3">
                                         <span className={`px-2 py-1 text-xs font-semibold rounded-md ${
-                                            rep.targetType === "PLACE" ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"
+                                            rep.targetType === "PLACE" ? "bg-amber-900/50 text-amber-300" : "bg-rose-900/50 text-rose-300"
                                         }`}>
                                             {rep.targetType === "PLACE" ? "매장" : "리뷰"}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 font-medium text-slate-800">{rep.targetId}</td>
+                                    <td className="px-4 py-3 font-medium text-slate-200">{rep.targetId}</td>
                                     <td className="px-4 py-3">
-                                        <p className="line-clamp-2 text-slate-700 whitespace-pre-wrap">{rep.reason}</p>
+                                        <p className="line-clamp-2 text-slate-300 whitespace-pre-wrap">{rep.reason}</p>
                                     </td>
-                                    <td className="px-4 py-3 text-slate-600">{rep.reporterId}</td>
+                                    <td className="px-4 py-3 text-slate-400">{rep.reporterId}</td>
                                     <td className="px-4 py-3 text-slate-500">{new Date(rep.createdAt).toLocaleDateString()}</td>
                                     <td className="px-4 py-3">
                                         <span className={`flex items-center gap-1.5 text-xs font-bold ${
-                                            rep.status === "RESOLVED" ? "text-emerald-600" : "text-amber-500"
+                                            rep.status === "RESOLVED" ? "text-emerald-400" : "text-amber-400"
                                         }`}>
                                             {rep.status === "RESOLVED" ? <CheckCircle className="w-4 h-4" /> : <Clock className="w-4 h-4" />}
                                             {rep.status === "RESOLVED" ? "처리완료" : "대기중"}
@@ -189,7 +189,7 @@ export default function AdminSupportPage() {
                                         {rep.status !== "RESOLVED" && (
                                             <button 
                                                 onClick={() => handleResolveReport(rep.id)}
-                                                className="px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded hover:bg-slate-800 transition"
+                                                className="px-3 py-1.5 bg-indigo-600 text-white text-xs font-semibold rounded hover:bg-indigo-500 transition"
                                             >
                                                 처리
                                             </button>

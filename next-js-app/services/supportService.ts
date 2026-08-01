@@ -16,6 +16,11 @@ export const supportService = {
         await apiClient.post("/api/support/reports", request);
     },
 
+    getMyInquiries: async (page = 0, size = 20): Promise<{ content: ServiceInquiry[]; totalPages: number }> => {
+        const response = await apiClient.get(`/api/support/inquiries/me?page=${page}&size=${size}`);
+        return response.data;
+    },
+
     // Admin APIs
     getInquiries: async (page = 0, size = 20): Promise<{ content: ServiceInquiry[]; totalPages: number }> => {
         const response = await apiClient.get(`/api/admin/support/inquiries?page=${page}&size=${size}`);

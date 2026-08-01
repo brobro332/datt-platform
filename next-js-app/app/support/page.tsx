@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuthStore } from "@/stores/authStore";
 import { supportService } from "@/services/supportService";
-import { MessageSquarePlus, Send, CheckCircle2 } from "lucide-react";
+import { MessageSquarePlus, Send, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function SupportPage() {
@@ -66,7 +66,13 @@ export default function SupportPage() {
     return (
         <div className="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8">
             <div className="max-w-3xl mx-auto">
-                <header className="mb-8 flex items-center gap-3">
+                <header className="mb-8 flex items-center gap-4">
+                    <button 
+                        onClick={() => router.back()} 
+                        className="p-2 -ml-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 transition cursor-pointer"
+                    >
+                        <ArrowLeft className="w-6 h-6" />
+                    </button>
                     <div className="p-3 bg-indigo-100 rounded-xl">
                         <MessageSquarePlus className="w-6 h-6 text-indigo-600" />
                     </div>

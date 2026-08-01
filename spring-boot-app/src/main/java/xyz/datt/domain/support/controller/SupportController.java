@@ -7,6 +7,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import xyz.datt.domain.support.entity.ServiceInquiry;
 import xyz.datt.domain.support.dto.InquiryCreateRequest;
 import xyz.datt.domain.support.dto.ReportCreateRequest;
 import xyz.datt.domain.support.service.SupportService;
@@ -38,5 +43,17 @@ public class SupportController {
         }
         supportService.createReport(request, userId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/inquiries/me")
+    public ResponseEntity<Page<ServiceInquiry>> getMyInquiries(
+            @AuthenticationPrincipal String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        if (userId == null) {
+            return ResponseEntity.status(401).build();
+        }
+        Page<ServiceInquiry> result = supportService.getMyInquiries(userId, PageRequest.of(page, size));
+        return ResponseEntity.ok(result);
     }
 }

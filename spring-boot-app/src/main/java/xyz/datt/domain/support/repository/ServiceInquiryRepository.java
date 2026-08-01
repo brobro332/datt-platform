@@ -9,4 +9,5 @@ import xyz.datt.domain.support.entity.ServiceInquiry;
 @Repository
 public interface ServiceInquiryRepository extends JpaRepository<ServiceInquiry, Long> {
     Page<ServiceInquiry> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    Page<ServiceInquiry> findAllByAuthorIdOrderByCreatedAtDesc(String authorId, Pageable pageable);
 }

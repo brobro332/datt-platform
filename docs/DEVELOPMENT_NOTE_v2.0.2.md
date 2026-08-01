@@ -212,3 +212,21 @@
 ### 1c6ac74 ì‚¬ì´ë“œë°” 'ì•½ì† ìº˜ë¦°ë”' ì¤€ë¹„ì¤‘ ë°°ì§€ í•´ì œ
 * **ì‘ì—… íŒŒì¼**: next-js-app/app/workspaces/[workspaceId]/layout.tsx
 * **ì‘ì—… ë‚´ìš©**: ì›Œí¬ìŠ¤í˜ì´ìŠ¤ ì¢Œì¸¡ ë„¤ë¹„ê²Œì´ì…˜ íŒ¨ë„ì˜ 'ì•½ì† ìº˜ë¦°ë”' ì˜ì—­ì— ê±¸ë ¤ ìˆë˜ 'ì¤€ë¹„ì¤‘' ë°°ì§€ë¥¼ ì œê±°í•˜ê³ , í´ë¦­ ì‹œ ì±„íŒ…ë°© ë‚´ë¶€ ìº˜ë¦°ë” ê¸°ëŠ¥ì„ ì´ìš©í•˜ë„ë¡ ìœ ë„í•˜ëŠ” í™œì„±í™” ìƒíƒœ(ì±„íŒ…ë°© ë‚´ì¥)ë¡œ UIë¥¼ ì—…ë°ì´íŠ¸í–ˆìŠµë‹ˆë‹¤.
+
+### 2d527d1 ¸¶ÀÌÆäÀÌÁö ³» ¼­ºñ½º ¹®ÀÇ ³»¿ª Á¶È¸ ¿¬µ¿ ¹× ¾îµå¹Î UI ´ÙÅ©¸ğµå °³¼±
+* **ÀÛ¾÷ ÆÄÀÏ**:
+  * spring-boot-app/src/main/java/xyz/datt/domain/support/repository/ServiceInquiryRepository.java
+  * spring-boot-app/src/main/java/xyz/datt/domain/support/service/SupportService.java
+  * spring-boot-app/src/main/java/xyz/datt/domain/support/controller/SupportController.java
+  * next-js-app/services/supportService.ts
+  * next-js-app/hooks/useMyInquiries.ts
+  * next-js-app/app/my/profile/page.tsx
+  * next-js-app/app/support/page.tsx
+  * next-js-app/app/admin/support/page.tsx
+* **ÀÛ¾÷ ¸ñÀû**: »ç¿ëÀÚ°¡ ÇÁ·ÎÇÊ¿¡¼­ ÀÚ½ÅÀÌ ³²±ä ¹®ÀÇ¸¦ È®ÀÎÇÏ°í, ¹®ÀÇ ÀÛ¼º ÆäÀÌÁö ÀÌµ¿ ÆíÀÇ¼ºÀ» °³¼±ÇÏ¸ç, °ü¸®ÀÚ È­¸éÀÇ ½ÃÀÎ¼ºÀ» ÅëÀÏÇÔ.
+* **ÀÛ¾÷ ³»¿ë**:
+  * **[Backend]** /api/support/inquiries/me ¿£µåÆ÷ÀÎÆ®¸¦ Ãß°¡ÇÏ¿© ·Î±×ÀÎÇÑ »ç¿ëÀÚÀÇ ¹®ÀÇ ³»¿ªÀ» ÆäÀÌÂ¡ Á¶È¸ÇÏµµ·Ï ±¸Çö.
+  * **[Frontend]** ¸¶ÀÌÆäÀÌÁö(pp/my/profile/page.tsx)¿¡ '³» ¼­ºñ½º ¹®ÀÇ' ÅÇÀ» Ãß°¡ÇÏ°í ÀÛ¼ºÇÑ ¹®ÀÇ ³»¿ª°ú Ã³¸® »óÅÂ Ç¥½Ã.
+  * **[Frontend]** ¹®ÀÇ ÀÛ¼º ÆäÀÌÁö(pp/support/page.tsx)¿¡ µÚ·Î°¡±â ¹öÆ°(ArrowLeft) Ãß°¡.
+  * **[Frontend]** °ü¸®ÀÚ °í°´ Áö¿ø ÆäÀÌÁö(pp/admin/support/page.tsx)ÀÇ ¹è°æ, ÅØ½ºÆ® »ö»óÀ» ´ÙÅ© Å×¸¶(slate-900 µî)·Î º¯°æÇÏ¿© ÀüÃ¼ ¾îµå¹Î ·¹ÀÌ¾Æ¿ô°ú µğÀÚÀÎ ÅëÀÏ.
+
