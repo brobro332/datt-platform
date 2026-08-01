@@ -398,10 +398,10 @@ export default function MyProfilePage() {
             </div>
 
             {/* Recent Anchor, Reviews & Bookmarks Box */}
-            <div className="flex-1 flex flex-col min-h-0">
+            <Card className="flex-1 p-6 bg-white/80 border border-slate-100 flex flex-col justify-between overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] min-h-0 transition-all duration-300">
+              <div className="flex flex-col h-full">
               {recentTab === "anchors" && (
-                <Card className="p-6 bg-white/80 border border-slate-100 flex-1 flex flex-col justify-between overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
-                  <div className="flex flex-col h-full">
+                <>
                     <div className="mb-4 flex items-center justify-between shrink-0">
                       <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
                         <Anchor className="w-4 h-4 text-indigo-600" /> 최근 생성한 닻
@@ -447,13 +447,11 @@ export default function MyProfilePage() {
                         </div>
                       )}
                     </div>
-                  </div>
-                </Card>
+                </>
               )}
 
               {recentTab === "reviews" && (
-                <Card className="p-6 bg-white/80 border border-slate-100 flex-1 flex flex-col justify-between overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
-                  <div className="flex flex-col h-full">
+                <>
                     <div className="mb-4 flex items-center justify-between shrink-0">
                       <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
                         <MessageSquare className="w-4 h-4 text-indigo-600" /> 최근 작성 후기
@@ -493,13 +491,11 @@ export default function MyProfilePage() {
                         </div>
                       )}
                     </div>
-                  </div>
-                </Card>
+                </>
               )}
 
               {recentTab === "bookmarks" && (
-                <Card className="p-6 bg-white/80 border border-slate-100 flex-1 flex flex-col justify-between overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
-                  <div className="flex flex-col h-full">
+                <>
                     <div className="mb-4 flex items-center justify-between shrink-0">
                       <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
                         <Bookmark className="w-4 h-4 text-rose-500" /> 최근 저장 장소
@@ -542,13 +538,11 @@ export default function MyProfilePage() {
                         </div>
                       )}
                     </div>
-                  </div>
-                </Card>
+                </>
               )}
 
               {recentTab === "inquiries" && (
-                <Card className="p-6 bg-white/80 border border-slate-100 flex-1 flex flex-col justify-between overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.01)] transition-all duration-300">
-                  <div className="flex flex-col h-full">
+                <>
                     <div className="mb-4 flex items-center justify-between shrink-0">
                       <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
                         <Headset className="w-4 h-4 text-emerald-500" /> 내 서비스 문의
@@ -603,10 +597,10 @@ export default function MyProfilePage() {
                         </div>
                       )}
                     </div>
-                  </div>
-                </Card>
+                </>
               )}
-            </div>
+              </div>
+            </Card>
 
             </div>
 

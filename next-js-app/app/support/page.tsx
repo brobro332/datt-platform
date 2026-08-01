@@ -75,26 +75,19 @@ export default function SupportPage() {
     return (
         <MainLayout>
             <section className="space-y-8 pb-20 pt-6 md:pt-10 max-w-4xl mx-auto px-4 animate-in fade-in duration-500">
-                <div className="mb-8 relative">
-                    <button 
-                        onClick={() => router.back()} 
-                        className="mb-4 inline-flex items-center gap-1.5 p-2 -ml-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/50 transition cursor-pointer text-xs font-bold"
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                        뒤로가기
-                    </button>
-                    <p className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 uppercase tracking-widest">
-                        <MessageSquarePlus className="w-4 h-4" /> Support
-                    </p>
-                    <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900">
-                        서비스 문의
-                    </h1>
-                    <p className="mt-1.5 text-xs text-slate-500">
-                        플랫폼 개선 아이디어나 신규 매장 등록을 건의해 주세요.
-                    </p>
-                </div>
-
                 <div className="relative overflow-hidden rounded-[2.5rem] border border-slate-200/50 bg-white/80 p-8 md:p-10 shadow-sm backdrop-blur-md">
+                    <div className="mb-8">
+                        <p className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 uppercase tracking-widest">
+                            <MessageSquarePlus className="w-4 h-4" /> Support
+                        </p>
+                        <h1 className="mt-1 text-2xl font-black tracking-tight text-slate-900">
+                            서비스 문의
+                        </h1>
+                        <p className="mt-1.5 text-xs text-slate-500">
+                            플랫폼 개선 아이디어나 신규 매장 등록을 건의해 주세요.
+                        </p>
+                    </div>
+
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div>
                             <label className="block text-sm font-semibold text-slate-700 mb-3">문의 유형</label>
