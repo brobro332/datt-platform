@@ -426,19 +426,23 @@ export default function MyProfilePage() {
                             <Link
                               key={anchor.anchorId}
                               href={`/anchors/${anchor.anchorId}`}
-                              className="flex items-center gap-3 rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-blue-300 hover:bg-blue-50/20 transition-all duration-200"
+                              className="flex flex-col h-full rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-blue-300 hover:bg-blue-50/20 transition-all duration-200"
                             >
-                              <div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
-                                <Anchor className="w-5 h-5" />
+                              <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 shrink-0 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
+                                  <Anchor className="w-5 h-5" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-extrabold text-slate-900 text-xs truncate">
+                                    {anchor.title}
+                                  </p>
+                                  <p className="mt-0.5 text-[10px] font-medium text-slate-500 truncate flex items-center gap-0.5">
+                                    <MapPin className="w-3.5 h-3.5 text-slate-400" /> {anchor.basePlaceName || "구역 정박"}
+                                  </p>
+                                </div>
                               </div>
-                              <div className="min-w-0 flex-1">
-                                <p className="font-extrabold text-slate-900 text-xs truncate">
-                                  {anchor.title}
-                                </p>
-                                <p className="mt-0.5 text-[10px] font-medium text-slate-500 truncate flex items-center gap-0.5">
-                                  <MapPin className="w-3.5 h-3.5 text-slate-400" /> {anchor.basePlaceName || "구역 정박"}
-                                </p>
-                                <p className="mt-1 text-[9px] font-black text-blue-600">
+                              <div className="mt-auto pt-2">
+                                <p className="text-[9px] font-black text-blue-600 text-right">
                                   조회 {anchor.viewCount}회
                                 </p>
                               </div>
@@ -473,7 +477,7 @@ export default function MyProfilePage() {
                             <Link
                               key={review.placeId}
                               href={`/place-search/${review.placeId}`}
-                              className="block rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-indigo-400 hover:bg-indigo-50/20 transition-all duration-200"
+                              className="flex flex-col h-full rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-indigo-400 hover:bg-indigo-50/20 transition-all duration-200"
                             >
                               <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 mb-1.5">
                                 <p className="font-extrabold text-slate-900 text-xs truncate">
@@ -520,16 +524,17 @@ export default function MyProfilePage() {
                             <Link
                               key={bookmark.bookmarkId}
                               href={`/place-search/${bookmark.placeId}`}
-                              className="block rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-rose-300 hover:bg-rose-50/20 transition-all duration-200"
+                              className="flex flex-col h-full rounded-xl border border-slate-100/60 bg-slate-50/50 p-3 hover:border-rose-300 hover:bg-rose-50/20 transition-all duration-200"
                             >
                               <div className="min-w-0 flex-1">
                                 <p className="font-extrabold text-slate-900 text-xs truncate">
                                   {bookmark.bizesNm}
                                 </p>
                                 <p className="mt-0.5 text-[10px] font-medium text-slate-500 truncate flex items-center gap-0.5">
-                                  <MapPin className="w-3.5 h-3.5 text-slate-450 shrink-0" /> {bookmark.ctprvnNm} {bookmark.signguNm}
                                 </p>
-                                <p className="mt-1 text-[9px] font-black text-rose-600">
+                              </div>
+                              <div className="mt-auto pt-2">
+                                <p className="text-[9px] font-black text-rose-600 text-right">
                                   {bookmark.indsMclsNm}
                                 </p>
                               </div>
@@ -566,7 +571,7 @@ export default function MyProfilePage() {
                           {myInquiries.content.map((inquiry: any) => (
                             <div
                               key={inquiry.id}
-                              className="block rounded-xl border border-slate-100/60 bg-slate-50/50 p-3"
+                              className="flex flex-col h-full rounded-xl border border-slate-100/60 bg-slate-50/50 p-3"
                             >
                               <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-1.5 mb-1.5">
                                 <p className="font-extrabold text-slate-900 text-[10px] truncate">
@@ -580,18 +585,20 @@ export default function MyProfilePage() {
                                   {inquiry.status === "RESOLVED" ? "처리 완료" : "대기 중"}
                                 </span>
                               </div>
-                              <p className="line-clamp-2 text-[10px] font-medium leading-normal text-slate-500">
+                              <p className="line-clamp-2 text-[10px] font-medium leading-normal text-slate-500 mb-2">
                                 {inquiry.content}
                               </p>
-                              <p className="mt-1 text-[8px] text-slate-400 text-right">
-                                {new Date(inquiry.createdAt).toLocaleDateString()}
-                              </p>
-                              {inquiry.answer && (
-                                <div className="mt-2 bg-emerald-50/50 rounded-lg p-2 border border-emerald-100/30">
-                                  <p className="text-[9px] font-black text-emerald-800 mb-0.5">답변</p>
-                                  <p className="text-[10px] font-medium leading-relaxed text-emerald-700 whitespace-pre-wrap">{inquiry.answer}</p>
-                                </div>
-                              )}
+                              <div className="mt-auto flex flex-col justify-end">
+                                <p className="text-[8px] text-slate-400 text-right mb-1">
+                                  {new Date(inquiry.createdAt).toLocaleDateString()}
+                                </p>
+                                {inquiry.answer && (
+                                  <div className="bg-emerald-50/50 rounded-lg p-2 border border-emerald-100/30">
+                                    <p className="text-[9px] font-black text-emerald-800 mb-0.5">답변</p>
+                                    <p className="text-[10px] font-medium leading-relaxed text-emerald-700 whitespace-pre-wrap">{inquiry.answer}</p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           ))}
                         </div>
