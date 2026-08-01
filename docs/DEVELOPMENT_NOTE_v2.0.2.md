@@ -275,3 +275,8 @@
 ## 6624f53
 - ìž‘ì—… ëª©ì : ë°°í¬ ìŠ¤í¬ë¦½íŠ¸(.github/workflows/deploy.yml) VAPID í‚¤ ì£¼ìž… ì¶”ê°€
 - êµ¬ì²´ì  ë‚´ìš©: Github Secretsì—ì„œ VAPID í‚¤ë¥¼ ì½ì–´ ì„œë²„ì˜ .env íŒŒì¼ì— ì£¼ìž…í•˜ë„ë¡ ìˆ˜ì •
+
+
+## [TEMP_HASH]
+- ÀÛ¾÷ ¸ñÀû: ¿î¿µ ¼­¹ö ÇÁ·ÐÆ®¿£µå È¯°æº¯¼ö ÁÖÀÔ ¿À·ù ÇØ°á
+- ±¸Ã¼Àû ³»¿ë: next-js-app Dockerfile ¹× docker-compose.yml¿¡ NEXT_PUBLIC_VAPID_PUBLIC_KEY È¯°æº¯¼ö ´©¶ô Ãß°¡
