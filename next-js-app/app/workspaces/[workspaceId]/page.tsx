@@ -32,7 +32,7 @@ export default function WorkspaceDashboardHomePage() {
         }
     }, [isLoggedIn, restoreAuth]);
 
-    // 워크스페이스의 고유 첫 번째 채팅방 조회
+    // 크루의 고유 첫 번째 채팅방 조회
     useEffect(() => {
         if (!workspaceId || !member) return;
 

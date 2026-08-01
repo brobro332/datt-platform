@@ -26,7 +26,7 @@ export interface ChatRoomCreateRequest {
     roomType: string;
     targetId: string;
     userId: string;
-    workspaceId?: number; // 워크스페이스 ID 추가
+    workspaceId?: number; // 크루 ID 추가
 }
 
 export interface ChatRoomResponse {
@@ -50,7 +50,7 @@ export interface ChatMessage {
 }
 
 /**
- * 신규 워크스페이스 개설 API
+ * 신규 크루 개설 API
  */
 export async function createWorkspace(request: WorkspaceCreateRequest): Promise<WorkspaceResponse> {
     const response = await apiClient.post<WorkspaceResponse>("/api/workspaces?_nocache=1", request);
@@ -58,7 +58,7 @@ export async function createWorkspace(request: WorkspaceCreateRequest): Promise<
 }
 
 /**
- * 유저별 참여 워크스페이스 목록 조회 API
+ * 유저별 참여 크루 목록 조회 API
  */
 export async function getWorkspacesByUser(userId: string): Promise<WorkspaceResponse[]> {
     if (!userId) {
@@ -72,7 +72,7 @@ export async function getWorkspacesByUser(userId: string): Promise<WorkspaceResp
 }
 
 /**
- * 초대 코드로 워크스페이스 참여 API
+ * 초대 코드로 크루 참여 API
  */
 export async function joinWorkspace(inviteCode: string, userId: string): Promise<WorkspaceResponse> {
     const response = await apiClient.post<WorkspaceResponse>("/api/workspaces/join", null, {
@@ -82,7 +82,7 @@ export async function joinWorkspace(inviteCode: string, userId: string): Promise
 }
 
 /**
- * 특정 워크스페이스 멤버 목록 조회 API
+ * 특정 크루 멤버 목록 조회 API
  */
 export async function getWorkspaceMembers(workspaceId: number): Promise<WorkspaceMember[]> {
     const response = await apiClient.get<WorkspaceMember[]>(`/api/workspaces/${workspaceId}/members`);
@@ -107,7 +107,7 @@ export async function joinRoom(roomId: string, userId: string): Promise<void> {
 }
 
 /**
- * 특정 워크스페이스 내부의 채팅방 목록 및 안 읽은 메시지 수 조회 API
+ * 특정 크루 내부의 채팅방 목록 및 안 읽은 메시지 수 조회 API
  */
 export async function getRoomsByWorkspace(workspaceId: number, userId: string): Promise<ChatRoomResponse[]> {
     const response = await apiClient.get<ChatRoomResponse[]>(`/api/chat/workspaces/${workspaceId}/rooms`, {

@@ -101,18 +101,18 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
         return (
             <div className="flex flex-col items-center justify-center min-h-screen bg-[#f8fafc] text-slate-800">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-650"></div>
-                <p className="text-slate-500 mt-4 text-xs font-semibold">워크스페이스 구성 중...</p>
+                <p className="text-slate-500 mt-4 text-xs font-semibold">크루 구성 중...</p>
             </div>
         );
     }
 
-    // 1레벨 사이드바 (워크스페이스 아이콘 목록) 컴포넌트
+    // 1레벨 사이드바 (크루 아이콘 목록) 컴포넌트
     const WorkspaceSelector = () => (
         <aside className="w-16 shrink-0 bg-slate-900 flex flex-col items-center py-4 gap-4.5">
             <button
                 onClick={() => router.push("/workspaces")}
                 className="w-11 h-11 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-400 flex items-center justify-center cursor-pointer transition-all duration-200"
-                title="워크스페이스 홈"
+                title="크루 홈"
             >
                 <Home className="w-5 h-5" />
             </button>
@@ -144,7 +144,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
             <button
                 onClick={() => router.push("/workspaces")}
                 className="w-11 h-11 rounded-xl bg-slate-800 text-teal-400 border border-teal-500/20 hover:bg-slate-700 flex items-center justify-center cursor-pointer transition-all duration-200"
-                title="새 워크스페이스 생성/참가"
+                title="새 크루 생성/참가"
             >
                 <Plus className="w-5 h-5" />
             </button>
@@ -154,7 +154,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
     // 2레벨 사이드바 (일정 계획 네비게이터 및 멤버 목록) 컴포넌트
     const NavigationPanel = () => (
         <aside className="w-56 shrink-0 bg-slate-50 border-r border-slate-200/80 flex flex-col">
-            {/* 워크스페이스 헤더 */}
+            {/* 크루 헤더 */}
             <div className="px-4 py-4 border-b border-slate-200/60 flex justify-between items-center bg-slate-50">
                 <div className="min-w-0">
                     <h2 className="font-extrabold text-slate-800 truncate text-xs">
@@ -202,7 +202,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
                                 ? "bg-indigo-50/80 text-indigo-650 shadow-sm"
                                 : "text-slate-600 hover:bg-slate-200/50 hover:text-slate-900"
                         }`}
-                        title="워크스페이스 모임 약속 관리"
+                        title="크루 모임 약속 관리"
                     >
                         <div className="flex items-center gap-1.5">
                             <Calendar className="w-3.5 h-3.5" />
@@ -327,7 +327,7 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
                             친구 초대하기
                         </h2>
                         <p className="text-xs text-slate-500 mb-6">
-                            아래 코드를 복사해서 친구에게 알려주세요. 초대 코드로 해당 워크스페이스에 참여할 수 있습니다.
+                            아래 코드를 복사해서 친구에게 알려주세요. 초대 코드로 해당 크루에 참여할 수 있습니다.
                         </p>
 
                         <div className="flex gap-2 p-2 bg-slate-50 border border-slate-200 rounded-xl items-center mb-6">

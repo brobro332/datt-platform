@@ -29,8 +29,8 @@ export function UserGuideModal({ isOpen, onClose }: UserGuideModalProps) {
     },
     {
       icon: <Users className="w-5 h-5 text-purple-500" />,
-      title: "4. 워크스페이스 & 실시간 채팅",
-      desc: "초대 코드로 친구나 팀원과 워크스페이스를 만들고, 실시간 채팅방에서 약속 장소나 코스 계획을 함께 논의해 보세요.",
+      title: "4. 크루 & 실시간 채팅",
+      desc: "초대 코드로 친구나 팀원과 크루를 만들고, 실시간 채팅방에서 약속 장소나 코스 계획을 함께 논의해 보세요.",
     },
     {
       icon: <MessageSquare className="w-5 h-5 text-amber-500" />,

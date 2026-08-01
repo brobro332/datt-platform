@@ -18,7 +18,7 @@ export default function WorkspacesPage() {
     const [workspaces, setWorkspaces] = useState<WorkspaceResponse[]>([]);
     const [loading, setLoading] = useState(true);
 
-    // 워크스페이스 생성
+    // 크루 생성
     const [newWsName, setNewWsName] = useState("");
     const [isCreateOpen, setIsCreateOpen] = useState(false);
 
@@ -68,7 +68,7 @@ export default function WorkspacesPage() {
             router.push(`/workspaces/${ws.id}`);
         } catch (error) {
             console.error("Failed to create workspace:", error);
-            alert("워크스페이스 개설에 실패했습니다.");
+            alert("크루 개설에 실패했습니다.");
         }
     };
 
@@ -84,7 +84,7 @@ export default function WorkspacesPage() {
             router.push(`/workspaces/${ws.id}`);
         } catch (error) {
             console.error("Failed to join workspace:", error);
-            alert(error instanceof Error ? error.message : "워크스페이스 참가에 실패했습니다. 코드를 확인해 주세요.");
+            alert(error instanceof Error ? error.message : "크루 참가에 실패했습니다. 코드를 확인해 주세요.");
         }
     };
 
@@ -108,7 +108,7 @@ export default function WorkspacesPage() {
                             WORKSPACE HUB
                         </div>
                         <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-                            DATT 워크스페이스
+                            DATT 크루
                         </h1>
                         <p className="text-sm text-slate-500 mt-1">
                             {member.nickname}님, 함께 약속을 계획하고 일정을 조율할 수 있는 독립 공간입니다.
@@ -128,7 +128,7 @@ export default function WorkspacesPage() {
                         <div className="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-650 flex items-center justify-center mb-4 group-hover:scale-105 transition-transform duration-300">
                             <FolderPlus className="w-6 h-6" />
                         </div>
-                        <h3 className="font-bold text-slate-800 mb-1">새 워크스페이스 개설</h3>
+                        <h3 className="font-bold text-slate-800 mb-1">새 크루 개설</h3>
                         <p className="text-xs text-slate-450 text-center">모임을 위한 새로운 계획 공간을 만듭니다.</p>
                     </button>
 
@@ -150,7 +150,7 @@ export default function WorkspacesPage() {
                 {/* 동적 폼 영역 */}
                 {isCreateOpen && (
                     <form onSubmit={handleCreate} className="bg-white border border-slate-200/80 p-5 rounded-2xl mb-8 animate-in slide-in-from-top-4 duration-200">
-                        <h4 className="font-bold text-sm text-slate-800 mb-3">새 워크스페이스 정보 입력</h4>
+                        <h4 className="font-bold text-sm text-slate-800 mb-3">새 크루 정보 입력</h4>
                         <div className="flex gap-3">
                             <input
                                 type="text"
@@ -192,10 +192,10 @@ export default function WorkspacesPage() {
                     </form>
                 )}
 
-                {/* 내 워크스페이스 목록 */}
+                {/* 내 크루 목록 */}
                 <div className="bg-white border border-slate-200/60 rounded-2xl p-6 shadow-sm">
                     <h3 className="text-xs font-black text-slate-450 tracking-wider mb-4 uppercase">
-                        가입한 워크스페이스 목록 ({workspaces.length})
+                        가입한 크루 목록 ({workspaces.length})
                     </h3>
                     {loading ? (
                         <div className="flex justify-center items-center py-8">
@@ -203,7 +203,7 @@ export default function WorkspacesPage() {
                         </div>
                     ) : workspaces.length === 0 ? (
                         <div className="flex flex-col items-center justify-center p-8 border border-dashed border-slate-200 rounded-xl">
-                            <p className="text-slate-450 text-xs">아직 참여 중인 워크스페이스가 없습니다.</p>
+                            <p className="text-slate-450 text-xs">아직 참여 중인 크루가 없습니다.</p>
                         </div>
                     ) : (
                         <div className="grid gap-3">

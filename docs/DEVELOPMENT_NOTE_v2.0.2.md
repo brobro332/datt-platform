@@ -247,3 +247,10 @@
   5. Frontend: 마이페이지(app/my/profile/page.tsx)에서 답변(answer) 조회 UI 렌더링 추가
   6. Frontend: GlobalHeader에 NotificationDropdown UI 연동 및 알림 읽음 처리 기능(hooks/useNotifications.ts) 구현
 
+
+### 2026-08-01 UI 명칭 변경 및 네비게이션 헤더 개선
+* **작업 목적**: 서비스 명칭 통일(워크스페이스 -> 크루) 및 탐색 편의성 증대를 위한 메뉴 그룹화
+* **작업 내용**: 
+  1. Frontend: 서비스 내 모든 '워크스페이스' 텍스트를 '크루'로 치환 (app/workspaces, GlobalHeader 등)
+  2. Frontend: 상단 GlobalHeader 및 하단 MobileNav의 메뉴에서 '장소탐색'과 '위치탐색'을 '탐색'이라는 하나의 드롭다운(팝업) 메뉴로 통합하고 첫 번째 순서로 배치
+
