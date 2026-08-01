@@ -5,7 +5,7 @@ export function useNotifications(page = 0, size = 20) {
     return useQuery({
         queryKey: ["notifications", page, size],
         queryFn: () => notificationService.getMyNotifications(page, size),
-        refetchInterval: 60000, // 1 minute
+        refetchInterval: 5000, // 5 seconds
     });
 }
 
@@ -13,6 +13,6 @@ export function useUnreadNotificationCount() {
     return useQuery({
         queryKey: ["unreadNotificationCount"],
         queryFn: () => notificationService.getUnreadCount(),
-        refetchInterval: 60000, // 1 minute
+        refetchInterval: 5000, // 5 seconds
     });
 }

@@ -6,6 +6,7 @@ import { supportService } from "@/services/supportService";
 import { MessageSquarePlus, Send, CheckCircle2, ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
+import { MainLayout } from "@/layouts/MainLayout";
 
 export default function SupportPage() {
     const { isLoggedIn, restoreAuth } = useAuthStore();
@@ -53,24 +54,27 @@ export default function SupportPage() {
 
     if (isSuccess) {
         return (
-            <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 p-6 h-full">
-                <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center max-w-md w-full">
-                    <CheckCircle2 className="w-16 h-16 text-teal-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold text-slate-800 mb-2">접수 완료!</h2>
-                    <p className="text-slate-600 mb-6">소중한 의견을 남겨주셔서 감사합니다.<br/>빠르게 검토하여 더 나은 서비스를 만들겠습니다.</p>
-                    <button 
-                        onClick={() => router.push("/")}
-                        className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
-                    >
-                        홈으로 돌아가기
-                    </button>
+            <MainLayout>
+                <div className="flex-1 flex flex-col items-center justify-center bg-slate-50 p-6 h-full min-h-[calc(100vh-100px)]">
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 text-center max-w-md w-full">
+                        <CheckCircle2 className="w-16 h-16 text-teal-500 mx-auto mb-4" />
+                        <h2 className="text-2xl font-bold text-slate-800 mb-2">접수 완료!</h2>
+                        <p className="text-slate-600 mb-6">소중한 의견을 남겨주셔서 감사합니다.<br/>빠르게 검토하여 더 나은 서비스를 만들겠습니다.</p>
+                        <button 
+                            onClick={() => router.push("/")}
+                            className="px-6 py-2.5 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 transition"
+                        >
+                            홈으로 돌아가기
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </MainLayout>
         );
     }
 
     return (
-        <div className="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8">
+        <MainLayout>
+            <div className="flex-1 overflow-y-auto bg-slate-50 p-4 md:p-8 min-h-[calc(100vh-100px)]">
             <div className="max-w-3xl mx-auto">
                 <header className="mb-8 flex items-center gap-4">
                     <button 
@@ -149,5 +153,6 @@ export default function SupportPage() {
                 </form>
             </div>
         </div>
+        </MainLayout>
     );
 }
