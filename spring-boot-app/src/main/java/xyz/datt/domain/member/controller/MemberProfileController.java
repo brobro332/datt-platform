@@ -89,4 +89,17 @@ public class MemberProfileController {
         memberProfileService.withdraw(userDetails.getMemberId());
         return ApiResponse.success(null);
     }
+
+    /**
+     * 닉네임으로 회원을 검색합니다.
+     *
+     * @param nickname 검색할 닉네임 키워드
+     * @return 검색된 회원 목록
+     */
+    @GetMapping("/api/members/search")
+    public ApiResponse<java.util.List<xyz.datt.domain.member.dto.MemberSearchResponse>> searchMembers(
+        @org.springframework.web.bind.annotation.RequestParam String nickname
+    ) {
+        return ApiResponse.success(memberProfileService.searchMembersByNickname(nickname));
+    }
 }

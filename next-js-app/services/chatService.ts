@@ -189,3 +189,54 @@ export async function deleteWorkspaceAppointment(workspaceId: number, appointmen
     });
 }
 
+// -------------------------------------------------------------
+// Workspace Invitation APIs
+// -------------------------------------------------------------
+
+export interface MemberSearchResponse {
+    nickname: string;
+    email: string;
+}
+
+export interface WorkspaceInvitationResponse {
+    id: number;
+    workspaceId: number;
+    workspaceName: string;
+    senderUserId: string;
+    receiverUserId: string;
+    status: "PENDING" | "ACCEPTED" | "REJECTED";
+    createdAt: string;
+}
+
+export async function searchMembers(nickname: string): Promise<MemberSearchResponse[]> {
+    const response = await apiClient.get<MemberSearchResponse[]>("/api/members/search", {
+        params: { nickname },
+    });
+    return response.data;
+}
+
+export async function sendWorkspaceInvitation(workspaceId: number, senderUserId: string, targetNickname: string): Promise<void> {
+    await apiClient.post(`/api/workspaces/${workspaceId}/invitations`, { targetNickname }, {
+        params: { senderUserId }
+    });
+}
+
+export async function getSentInvitations(workspaceId: number): Promise<WorkspaceInvitationResponse[]> {
+    const response = await apiClient.get<WorkspaceInvitationResponse[]>(`/api/workspaces/${workspaceId}/invitations`);
+    return response.data;
+}
+
+export async function getReceivedInvitations(userId: string): Promise<WorkspaceInvitationResponse[]> {
+    const response = await apiClient.get<WorkspaceInvitationResponse[]>("/api/workspaces/invitations/received", {
+        params: { userId }
+    });
+    return response.data;
+}
+
+export async function respondToInvitation(invitationId: number, userId: string, accept: boolean): Promise<void> {
+    await apiClient.post(`/api/workspaces/invitations/${invitationId}/respond`, null, {
+        params: { userId, accept }
+    });
+}
+
+

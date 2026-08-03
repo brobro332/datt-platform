@@ -89,4 +89,36 @@ public class WorkspaceController {
         List<WorkspaceMember> members = workspaceService.getWorkspaceMembers(workspaceId);
         return ResponseEntity.ok(members);
     }
+
+    @PostMapping("/api/workspaces/{workspaceId}/invitations")
+    public ResponseEntity<Void> sendInvitation(
+            @PathVariable Long workspaceId,
+            @RequestParam String senderUserId,
+            @RequestBody xyz.datt.domain.workspace.dto.WorkspaceInvitationRequest request) {
+        workspaceService.inviteMember(workspaceId, senderUserId, request.getTargetNickname());
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/api/workspaces/{workspaceId}/invitations")
+    public ResponseEntity<List<xyz.datt.domain.workspace.dto.WorkspaceInvitationResponse>> getSentInvitations(
+            @PathVariable Long workspaceId) {
+        List<xyz.datt.domain.workspace.dto.WorkspaceInvitationResponse> responses = workspaceService.getSentInvitations(workspaceId);
+        return ResponseEntity.ok(responses);
+    }
+
+    @GetMapping("/api/workspaces/invitations/received")
+    public ResponseEntity<List<xyz.datt.domain.workspace.dto.WorkspaceInvitationResponse>> getReceivedInvitations(
+            @RequestParam String userId) {
+        List<xyz.datt.domain.workspace.dto.WorkspaceInvitationResponse> responses = workspaceService.getReceivedInvitations(userId);
+        return ResponseEntity.ok(responses);
+    }
+
+    @PostMapping("/api/workspaces/invitations/{invitationId}/respond")
+    public ResponseEntity<Void> respondToInvitation(
+            @PathVariable Long invitationId,
+            @RequestParam String userId,
+            @RequestParam boolean accept) {
+        workspaceService.respondToInvitation(invitationId, userId, accept);
+        return ResponseEntity.ok().build();
+    }
 }

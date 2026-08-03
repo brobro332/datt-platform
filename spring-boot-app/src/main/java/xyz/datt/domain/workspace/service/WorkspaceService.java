@@ -37,10 +37,9 @@ public class WorkspaceService {
 
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
+    private final xyz.datt.domain.workspace.repository.WorkspaceInvitationRepository workspaceInvitationRepository;
     private final RestTemplate restTemplate = new RestTemplate();
     private final String WAVE_SERVICE_URL = "http://wave-messaging-service:8081/api/chat";
-    
-    
 
     /**
      * 시스템에 새로운 워크스페이스(공간)를 개설하고 초기 필수 환경(권한, 기본 채팅방)을 세팅하는 트랜잭션 메서드입니다.
@@ -180,6 +179,109 @@ public class WorkspaceService {
      */
     public List<WorkspaceMember> getWorkspaceMembers(Long workspaceId) {
         return workspaceMemberRepository.findByWorkspaceId(workspaceId);
+    }
+
+    @Transactional
+    public void inviteMember(Long workspaceId, String senderUserId, String targetNickname) {
+        Workspace workspace = workspaceRepository.findById(workspaceId)
+                .orElseThrow(() -> new IllegalArgumentException("Workspace not found"));
+        
+        workspaceMemberRepository.findByWorkspaceIdAndUserId(workspaceId, targetNickname)
+                .ifPresent(m -> {
+                    throw new IllegalStateException("이미 가입된 유저입니다.");
+                });
+
+        workspaceInvitationRepository.findByWorkspaceIdAndReceiverUserIdAndStatus(workspaceId, targetNickname, xyz.datt.domain.workspace.entity.InvitationStatus.PENDING)
+                .ifPresent(i -> {
+                    throw new IllegalStateException("이미 초대 대기 중인 유저입니다.");
+                });
+
+        xyz.datt.domain.workspace.entity.WorkspaceInvitation invitation = xyz.datt.domain.workspace.entity.WorkspaceInvitation.builder()
+                .workspaceId(workspaceId)
+                .senderUserId(senderUserId)
+                .receiverUserId(targetNickname)
+                .status(xyz.datt.domain.workspace.entity.InvitationStatus.PENDING)
+                .createdAt(LocalDateTime.now())
+                .build();
+        
+        workspaceInvitationRepository.save(invitation);
+    }
+
+    public List<xyz.datt.domain.workspace.dto.WorkspaceInvitationResponse> getSentInvitations(Long workspaceId) {
+        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow();
+        return workspaceInvitationRepository.findByWorkspaceIdOrderByCreatedAtDesc(workspaceId).stream()
+                .map(inv -> convertToInvitationResponse(inv, workspace.getName()))
+                .collect(Collectors.toList());
+    }
+
+    public List<xyz.datt.domain.workspace.dto.WorkspaceInvitationResponse> getReceivedInvitations(String receiverUserId) {
+        return workspaceInvitationRepository.findByReceiverUserIdAndStatusOrderByCreatedAtDesc(receiverUserId, xyz.datt.domain.workspace.entity.InvitationStatus.PENDING).stream()
+                .map(inv -> {
+                    Workspace ws = workspaceRepository.findById(inv.getWorkspaceId()).orElse(null);
+                    return convertToInvitationResponse(inv, ws != null ? ws.getName() : "알 수 없는 크루");
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void respondToInvitation(Long invitationId, String receiverUserId, boolean accept) {
+        xyz.datt.domain.workspace.entity.WorkspaceInvitation invitation = workspaceInvitationRepository.findById(invitationId)
+                .orElseThrow(() -> new IllegalArgumentException("초대 내역을 찾을 수 없습니다."));
+
+        if (!invitation.getReceiverUserId().equals(receiverUserId)) {
+            throw new IllegalArgumentException("권한이 없습니다.");
+        }
+        
+        if (invitation.getStatus() != xyz.datt.domain.workspace.entity.InvitationStatus.PENDING) {
+            throw new IllegalStateException("이미 처리된 초대입니다.");
+        }
+
+        invitation.setStatus(accept ? xyz.datt.domain.workspace.entity.InvitationStatus.ACCEPTED : xyz.datt.domain.workspace.entity.InvitationStatus.REJECTED);
+        workspaceInvitationRepository.save(invitation);
+
+        if (accept) {
+            Workspace workspace = workspaceRepository.findById(invitation.getWorkspaceId()).orElseThrow();
+            
+            // Check if already joined (concurrency protection)
+            if (workspaceMemberRepository.findByWorkspaceIdAndUserId(workspace.getId(), receiverUserId).isEmpty()) {
+                WorkspaceMember member = WorkspaceMember.builder()
+                        .workspaceId(workspace.getId())
+                        .userId(receiverUserId)
+                        .role("MEMBER")
+                        .joinedAt(LocalDateTime.now())
+                        .build();
+                workspaceMemberRepository.save(member);
+
+                // Auto join default channel
+                try {
+                    ResponseEntity<List<Map<String, Object>>> response = restTemplate.exchange(
+                            WAVE_SERVICE_URL + "/workspaces/" + workspace.getId() + "/rooms?userId=" + receiverUserId,
+                            HttpMethod.GET,
+                            null,
+                            new ParameterizedTypeReference<List<Map<String, Object>>>() {}
+                    );
+                    List<Map<String, Object>> rooms = response.getBody();
+                    if (rooms != null && !rooms.isEmpty()) {
+                        String roomId = (String) rooms.get(0).get("roomId");
+                        restTemplate.postForEntity(WAVE_SERVICE_URL + "/rooms/" + roomId + "/join?userId=" + receiverUserId, null, Void.class);
+                    }
+                } catch (Exception e) {
+                    System.err.println("Failed to auto-join default chat room: " + e.getMessage());
+                }
+            }
+        }
+    }
+
+    private xyz.datt.domain.workspace.dto.WorkspaceInvitationResponse convertToInvitationResponse(xyz.datt.domain.workspace.entity.WorkspaceInvitation inv, String wsName) {
+        return xyz.datt.domain.workspace.dto.WorkspaceInvitationResponse.builder()
+                .id(inv.getId())
+                .workspaceId(inv.getWorkspaceId())
+                .workspaceName(wsName)
+                .senderUserId(inv.getSenderUserId())
+                .receiverUserId(inv.getReceiverUserId())
+                .status(inv.getStatus())
+                .createdAt(inv.getCreatedAt())
+                .build();
     }
 
     private WorkspaceResponse convertToResponse(Workspace workspace) {

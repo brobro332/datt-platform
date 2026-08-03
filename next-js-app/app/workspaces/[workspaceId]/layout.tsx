@@ -9,6 +9,9 @@ import {
     getRoomsByWorkspace,
     getWorkspaceMembers,
     joinRoom,
+    searchMembers,
+    sendWorkspaceInvitation,
+    getSentInvitations,
     WorkspaceResponse,
     ChatRoomResponse,
     WorkspaceMember
@@ -36,6 +39,12 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
     // 모바일 드로어(Drawer) 및 친구 초대 상태
     const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
     const [isInviteOpen, setIsInviteOpen] = useState(false);
+    const [inviteTab, setInviteTab] = useState<"SEARCH" | "SENT" | "CODE">("SEARCH");
+    const [searchKeyword, setSearchKeyword] = useState("");
+    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searching, setSearching] = useState(false);
+    const [sentInvitations, setSentInvitations] = useState<any[]>([]);
+    const [loadingSent, setLoadingSent] = useState(false);
     const [copied, setCopied] = useState(false);
 
     // 인증 정보 복구
@@ -95,6 +104,54 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
         navigator.clipboard.writeText(currentWorkspace.inviteCode);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    // 실시간 검색 디바운싱
+    useEffect(() => {
+        if (inviteTab !== "SEARCH") return;
+        if (!searchKeyword.trim()) {
+            setSearchResults([]);
+            return;
+        }
+
+        setSearching(true);
+        const delayDebounceFn = setTimeout(() => {
+            searchMembers(searchKeyword)
+                .then((res) => {
+                    // 현재 크루 멤버는 제외
+                    const filtered = (res || []).filter(
+                        (user) => !members.some((m) => m.userId === user.nickname)
+                    );
+                    setSearchResults(filtered);
+                })
+                .catch((err) => console.error("Search failed:", err))
+                .finally(() => setSearching(false));
+        }, 300);
+
+        return () => clearTimeout(delayDebounceFn);
+    }, [searchKeyword, inviteTab, members]);
+
+    // 보낸 초대 내역 로드
+    useEffect(() => {
+        if (inviteTab === "SENT" && workspaceId) {
+            setLoadingSent(true);
+            getSentInvitations(workspaceId)
+                .then(setSentInvitations)
+                .catch(console.error)
+                .finally(() => setLoadingSent(false));
+        }
+    }, [inviteTab, workspaceId]);
+
+    const handleSendInvite = async (targetNickname: string) => {
+        if (!workspaceId || !member) return;
+        try {
+            await sendWorkspaceInvitation(workspaceId, member.nickname || String(member.memberId), targetNickname);
+            alert(`${targetNickname}님에게 초대장을 발송했습니다.`);
+            setSearchKeyword("");
+            setInviteTab("SENT");
+        } catch (error: any) {
+            alert(error.response?.data?.message || "초대 발송에 실패했습니다.");
+        }
     };
 
     if (loading || !currentWorkspace || !member) {
@@ -164,13 +221,6 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
                         Code: {currentWorkspace.inviteCode}
                     </span>
                 </div>
-                <button
-                    onClick={() => setIsInviteOpen(true)}
-                    className="p-1.5 hover:bg-slate-200/60 rounded-lg text-indigo-600 hover:text-indigo-700 transition-colors cursor-pointer"
-                    title="친구 초대하기"
-                >
-                    <UserPlus className="w-4 h-4" />
-                </button>
             </div>
 
             {/* 스크롤 가능한 메뉴 영역 */}
@@ -235,9 +285,18 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
 
                 {/* 참여 멤버 리스트 */}
                 <div>
-                    <div className="flex items-center px-3 mb-2 text-slate-450">
-                        <Users className="w-3.5 h-3.5 mr-1.5 shrink-0" />
-                        <span className="text-[10px] font-black tracking-wider uppercase">멤버 ({members.length})</span>
+                    <div className="flex items-center justify-between px-3 mb-2 text-slate-450">
+                        <div className="flex items-center">
+                            <Users className="w-3.5 h-3.5 mr-1.5 shrink-0" />
+                            <span className="text-[10px] font-black tracking-wider uppercase">멤버 ({members.length})</span>
+                        </div>
+                        <button
+                            onClick={() => setIsInviteOpen(true)}
+                            className="flex items-center gap-1 text-[10px] font-bold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                        >
+                            <UserPlus className="w-3 h-3" />
+                            초대
+                        </button>
                     </div>
                     <div className="space-y-0.5 px-1">
                         {members.map((m) => (
@@ -322,43 +381,141 @@ export default function WorkspaceLayout({ children }: { children: React.ReactNod
             {/* 모달: 친구 초대 (라이트 모드 스타일) */}
             {isInviteOpen && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 p-4 animate-fade-in">
-                    <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200 text-slate-800">
-                        <h2 className="text-lg font-bold mb-2 text-slate-900">
-                            친구 초대하기
-                        </h2>
-                        <p className="text-xs text-slate-500 mb-6">
-                            아래 코드를 복사해서 친구에게 알려주세요. 초대 코드로 해당 크루에 참여할 수 있습니다.
-                        </p>
-
-                        <div className="flex gap-2 p-2 bg-slate-50 border border-slate-200 rounded-xl items-center mb-6">
-                            <span className="flex-1 font-mono text-sm px-2 text-indigo-650 font-bold select-all">
-                                {currentWorkspace.inviteCode}
-                            </span>
+                    <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200 text-slate-800 flex flex-col max-h-[80vh]">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-lg font-bold text-slate-900">
+                                크루 초대 관리
+                            </h2>
                             <button
-                                onClick={handleCopyInvite}
-                                className="flex items-center gap-1.5 px-3 py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md shadow-indigo-100"
+                                onClick={() => setIsInviteOpen(false)}
+                                className="p-1 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
                             >
-                                {copied ? (
-                                    <>
-                                        <Check className="w-3.5 h-3.5 text-emerald-400" />
-                                        <span>복사됨</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Copy className="w-3.5 h-3.5" />
-                                        <span>코드 복사</span>
-                                    </>
-                                )}
+                                <X className="w-5 h-5" />
                             </button>
                         </div>
 
-                        <div className="flex justify-end">
+                        {/* 탭 네비게이션 */}
+                        <div className="flex gap-2 border-b border-slate-200 mb-4">
                             <button
-                                onClick={() => setIsInviteOpen(false)}
-                                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-650 rounded-xl transition-colors text-xs font-semibold cursor-pointer"
+                                onClick={() => setInviteTab("SEARCH")}
+                                className={`px-4 py-2 text-xs font-bold transition-colors border-b-2 ${
+                                    inviteTab === "SEARCH" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-800"
+                                }`}
                             >
-                                닫기
+                                유저 검색
                             </button>
+                            <button
+                                onClick={() => setInviteTab("SENT")}
+                                className={`px-4 py-2 text-xs font-bold transition-colors border-b-2 ${
+                                    inviteTab === "SENT" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-800"
+                                }`}
+                            >
+                                보낸 내역
+                            </button>
+                            <button
+                                onClick={() => setInviteTab("CODE")}
+                                className={`px-4 py-2 text-xs font-bold transition-colors border-b-2 ${
+                                    inviteTab === "CODE" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-800"
+                                }`}
+                            >
+                                코드 공유
+                            </button>
+                        </div>
+
+                        {/* 탭 내용 영역 */}
+                        <div className="flex-1 overflow-y-auto">
+                            {inviteTab === "SEARCH" && (
+                                <div className="space-y-4">
+                                    <input
+                                        type="text"
+                                        placeholder="닉네임으로 유저 검색..."
+                                        value={searchKeyword}
+                                        onChange={(e) => setSearchKeyword(e.target.value)}
+                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:border-indigo-500 focus:outline-none transition-colors text-sm text-slate-800"
+                                    />
+                                    <div className="space-y-2">
+                                        {searching ? (
+                                            <p className="text-xs text-center text-slate-500 py-4">검색 중...</p>
+                                        ) : searchResults.length > 0 ? (
+                                            searchResults.map((u, i) => (
+                                                <div key={i} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl hover:border-indigo-200 transition-colors">
+                                                    <div>
+                                                        <p className="text-xs font-bold text-slate-800">{u.nickname}</p>
+                                                        <p className="text-[10px] text-slate-500">{u.email}</p>
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleSendInvite(u.nickname)}
+                                                        className="px-3 py-1.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg text-xs font-bold transition-colors"
+                                                    >
+                                                        초대 발송
+                                                    </button>
+                                                </div>
+                                            ))
+                                        ) : searchKeyword.trim() ? (
+                                            <p className="text-xs text-center text-slate-500 py-4">검색 결과가 없습니다.</p>
+                                        ) : (
+                                            <p className="text-xs text-center text-slate-500 py-4">초대할 친구의 닉네임을 검색해보세요.</p>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
+                            {inviteTab === "SENT" && (
+                                <div className="space-y-2">
+                                    {loadingSent ? (
+                                        <p className="text-xs text-center text-slate-500 py-4">로딩 중...</p>
+                                    ) : sentInvitations.length > 0 ? (
+                                        sentInvitations.map((inv) => (
+                                            <div key={inv.id} className="flex flex-col p-3 bg-slate-50 border border-slate-100 rounded-xl gap-2">
+                                                <div className="flex justify-between items-center">
+                                                    <span className="text-xs font-bold text-slate-800">{inv.receiverUserId}</span>
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                                                        inv.status === "PENDING" ? "bg-amber-100 text-amber-700" :
+                                                        inv.status === "ACCEPTED" ? "bg-emerald-100 text-emerald-700" :
+                                                        "bg-rose-100 text-rose-700"
+                                                    }`}>
+                                                        {inv.status}
+                                                    </span>
+                                                </div>
+                                                <span className="text-[9px] text-slate-400">
+                                                    {new Date(inv.createdAt).toLocaleString()} 발송됨
+                                                </span>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-xs text-center text-slate-500 py-4">보낸 초대 내역이 없습니다.</p>
+                                    )}
+                                </div>
+                            )}
+
+                            {inviteTab === "CODE" && (
+                                <div>
+                                    <p className="text-xs text-slate-500 mb-4">
+                                        아래 코드를 복사해서 친구에게 알려주세요. 초대 코드로 해당 크루에 참여할 수 있습니다.
+                                    </p>
+                                    <div className="flex gap-2 p-2 bg-slate-50 border border-slate-200 rounded-xl items-center mb-6">
+                                        <span className="flex-1 font-mono text-sm px-2 text-indigo-650 font-bold select-all">
+                                            {currentWorkspace.inviteCode}
+                                        </span>
+                                        <button
+                                            onClick={handleCopyInvite}
+                                            className="flex items-center gap-1.5 px-3 py-2 bg-indigo-650 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition-all cursor-pointer shadow-md shadow-indigo-100"
+                                        >
+                                            {copied ? (
+                                                <>
+                                                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                                    <span>복사됨</span>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Copy className="w-3.5 h-3.5" />
+                                                    <span>코드 복사</span>
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

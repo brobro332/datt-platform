@@ -8,14 +8,18 @@ import {
     getWorkspacesByUser,
     createWorkspace,
     joinWorkspace,
-    WorkspaceResponse
+    getReceivedInvitations,
+    respondToInvitation,
+    WorkspaceResponse,
+    WorkspaceInvitationResponse
 } from "@/services/chatService";
-import { FolderPlus, UserPlus, ChevronRight, Layout } from "lucide-react";
+import { FolderPlus, UserPlus, ChevronRight, Layout, Check, X } from "lucide-react";
 
 export default function WorkspacesPage() {
     const router = useRouter();
     const { member, isLoggedIn, restoreAuth } = useAuthStore();
     const [workspaces, setWorkspaces] = useState<WorkspaceResponse[]>([]);
+    const [receivedInvitations, setReceivedInvitations] = useState<WorkspaceInvitationResponse[]>([]);
     const [loading, setLoading] = useState(true);
 
     // 크루 생성
@@ -38,6 +42,9 @@ export default function WorkspacesPage() {
             const targetUserId = member.nickname || String(member.memberId);
             const data = await getWorkspacesByUser(targetUserId);
             setWorkspaces(data);
+
+            const invites = await getReceivedInvitations(targetUserId);
+            setReceivedInvitations(invites);
         } catch (error) {
             console.error("Failed to fetch workspaces:", error);
         } finally {
@@ -85,6 +92,18 @@ export default function WorkspacesPage() {
         } catch (error) {
             console.error("Failed to join workspace:", error);
             alert(error instanceof Error ? error.message : "크루 참가에 실패했습니다. 코드를 확인해 주세요.");
+        }
+    };
+
+    const handleRespondInvitation = async (invitationId: number, accept: boolean) => {
+        if (!member) return;
+        try {
+            const targetUserId = member.nickname || String(member.memberId);
+            await respondToInvitation(invitationId, targetUserId, accept);
+            alert(accept ? "크루 초대를 수락했습니다." : "크루 초대를 거절했습니다.");
+            fetchWorkspaces();
+        } catch (error: any) {
+            alert(error.response?.data?.message || "처리에 실패했습니다.");
         }
     };
 
@@ -187,6 +206,43 @@ export default function WorkspacesPage() {
                             </button>
                         </div>
                     </form>
+                )}
+
+                {/* 받은 초대장 영역 */}
+                {receivedInvitations.length > 0 && (
+                    <div className="bg-white border border-indigo-200/60 rounded-2xl p-6 shadow-sm mb-8 animate-in fade-in">
+                        <h3 className="text-xs font-black text-indigo-650 tracking-wider mb-4 uppercase">
+                            받은 초대장 ({receivedInvitations.length})
+                        </h3>
+                        <div className="grid gap-3">
+                            {receivedInvitations.map((inv) => (
+                                <div key={inv.id} className="flex justify-between items-center p-4 bg-indigo-50/50 border border-indigo-100 rounded-xl">
+                                    <div>
+                                        <h4 className="font-bold text-slate-800 text-sm">
+                                            {inv.workspaceName}
+                                        </h4>
+                                        <p className="text-[10px] text-slate-500 mt-0.5">
+                                            <span className="font-bold">{inv.senderUserId}</span>님이 초대를 보냈습니다.
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleRespondInvitation(inv.id, true)}
+                                            className="w-8 h-8 flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors cursor-pointer"
+                                        >
+                                            <Check className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleRespondInvitation(inv.id, false)}
+                                            className="w-8 h-8 flex items-center justify-center bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-lg transition-colors cursor-pointer"
+                                        >
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 )}
 
                 {/* 내 크루 목록 */}

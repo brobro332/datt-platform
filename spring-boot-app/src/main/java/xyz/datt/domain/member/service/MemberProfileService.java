@@ -175,4 +175,19 @@ public class MemberProfileService {
         // 8. 최종적으로 회원 삭제
         memberRepository.delete(member);
     }
+
+    /**
+     * 닉네임으로 회원을 검색합니다.
+     *
+     * @param nickname 검색할 닉네임 키워드
+     * @return 검색된 회원 목록
+     */
+    public List<xyz.datt.domain.member.dto.MemberSearchResponse> searchMembersByNickname(String nickname) {
+        if (nickname == null || nickname.trim().isEmpty()) {
+            return List.of();
+        }
+        return memberRepository.findByNicknameContainingIgnoreCase(nickname.trim()).stream()
+                .map(xyz.datt.domain.member.dto.MemberSearchResponse::from)
+                .toList();
+    }
 }
